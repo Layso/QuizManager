@@ -1,4 +1,4 @@
-package com.layso.quizmanager.driver;
+package com.layso.quizmanager.services;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
