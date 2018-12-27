@@ -93,3 +93,4 @@ fabric.properties
 # Program specific files
 *.cfg
 *.log
+*.txt
