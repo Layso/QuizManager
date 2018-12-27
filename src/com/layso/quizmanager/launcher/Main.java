@@ -1,6 +1,7 @@
 package com.layso.quizmanager.launcher;
 
 import com.layso.quizmanager.services.DatabaseManager;
+import com.layso.logger.datamodel.Logger;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -11,10 +12,11 @@ import java.util.Scanner;
 
 public class Main {
 	static final int REQUORED_ARGUMENT_COUNT = 1;
-	static final int REQUIRED_CONFIG_ELEMENT = 3;
+	static final int REQUIRED_CONFIG_ELEMENT = 4;
 	static final int CFG_DB_URL_INDEX = 0;
 	static final int CFG_DB_USR_INDEX = 1;
 	static final int CFG_DB_PASS_INDEX = 2;
+	static final int CFG_LOG_FILENAME_INDEX = 3;
 	
 	
 	
@@ -28,6 +30,7 @@ public class Main {
 		}
 		
 		else {
+			// TODO Setup the logger
 			db = InitializeDatabase(args);
 		}
 	}
