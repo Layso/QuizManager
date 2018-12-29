@@ -2,7 +2,7 @@ package com.layso.quizmanager.test;
 
 import com.layso.quizmanager.services.*;
 
-public class Main {
+public class QuizManagerTester {
 	public static void main(String[] args) {
 		DatabaseTest();
 		

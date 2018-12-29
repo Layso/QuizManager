@@ -1,7 +1,9 @@
 package com.layso.quizmanager.launcher;
 
-import com.layso.quizmanager.services.DatabaseManager;
 import com.layso.logger.datamodel.Logger;
+import com.layso.quizmanager.datamodel.Manager;
+import com.layso.quizmanager.services.DatabaseManager;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class Main {
 	
 	
 	public static void main(String[] args) {
-		DatabaseManager db = null;
+		List<String> configElements;
 		
 		
 		if (!CheckArguments(args)) {
@@ -30,21 +32,26 @@ public class Main {
 		}
 		
 		else {
-			// TODO Setup the logger
-			db = InitializeDatabase(args);
+			configElements = ReadConfigFile(args);
+			Logger.Setup(configElements.get(CFG_LOG_FILENAME_INDEX), true, true);
+			Manager manager = new Manager(new DatabaseManager(configElements.get(CFG_DB_URL_INDEX), configElements.get(CFG_DB_USR_INDEX), configElements.get(CFG_DB_PASS_INDEX)));
+			
+			Logger.Log("Object initializations are done", Logger.LogType.INFO);
+			manager.Run();
+			Logger.Log("Program shutting down", Logger.LogType.INFO);
 		}
 	}
 	
 	
 	
+	
 	/**
-	 * Reads the config file and creates an instance for DatabaseManager
+	 * Reads the config file and creates an array of config elements
 	 * @param args  Arguments given to program
-	 * @return      New DatabaseManager object
+	 * @return      List of config file elements
 	 */
-	public static DatabaseManager InitializeDatabase(String[] args) {
-		DatabaseManager dbManager = null;
-		List<String> elements = new ArrayList<>();
+	public static List<String> ReadConfigFile(String[] args) {
+		List <String> elements = new ArrayList<>();
 		
 		
 		try(Scanner scanner = new Scanner(new File(args[0]))) {
@@ -52,13 +59,15 @@ public class Main {
 				elements.add(scanner.nextLine());
 			}
 			
-			dbManager = new DatabaseManager(elements.get(CFG_DB_URL_INDEX), elements.get(CFG_DB_USR_INDEX), elements.get(CFG_DB_PASS_INDEX));
-		} catch (FileNotFoundException e) {
+			if (elements.size() != REQUIRED_CONFIG_ELEMENT) {
+				throw new IndexOutOfBoundsException("There isn't enough configuration options for given file: " + args[0]);
+			}
+		} catch (Exception e) {
 			System.out.println("Fatal Error: " + e.getMessage());
 			System.exit(1);
 		}
 		
-		return dbManager;
+		return elements;
 	}
 	
 	

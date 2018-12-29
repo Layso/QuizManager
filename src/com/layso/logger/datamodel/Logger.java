@@ -33,7 +33,7 @@ public class Logger {
 		logToTerminal = file;
 		setupComplete = true;
 		
-		Log("Logger configurations changed: [fileName : " + fileName + "]  -  [logTerminal : " + (terminal ? "TRUE" : "FALSE") + "]  -  [logFile : " + (file ? "TRUE" : "FALSE") + "]", LogType.INFO);
+		Log("Logger configurations changed: [fileName : " + fileName + "]  -  [logTerminal : " + terminal + "]  -  [logFile : " + file + "]", LogType.INFO);
 	}
 	
 	
@@ -68,10 +68,10 @@ public class Logger {
 	 * @param type      Log type to indicate on log message
 	 */
 	private static void LogToFile(String message, LogType type) {
-		try(FileWriter writer = new FileWriter(logFileName)) {
-			writer.write(BuildMessage(message,type));
+		try(FileWriter writer = new FileWriter(logFileName, true)) {
+			writer.append(BuildMessage(message,type));
 		} catch (IOException e) {
-			// TODO
+			// TODO Find a porper error handling way
 		}
 	}
 	
@@ -83,7 +83,7 @@ public class Logger {
 	 * @param type      Log type to indicate on log message
 	 */
 	private static void LogToTerminal(String message, LogType type) {
-		System.out.println(BuildMessage(message, type));
+		System.out.print(BuildMessage(message, type));
 	}
 	
 	
@@ -111,6 +111,7 @@ public class Logger {
 		// Including the message
 		builder.append(" --- ");
 		builder.append(message);
+		builder.append("\n");
 		
 		return builder.toString();
 	}
