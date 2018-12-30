@@ -52,11 +52,9 @@ public class DatabaseManager {
 	 * Predefined database insert method for user register. Gets credentials and tries to insert to database
 	 * @param username  Username for new user
 	 * @param password  Password for new user
-	 * @return          Returns the result of insertion, true if inserted, false if not
 	 */
-	public boolean UserRegister(String username, String password) {
+	public void UserRegister(String username, String password) {
 		String sqlQuery = "insert into USER(USERNAME, PASSWORD, AUTHORITY) values(?, ?, ?)";
-		boolean result = false;
 		
 		
 		try {
@@ -64,15 +62,14 @@ public class DatabaseManager {
 			statement.setString(1, username);
 			statement.setString(2, password);
 			statement.setString(3, Boolean.toString(false));
-			result = statement.execute();
+			statement.execute();
 		} catch (SQLException e) {
-			Logger.Log("Error: Failed to insert new user " + username, Logger.LogType.WARNING);
-			System.out.println("User couldn't be created, please try a new username or try later");
-			result = false;
+			Logger.Log("Fatal Error: Failed to insert new user " + username, Logger.LogType.WARNING);
+			System.exit(1);
 		}
-		
-		return result;
 	}
+	
+	
 	
 	/**
 	 * Predefined database search method for user login. Gets all user information from database and then
@@ -103,5 +100,30 @@ public class DatabaseManager {
 		}
 		
 		return user;
+	}
+	
+	
+	
+	/**
+	 * Checks if given username exists in database
+	 * @param username  Username to check
+	 * @return          True if username exists, else false
+	 */
+	public boolean UserExists(String username) {
+		String sqlQuery = "select * from USER where USERNAME=(?)";
+		boolean result = false;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, username);
+			ResultSet results = statement.executeQuery();
+			result = results.next();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: SQL exception caught while trying to search user", Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return result;
 	}
 }

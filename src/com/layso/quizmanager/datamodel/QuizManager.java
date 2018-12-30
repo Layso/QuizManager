@@ -7,19 +7,18 @@ import java.util.Scanner;
 
 
 public class QuizManager {
-	User user;
-	boolean keepRunning;
-	DatabaseManager dbManager;
+	private User user;
+	
 	
 	
 	public QuizManager() {
 		user = null;
-		dbManager = new DatabaseManager();
 	}
 	
 	
 	public void Run() {
 		String userInput;
+		boolean keepRunning;
 		
 		
 		Logger.Log("Program started", Logger.LogType.INFO);
@@ -86,9 +85,15 @@ public class QuizManager {
 		Logger.Log("User register attempt for username: " + username, Logger.LogType.INFO);
 		
 		
-		if (DatabaseManager.instance.UserRegister(username, password)) {
-			Logger.Log("New user " + username + " successfully inserted to database", Logger.LogType.INFO);
-			System.out.println("User " + username + " has successfully created");
+		if (DatabaseManager.instance.UserExists(username)) {
+			Logger.Log("Username \"" + username + "\" already exists in database", Logger.LogType.WARNING);
+			System.out.println("User \"" + username + "\" already exists, please try another username");
+		}
+		
+		else {
+			DatabaseManager.instance.UserRegister(username, password);
+			Logger.Log("New user \"" + username + "\" successfully inserted to database", Logger.LogType.INFO);
+			System.out.println("User \"" + username + "\" has successfully created");
 		}
 	}
 	
@@ -103,9 +108,8 @@ public class QuizManager {
 	private String InputPrompt(String message, boolean newLine) {
 		Scanner scanner = new Scanner(System.in);
 		System.out.print(message + (newLine ? "\n" : ""));
-		String input = scanner.nextLine();
 		
-		return input;
+		return scanner.nextLine();
 	}
 	
 	
