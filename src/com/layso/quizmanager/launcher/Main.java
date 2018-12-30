@@ -1,7 +1,7 @@
 package com.layso.quizmanager.launcher;
 
 import com.layso.logger.datamodel.Logger;
-import com.layso.quizmanager.datamodel.Manager;
+import com.layso.quizmanager.datamodel.QuizManager;
 import com.layso.quizmanager.services.DatabaseManager;
 
 import java.io.File;
@@ -36,10 +36,10 @@ public class Main {
 			Logger.Setup(configElements.get(CFG_LOG_FILENAME_INDEX), true, true);
 			dbManager = new DatabaseManager();
 			dbManager.Connect(configElements.get(CFG_DB_URL_INDEX), configElements.get(CFG_DB_USR_INDEX), configElements.get(CFG_DB_PASS_INDEX));
-			Manager manager = new Manager();
+			QuizManager quizManager = new QuizManager();
 			
 			Logger.Log("Object initializations are done", Logger.LogType.INFO);
-			manager.Run();
+			quizManager.Run();
 			Logger.Log("Program shutting down", Logger.LogType.INFO);
 		}
 	}

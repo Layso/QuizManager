@@ -6,13 +6,13 @@ import com.layso.quizmanager.services.DatabaseManager;
 import java.util.Scanner;
 
 
-public class Manager {
+public class QuizManager {
 	User user;
 	boolean keepRunning;
 	DatabaseManager dbManager;
 	
 	
-	public Manager() {
+	public QuizManager() {
 		user = null;
 		dbManager = new DatabaseManager();
 	}
