@@ -8,28 +8,30 @@ import java.util.Scanner;
 
 public class Manager {
 	User user;
-	DatabaseManager db;
 	boolean keepRunning;
+	DatabaseManager dbManager;
 	
 	
-	public Manager(DatabaseManager db) {
-		this.db = db;
+	public Manager() {
+		user = null;
+		dbManager = new DatabaseManager();
 	}
 	
 	
-	
-	
 	public void Run() {
+		String userInput;
+		
+		
 		Logger.Log("Program started", Logger.LogType.INFO);
 		PrintWelcomeMessage();
 		
-		
 		keepRunning = Authenticate();
-		while (keepRunning) {
+		while (keepRunning && !user.LoggedOut()) {
 			do {
 				user.PrintUserMenu();
-			} while (user.IsRequestValid(InputPrompt("Please select menu: ", false)));
-			user.ProcessUserRequest();
+				userInput = InputPrompt("Please select menu: ", false);
+			} while (!user.IsRequestValid(userInput));
+			user.ProcessUserRequest(userInput);
 		}
 	}
 	
@@ -42,8 +44,8 @@ public class Manager {
 		
 		while(!breakLoop) {
 			PrintMainMenu();
-			switch (InputPrompt("Please select menu [1/2/3/4]: ", false)) {
-				case "1":   result = breakLoop = UserLogin(); break;
+			switch (InputPrompt("Please select menu: ", false)) {
+				case "1":   result = breakLoop = UserLogin(); if (!result) System.out.println("Invalid user credentials"); break;
 				case "2":   UserRegister(); break;
 				case "3":	System.out.println("Guest entry is not available yet"); break;
 				case "4":   breakLoop = true; break;
@@ -55,23 +57,39 @@ public class Manager {
 	}
 	
 	
-	
+	/**
+	 * Gets input from user to login. Uses database manager to check if credentials are correct
+	 * @return  Returns true if login successful, else returns false
+	 */
 	private boolean UserLogin() {
 		String username = InputPrompt("Username: ", false);
 		String password = InputPrompt("Password: ", false);
-		Logger.Log("User login attempt for Username: " + username + " Password: " + password, Logger.LogType.INFO);
+		Logger.Log("User login attempt for username: " + username, Logger.LogType.INFO);
 		
 		
-		// TODO: Check database, return true if credentials match, else return false
-		return "username".equals(username) && "password".equals(password);
+		user = DatabaseManager.instance.UserLogin(username, password);
+		if (user == null) {
+			Logger.Log("Failed login attempt for username: " + username, Logger.LogType.WARNING);
+		}
+		
+		return !(user == null);
 	}
 	
+	
+	
+	/**
+	 * Gets input from user to create a new user. Transfers data to database manager to try saving to database
+	 */
 	private void UserRegister() {
 		String username = InputPrompt("Username: ", false);
 		String password = InputPrompt("Password: ", false);
-		boolean normalUser = "".equals(InputPrompt("Select user type [1]Student / [2]Teacher: ", false));
+		Logger.Log("User register attempt for username: " + username, Logger.LogType.INFO);
 		
-		// TODO: Check input validness and save to database if valid, else print error
+		
+		if (DatabaseManager.instance.UserRegister(username, password)) {
+			Logger.Log("New user " + username + " successfully inserted to database", Logger.LogType.INFO);
+			System.out.println("User " + username + " has successfully created");
+		}
 	}
 	
 	

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
+
 public class Logger {
 	public enum LogType {INFO, WARNING, ERROR}
 	private static boolean setupComplete = false;
@@ -31,7 +33,12 @@ public class Logger {
 		logFileName = fileName;
 		logToFile = terminal;
 		logToTerminal = file;
-		setupComplete = true;
+		
+		if (!setupComplete) {
+			setupComplete = true;
+			Log("", LogType.INFO);
+			Log("NEW SESSION STARTED", LogType.INFO);
+		}
 		
 		Log("Logger configurations changed: [fileName : " + fileName + "]  -  [logTerminal : " + terminal + "]  -  [logFile : " + file + "]", LogType.INFO);
 	}

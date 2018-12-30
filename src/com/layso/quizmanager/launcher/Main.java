@@ -13,7 +13,7 @@ import java.util.Scanner;
 
 
 public class Main {
-	static final int REQUORED_ARGUMENT_COUNT = 1;
+	static final int REQUIRED_ARGUMENT_COUNT = 1;
 	static final int REQUIRED_CONFIG_ELEMENT = 4;
 	static final int CFG_DB_URL_INDEX = 0;
 	static final int CFG_DB_USR_INDEX = 1;
@@ -24,7 +24,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		List<String> configElements;
-		
+		DatabaseManager dbManager;
 		
 		if (!CheckArguments(args)) {
 			System.out.println("Usage: ./progName [configFile]");
@@ -34,7 +34,9 @@ public class Main {
 		else {
 			configElements = ReadConfigFile(args);
 			Logger.Setup(configElements.get(CFG_LOG_FILENAME_INDEX), true, true);
-			Manager manager = new Manager(new DatabaseManager(configElements.get(CFG_DB_URL_INDEX), configElements.get(CFG_DB_USR_INDEX), configElements.get(CFG_DB_PASS_INDEX)));
+			dbManager = new DatabaseManager();
+			dbManager.Connect(configElements.get(CFG_DB_URL_INDEX), configElements.get(CFG_DB_USR_INDEX), configElements.get(CFG_DB_PASS_INDEX));
+			Manager manager = new Manager();
 			
 			Logger.Log("Object initializations are done", Logger.LogType.INFO);
 			manager.Run();
@@ -81,7 +83,7 @@ public class Main {
 		boolean result;
 		
 		
-		if (result = (args.length == REQUORED_ARGUMENT_COUNT)) {
+		if (result = (args.length == REQUIRED_ARGUMENT_COUNT)) {
 			try (Scanner scanner = new Scanner(new File(args[0]))) {
 				int lineCount = 0;
 				while (scanner.hasNextLine()) {

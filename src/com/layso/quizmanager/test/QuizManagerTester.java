@@ -11,7 +11,7 @@ public class QuizManagerTester {
 	
 	
 	public static void DatabaseTest() {
-		DatabaseManager db = new DatabaseManager("jdbc:h2:~/test", "sa", "");
-		System.out.println(db.Connect());
+		//DatabaseManager db = new DatabaseManager();
+		//db.Connect("jdbc:h2:~/test", "sa", "");
 	}
 }

@@ -7,16 +7,17 @@ import com.layso.logger.datamodel.Logger;
 public abstract class User {
 	private int userID;
 	private String username;
-	private boolean isAuthoritative;
+	private boolean sessionEnd;
 	
-	
-	private User (int userID, String username, boolean isAuthoritative) {
+	protected User (int userID, String username) {
 		this.userID = userID;
 		this.username = username;
-		this.isAuthoritative = isAuthoritative;
+		this.sessionEnd = false;
 		
-		Logger.Log("Authentication granted for user " + username + " as " + (isAuthoritative ? "teacher" : "student"), Logger.LogType.INFO);
+		Logger.Log("Login attempt successful for user: " + username, Logger.LogType.INFO);
 	}
+	
+	
 	
 	
 	public void PrintUserMenu() {
@@ -24,10 +25,21 @@ public abstract class User {
 	}
 	
 	public boolean IsRequestValid(String menuSelection) {
-		return false;
+		return true;
 	}
 	
-	public void ProcessUserRequest() {
+	public void ProcessUserRequest(String menuSelection) {
+		if ("e".equals(menuSelection)) {
+			sessionEnd = true;
+		}
+	}
 	
+	public boolean LoggedOut() {
+		return sessionEnd;
+	}
+	
+	
+	public boolean IsAuthoritative() {
+		return false;
 	}
 }
