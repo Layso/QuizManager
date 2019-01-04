@@ -89,8 +89,9 @@ public class DatabaseManager {
 			
 			while(results.next()) {
 				if (results.getString("USERNAME").equals(username) && results.getString("PASSWORD").equals(password)) {
-					// TODO: Construct User better than that
-					user = Boolean.getBoolean(results.getString("AUTHORITY")) ? new Teacher() : new Student();
+					int id = Integer.parseInt(results.getString("ID"));
+					boolean auth = Boolean.valueOf(results.getString("AUTHORITY"));
+					user =  auth ? new Teacher(id, username) : new Student(id, username);
 				}
 			}
 			

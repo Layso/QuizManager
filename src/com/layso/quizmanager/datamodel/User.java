@@ -8,17 +8,29 @@ public abstract class User {
 	private int userID;
 	private String username;
 	private boolean sessionEnd;
+	private boolean authoritative;
 	
-	protected User (int userID, String username) {
+	
+	
+	protected User (int userID, String username, boolean authoritative) {
 		this.userID = userID;
 		this.username = username;
 		this.sessionEnd = false;
+		this.authoritative = authoritative;
 		
 		Logger.Log("Login attempt successful for user: " + username, Logger.LogType.INFO);
 	}
 	
 	
 	
+	
+	public String getUsername() {
+		return username;
+	}
+	
+	public boolean isAuthoritative() {
+		return authoritative;
+	}
 	
 	public void PrintUserMenu() {
 	
@@ -36,10 +48,5 @@ public abstract class User {
 	
 	public boolean LoggedOut() {
 		return sessionEnd;
-	}
-	
-	
-	public boolean IsAuthoritative() {
-		return false;
 	}
 }
