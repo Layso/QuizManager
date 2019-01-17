@@ -15,7 +15,7 @@ public class QuizManager {
 		user = null;
 	}
 	
-	
+	/*
 	public void Run() {
 		String userInput;
 		boolean keepRunning;
@@ -33,9 +33,9 @@ public class QuizManager {
 			user.ProcessUserRequest(userInput);
 		}
 	}
+	*/
 	
-	
-	
+	/*
 	private boolean Authenticate() {
 		boolean breakLoop = false;
 		boolean result = false;
@@ -54,12 +54,12 @@ public class QuizManager {
 		
 		return result;
 	}
-	
+	*/
 	
 	/**
 	 * Gets input from user to login. Uses database manager to check if credentials are correct
 	 * @return  Returns true if login successful, else returns false
-	 */
+	 *//*
 	private boolean UserLogin() {
 		String username = InputPrompt("Username: ", false);
 		String password = InputPrompt("Password: ", false);
@@ -73,12 +73,12 @@ public class QuizManager {
 		
 		return !(user == null);
 	}
-	
+	*/
 	
 	
 	/**
 	 * Gets input from user to create a new user. Transfers data to database manager to try saving to database
-	 */
+	 *//*
 	private void UserRegister() {
 		String username = InputPrompt("Username: ", false);
 		String password = InputPrompt("Password: ", false);
@@ -96,7 +96,7 @@ public class QuizManager {
 			System.out.println("User \"" + username + "\" has successfully created");
 		}
 	}
-	
+	*/
 	
 	
 	/**
@@ -104,14 +104,14 @@ public class QuizManager {
 	 * @param message   Message to print before asking for input
 	 * @param newLine   Boolean flag to indicate a new line at the end of message
 	 * @return          Input of user after the message
-	 */
+	 *//*
 	private String InputPrompt(String message, boolean newLine) {
 		Scanner scanner = new Scanner(System.in);
 		System.out.print(message + (newLine ? "\n" : ""));
 		
 		return scanner.nextLine();
 	}
-	
+	*/
 	
 	
 	/**

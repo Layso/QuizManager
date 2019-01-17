@@ -14,30 +14,19 @@ import java.sql.PreparedStatement;
 
 
 public class DatabaseManager {
-	public static DatabaseManager instance;
-	
+	// One instance to rule them all, AKA singleton
+	private static DatabaseManager instance;
 	private Connection connection;
 	
 	
-	/**
-	 * No parameter constructor that prepares the singleton instance. If this is first object to be created instance
-	 * will be assigned as this object, else nothing will happen
-	 */
-	public DatabaseManager() {
-		if (instance == null) {
-			instance = this;
-		}
-	}
-	
-	
 	
 	/**
-	 * Connects to database using given credentials and database URL
+	 * A private constructor to prevent calls from different parts of code
 	 * @param databaseURL       URL to the database for connection
 	 * @param databaseUser      Username for database
 	 * @param databasePassword  Password for database
 	 */
-	public void Connect(String databaseURL, String databaseUser, String databasePassword) {
+	private DatabaseManager(String databaseURL, String databaseUser, String databasePassword) {
 		try {
 			connection = DriverManager.getConnection(databaseURL, databaseUser, databasePassword);
 			Logger.Log("Database connection established", Logger.LogType.INFO);
@@ -48,6 +37,32 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * An interface to force users instantiate singleton with parameters
+	 * @param databaseURL       URL to the database for connection
+	 * @param databaseUser      Username for database
+	 * @param databasePassword  Password for database
+	 */
+	public static void Setup(String databaseURL, String databaseUser, String databasePassword) {
+		if (instance == null)
+			instance = new DatabaseManager(databaseURL, databaseUser, databasePassword);
+	}
+	
+	
+	
+	/**
+	 * Getter for singleton
+	 * @return Returns the instance
+	 */
+	public DatabaseManager getInstance() {
+		if (instance == null){
+			System.out.println("No instance created. Please call Setup() before getting instance\nTerminating program");
+			System.exit(1);
+		}
+		
+		return instance;
+	}
 	/**
 	 * Predefined database insert method for user register. Gets credentials and tries to insert to database
 	 * @param username  Username for new user

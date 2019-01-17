@@ -5,7 +5,9 @@ import com.layso.quizmanager.datamodel.User;
 import com.layso.quizmanager.services.DatabaseManager;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -74,7 +76,7 @@ public class Main extends Application {
 	
 	
 	public static void main(String[] args) {
-		launch();
+		launch(args);
 		/*List<String> configElements;
 		DatabaseManager dbManager;
 		
@@ -97,9 +99,12 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		
+		
+		/*
 		primaryStage.setScene(new Scene(PrepareQuizCreationMenu(), 1024, 768));
 		primaryStage.show();
-		
+		*/
 		/*
 		width = 1024;
 		height = 768;
@@ -127,7 +132,7 @@ public class Main extends Application {
 	
 	
 	/* SCENE BUILDERS */
-	
+	/*
 	public StackPane PrepareQuizCreationMenu() {
 		StackPane layout = new StackPane();
 		VBox vb_menu = new VBox(55);
@@ -220,9 +225,9 @@ public class Main extends Application {
 			vb_openQuestionMenu.setVisible(false);
 			vb_mcqQuestionMenu.setVisible(false);
 			
-			rb_openQuestion.setSelected(false);
-			rb_mcqQuestion.setSelected(false);
-			tf_questionText.setEditable(false);
+			
+			
+			hb_questionText.setDisable(true);
 			tf_questionText.setText("Match the following columns");
 		});
 		
@@ -234,10 +239,6 @@ public class Main extends Application {
 			vb_openQuestionMenu.setVisible(true);
 			vb_mcqQuestionMenu.setVisible(false);
 			
-			rb_associativeQuestion.setSelected(false);
-			rb_mcqQuestion.setSelected(false);
-			tf_questionText.setText("");
-			tf_questionText.setEditable(true);
 		});
 		
 		ImageView img_mcqQuestion = CreateImage("file:mcq.png", 150, 150, false, "");
@@ -248,10 +249,7 @@ public class Main extends Application {
 			vb_openQuestionMenu.setVisible(false);
 			vb_mcqQuestionMenu.setVisible(true);
 			
-			rb_associativeQuestion.setSelected(false);
-			rb_openQuestion.setSelected(false);
-			tf_questionText.setText("");
-			tf_questionText.setEditable(true);
+			
 		});
 		
 		
@@ -397,7 +395,7 @@ public class Main extends Application {
 		
 		return layout;
 	}
-	
+	*/
 	
 	
 	
@@ -432,7 +430,7 @@ public class Main extends Application {
 	
 	
 	
-	/* BUTTON ACTIONS */
+	/* BUTTON ACTIONS
 	public void QuitButtonAction() {
 		Logger.Log("Program terminated safely by user", Logger.LogType.INFO);
 		System.exit(0);
@@ -494,7 +492,7 @@ public class Main extends Application {
 	public void QuizTypeRButtonAction(QuestionTypes newType) {
 		createQuestionType = newType;
 	}
-	
+	*/
 	
 	
 	
