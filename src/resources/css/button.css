@@ -1,0 +1,8 @@
+* {
+    -fx-background-color: rgb(75,75,75);
+    -fx-text-fill: rgb(255, 255, 255);
+}
+
+*:hover {
+    -fx-background-color: rgb(85, 85, 85);
+}

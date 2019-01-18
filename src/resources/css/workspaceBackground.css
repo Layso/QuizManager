@@ -1,0 +1,7 @@
+* {
+    -fx-background-color: rgb(115, 115, 115);
+}
+
+.tab-pane {
+    -fx-background-radius: 5 5 0 0;
+}

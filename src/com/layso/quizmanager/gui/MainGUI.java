@@ -34,6 +34,8 @@ public class MainGUI extends Application {
 		Logger.Log("", Logger.LogType.INFO);
 	}
 	
+	
+	
 	@Override
 	public void start(Stage primaryStage) {
 		Parent root = null;

@@ -1,19 +1,40 @@
-package com.layso.quizmanager.datamodel;
+package com.layso.quizmanager.services;
 
 import com.layso.logger.datamodel.Logger;
+import com.layso.quizmanager.datamodel.User;
 import com.layso.quizmanager.services.DatabaseManager;
 
 import java.util.Scanner;
 
 
 public class QuizManager {
+	// One instance to rule them all, AKA singleton
+	private static QuizManager instance;
 	private User user;
 	
 	
 	
-	public QuizManager() {
+	/**
+	 * Private constructor to prevent object creations
+	 */
+	private QuizManager() {
 		user = null;
 	}
+	
+	
+	
+	/**
+	 * Interface for user to reach manager
+	 * @return Created instance of QuizManager
+	 */
+	public static QuizManager getInstance() {
+		if (instance == null)
+			instance = new QuizManager();
+		
+		return instance;
+	}
+	
+	
 	
 	/*
 	public void Run() {
