@@ -51,16 +51,19 @@ public class MainGUI extends Application {
 		}
 		
 		try {
-			root = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.fxml")));
+			root = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.login.fxml")));
+		} catch (NullPointerException e) {
+			Logger.Log("Fatal Error: FXML filename fetch for login menu failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
+			System.exit(-1);
 		} catch (IOException e) {
 			Logger.Log("Fatal Error: GUI initialization failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
 			System.exit(-1);
 		}
 		
 		
+		primaryStage.setResizable(false);
 		primaryStage.setTitle("Quizmania - Learn, practice, success");
 		primaryStage.setScene(new Scene(root, windowWidth, windowHeight));
-		primaryStage.setResizable(false);
 		primaryStage.show();
 		Logger.Log("GUI has successfully launched", Logger.LogType.INFO);
 	}

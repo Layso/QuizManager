@@ -10,8 +10,7 @@ import java.util.Scanner;
 public class QuizManager {
 	// One instance to rule them all, AKA singleton
 	private static QuizManager instance;
-	private User user;
-	
+	private static User user;
 	
 	
 	/**
@@ -22,9 +21,9 @@ public class QuizManager {
 	}
 	
 	
-	
 	/**
 	 * Interface for user to reach manager
+	 *
 	 * @return Created instance of QuizManager
 	 */
 	public static QuizManager getInstance() {
@@ -79,83 +78,42 @@ public class QuizManager {
 	
 	/**
 	 * Gets input from user to login. Uses database manager to check if credentials are correct
-	 * @return  Returns true if login successful, else returns false
-	 *//*
-	private boolean UserLogin() {
-		String username = InputPrompt("Username: ", false);
-		String password = InputPrompt("Password: ", false);
+	 *
+	 * @return Returns true if login successful, else returns false
+	 */
+	public static boolean UserLogin(String username, String password) {
 		Logger.Log("User login attempt for username: " + username, Logger.LogType.INFO);
 		
 		
-		user = DatabaseManager.instance.UserLogin(username, password);
+		user = DatabaseManager.getInstance().UserLogin(username, password);
 		if (user == null) {
 			Logger.Log("Failed login attempt for username: " + username, Logger.LogType.WARNING);
 		}
 		
 		return !(user == null);
 	}
-	*/
 	
 	
 	/**
-	 * Gets input from user to create a new user. Transfers data to database manager to try saving to database
-	 *//*
-	private void UserRegister() {
-		String username = InputPrompt("Username: ", false);
-		String password = InputPrompt("Password: ", false);
+	 * Gets input of user to create a new user. Transfers data to database manager to try saving to database
+	 *
+	 * @param username Username for new user
+	 * @param password Password for new user
+	 */
+	public static boolean UserRegister(String username, String password) {
 		Logger.Log("User register attempt for username: " + username, Logger.LogType.INFO);
+		boolean result;
 		
 		
-		if (DatabaseManager.instance.UserExists(username)) {
+		if (DatabaseManager.getInstance().UserExists(username)) {
+			result = false;
 			Logger.Log("Username \"" + username + "\" already exists in database", Logger.LogType.WARNING);
-			System.out.println("User \"" + username + "\" already exists, please try another username");
-		}
-		
-		else {
-			DatabaseManager.instance.UserRegister(username, password);
+		} else {
+			result = true;
+			DatabaseManager.getInstance().UserRegister(username, password);
 			Logger.Log("New user \"" + username + "\" successfully inserted to database", Logger.LogType.INFO);
-			System.out.println("User \"" + username + "\" has successfully created");
 		}
-	}
-	*/
-	
-	
-	/**
-	 * This function makes printing a message and getting an input for it easier and tidier
-	 * @param message   Message to print before asking for input
-	 * @param newLine   Boolean flag to indicate a new line at the end of message
-	 * @return          Input of user after the message
-	 *//*
-	private String InputPrompt(String message, boolean newLine) {
-		Scanner scanner = new Scanner(System.in);
-		System.out.print(message + (newLine ? "\n" : ""));
 		
-		return scanner.nextLine();
-	}
-	*/
-	
-	
-	/**
-	 * Prints a welcoming message to make user feel good
-	 */
-	private void PrintWelcomeMessage() {
-		System.out.println("---------------------------------------");
-		System.out.println("-----                             -----");
-		System.out.println("-----      QUIZ MANAGER 2019      -----");
-		System.out.println("-----                             -----");
-		System.out.println("---------------------------------------");
-	}
-	
-	
-	
-	/**
-	 * Prints a predefined menu structure to let user know how to navigate through program
-	 */
-	private void PrintMainMenu() {
-		System.out.println();
-		System.out.println("[1] User login");
-		System.out.println("[2] User registry");
-		System.out.println("[3] Guest login");
-		System.out.println("[4] Quit");
+		return result;
 	}
 }

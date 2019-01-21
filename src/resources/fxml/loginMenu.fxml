@@ -17,11 +17,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="768.0" prefWidth="1024.0" stylesheets="@../../../../resources/css/menuBackground.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.LoginMenuController">
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/menuBackground.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.LoginMenuController">
    <children>
       <ImageView fitHeight="214.0" fitWidth="1000.0" layoutX="12.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../../../../resources/img/quizman.png" />
+            <Image url="@../img/quizman.png" />
          </image>
       </ImageView>
       <TabPane fx:id="navigationTabs" layoutX="363.0" layoutY="242.0" prefHeight="293.0" prefWidth="300.0" tabClosingPolicy="UNAVAILABLE">
@@ -40,29 +40,24 @@
                                     <Insets bottom="10.0" />
                                  </padding>
                               </Label>
-                                             <Label text="Label" textFill="WHITE">
-                                 <padding>
-                                    <Insets bottom="10.0" />
-                                 </padding>
-                              </Label>
-                              <TextField prefWidth="250.0" promptText="Enter your username" stylesheets="@../../../../resources/css/inputField.css">
+                              <TextField fx:id="loginUsername" prefWidth="250.0" promptText="Enter your username" stylesheets="@../css/inputField.css">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </TextField>
-                              <PasswordField prefWidth="250.0" promptText="Enter your password" stylesheets="@../../../../resources/css/inputField.css">
+                              <PasswordField fx:id="loginPassword" prefWidth="250.0" promptText="Enter your password" stylesheets="@../css/inputField.css">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </PasswordField>
                               <HBox alignment="CENTER" prefHeight="39.0" prefWidth="300.0" spacing="5.0">
                                  <children>
-                                    <Button mnemonicParsing="false" prefHeight="44.0" prefWidth="147.5" stylesheets="@../../../../resources/css/button.css" text="Clear">
+                                    <Button mnemonicParsing="false" onAction="#ClearButton" prefHeight="44.0" prefWidth="147.5" stylesheets="@../css/button.css" text="Clear">
                                        <font>
                                           <Font size="15.0" />
                                        </font>
                                     </Button>
-                                    <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="147.5" stylesheets="@../../../../resources/css/button.css" text="Login">
+                                    <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#LoginButton" prefHeight="44.0" prefWidth="147.5" stylesheets="@../css/button.css" text="Login">
                                        <font>
                                           <Font size="15.0" />
                                        </font>
@@ -74,6 +69,11 @@
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </VBox>
+                                       <Label fx:id="loginInfo" alignment="CENTER" contentDisplay="CENTER" layoutX="1.0" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" textAlignment="CENTER" textFill="WHITE">
+                           <padding>
+                              <Insets bottom="10.0" />
+                           </padding>
+                        </Label>
                      </children>
                   </AnchorPane>
                </content>
@@ -92,29 +92,24 @@
                                     <Insets bottom="10.0" />
                                  </padding>
                               </Label>
-                              <Label textFill="WHITE">
-                                 <padding>
-                                    <Insets bottom="10.0" />
-                                 </padding>
-                              </Label>
-                              <TextField prefWidth="250.0" promptText="Enter your username" stylesheets="@../../../../resources/css/inputField.css">
+                              <TextField fx:id="registerUsername" prefWidth="250.0" promptText="Enter your username" stylesheets="@../css/inputField.css">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </TextField>
-                              <PasswordField prefWidth="250.0" promptText="Enter your password" stylesheets="@../../../../resources/css/inputField.css">
+                              <PasswordField fx:id="registerPassword" prefWidth="250.0" promptText="Enter your password" stylesheets="@../css/inputField.css">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </PasswordField>
                               <HBox alignment="CENTER" prefHeight="39.0" prefWidth="300.0" spacing="5.0">
                                  <children>
-                                              <Button mnemonicParsing="false" prefHeight="44.0" prefWidth="147.5" stylesheets="@../../../../resources/css/button.css" text="Clear">
+                                              <Button mnemonicParsing="false" onAction="#ClearButton" prefHeight="44.0" prefWidth="147.5" stylesheets="@../css/button.css" text="Clear">
                                        <font>
                                           <Font size="15.0" />
                                        </font>
                                     </Button>
-                                    <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="44.0" prefWidth="147.5" stylesheets="@../../../../resources/css/button.css" text="Register">
+                                    <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#RegisterButton" prefHeight="44.0" prefWidth="147.5" stylesheets="@../css/button.css" text="Register">
                                        <font>
                                           <Font size="15.0" />
                                        </font>
@@ -126,6 +121,11 @@
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </VBox>
+                        <Label fx:id="registerInfo" alignment="CENTER" contentDisplay="CENTER" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" textAlignment="CENTER" textFill="WHITE">
+                           <padding>
+                              <Insets bottom="10.0" />
+                           </padding>
+                        </Label>
                      </children>
                   </AnchorPane>
                </content></Tab>
@@ -133,7 +133,7 @@
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
-                        <Label layoutX="18.0" layoutY="2.0" text="Guest Login" textFill="WHITE">
+                        <Label layoutX="18.0" layoutY="21.0" text="Guest Login" textFill="WHITE">
                            <font>
                               <Font size="50.0" />
                            </font>
@@ -151,13 +151,13 @@
                </content></Tab>
         </tabs>
          <stylesheets>
-            <URL value="@../../../../resources/css/hideTabHeader.css" />
-            <URL value="@../../../../resources/css/workspaceBackground.css" />
+            <URL value="@../css/hideTabHeader.css" />
+            <URL value="@../css/workspaceBackground.css" />
          </stylesheets>
       </TabPane>
       <HBox layoutX="363.0" layoutY="525.0" prefHeight="47.0" prefWidth="300.0" spacing="6.0">
          <children>
-            <ToggleButton fx:id="login" mnemonicParsing="false" onAction="#ChangeNavigation" prefWidth="96.0" selected="true" stylesheets="@../../../../resources/css/tab.css" text="Login">
+            <ToggleButton fx:id="login" mnemonicParsing="false" onAction="#ChangeNavigation" prefWidth="96.0" selected="true" stylesheets="@../css/tab.css" text="Login">
                <font>
                   <Font size="18.0" />
                </font>
@@ -165,19 +165,19 @@
                   <ToggleGroup fx:id="navigation" />
                </toggleGroup>
             </ToggleButton>
-            <ToggleButton fx:id="register" mnemonicParsing="false" onAction="#ChangeNavigation" prefWidth="96.0" stylesheets="@../../../../resources/css/tab.css" text="Register" toggleGroup="$navigation">
+            <ToggleButton fx:id="register" mnemonicParsing="false" onAction="#ChangeNavigation" prefWidth="96.0" stylesheets="@../css/tab.css" text="Register" toggleGroup="$navigation">
                <font>
                   <Font size="18.0" />
                </font>
             </ToggleButton>
-            <ToggleButton fx:id="guest" mnemonicParsing="false" onAction="#ChangeNavigation" prefWidth="96.0" stylesheets="@../../../../resources/css/tab.css" text="Guest" toggleGroup="$navigation">
+            <ToggleButton fx:id="guest" mnemonicParsing="false" onAction="#ChangeNavigation" prefWidth="96.0" stylesheets="@../css/tab.css" text="Guest" toggleGroup="$navigation">
                <font>
                   <Font size="18.0" />
                </font>
             </ToggleButton>
          </children>
       </HBox>
-      <Button layoutX="420.0" layoutY="572.0" mnemonicParsing="false" onAction="#QuitButton" prefHeight="54.0" prefWidth="185.0" stylesheets="@../../../../resources/css/button.css" text="Quit" textAlignment="CENTER">
+      <Button layoutX="420.0" layoutY="572.0" mnemonicParsing="false" onAction="#QuitButton" prefHeight="54.0" prefWidth="185.0" stylesheets="@../css/button.css" text="Quit" textAlignment="CENTER">
          <font>
             <Font size="25.0" />
          </font>

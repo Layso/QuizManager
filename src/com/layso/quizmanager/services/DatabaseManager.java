@@ -55,7 +55,7 @@ public class DatabaseManager {
 	 * Getter for singleton
 	 * @return Returns the instance
 	 */
-	public DatabaseManager getInstance() {
+	public static DatabaseManager getInstance() {
 		if (instance == null){
 			System.out.println("No instance created. Please call Setup() before getting instance\nTerminating program");
 			System.exit(1);

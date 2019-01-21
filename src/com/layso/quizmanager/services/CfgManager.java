@@ -59,10 +59,11 @@ public class CfgManager {
 	
 	/**
 	 * Interface for user to reach desired value of a property key
-	 * @param key   Key to search in property file
-	 * @return      Associated value of the key parameter
+	 * @param key                   Key to search in property file
+	 * @return                      Associated value of the key parameter
+	 * @throws NullPointerException Throws exception if key is not found
 	 */
-	public String Get(String key) {
+	public String Get(String key) throws NullPointerException {
 		return properties.getProperty(key);
 	}
 }
