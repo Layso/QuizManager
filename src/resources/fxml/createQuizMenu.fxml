@@ -27,7 +27,7 @@
          <children>
             <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="15.0">
                <children>
-                  <RadioButton fx:id="mcqTab" mnemonicParsing="false" onAction="#ChangeNavigation" selected="true" text="Multiple Choice" textFill="WHITE">
+                  <RadioButton fx:id="MultipleChoice" mnemonicParsing="false" onAction="#ChangeNavigation" selected="true" text="Multiple Choice" textFill="WHITE">
                      <font>
                         <Font size="17.0" />
                      </font>
@@ -44,7 +44,7 @@
             </VBox>
             <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="15.0">
                <children>
-                  <RadioButton fx:id="associativeTab" mnemonicParsing="false" onAction="#ChangeNavigation" text="Associative" textFill="WHITE" toggleGroup="$quizTypeGroup">
+                  <RadioButton fx:id="Associative" mnemonicParsing="false" onAction="#ChangeNavigation" text="Associative" textFill="WHITE" toggleGroup="$quizTypeGroup">
                      <font>
                         <Font size="17.0" />
                      </font>
@@ -58,7 +58,7 @@
             </VBox>
             <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="15.0">
                <children>
-                  <RadioButton fx:id="openTab" mnemonicParsing="false" onAction="#ChangeNavigation" text="Open" textFill="WHITE" toggleGroup="$quizTypeGroup">
+                  <RadioButton fx:id="Open" mnemonicParsing="false" onAction="#ChangeNavigation" text="Open" textFill="WHITE" toggleGroup="$quizTypeGroup">
                      <font>
                         <Font size="17.0" />
                      </font>
@@ -104,7 +104,7 @@
       </HBox>
       <TabPane fx:id="quizTypeTabs" layoutX="187.0" layoutY="510.0" prefHeight="199.0" prefWidth="650.0" stylesheets="@../css/hideTabHeader.css" tabClosingPolicy="UNAVAILABLE">
         <tabs>
-          <Tab fx:id="mcqTab" text="Untitled Tab 1">
+          <Tab fx:id="MultipleChoice" text="Untitled Tab 1">
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -174,7 +174,7 @@
                   </AnchorPane>
                </content>
           </Tab>
-          <Tab fx:id="associativeTab" text="Untitled Tab 2">
+          <Tab fx:id="Associative" text="Untitled Tab 2">
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -214,7 +214,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab fx:id="openTab" text="Untitled Tab">
+            <Tab fx:id="Open" text="Untitled Tab">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -242,7 +242,7 @@
       </Button>
       <VBox layoutX="864.0" layoutY="581.0" prefHeight="167.0" prefWidth="150.0" spacing="5.0">
          <children>
-            <Button mnemonicParsing="false" prefWidth="150.0" stylesheets="@../css/button.css" text="Next Question">
+            <Button mnemonicParsing="false" onAction="#SaveQuestion" prefWidth="150.0" stylesheets="@../css/button.css" text="Next Question">
                <font>
                   <Font size="17.0" />
                </font>

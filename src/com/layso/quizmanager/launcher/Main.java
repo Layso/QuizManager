@@ -38,7 +38,7 @@ public class Main extends Application {
 	
 	public enum SceneTypes {Login, Main, CreateQuiz}
 	public enum LoginMenuNavigation {Login, Register, Guest}
-	public enum QuestionTypes{MultipleChoice, Open, Associative}
+	//public enum QuestionTypes{MultipleChoice, Open, Associative}
 	
 	
 	private String inputFieldColorCSS = "-fx-background-color: rgb(220,220,220); -fx-prompt-text-fill: rgb(100,100,100)";
@@ -72,7 +72,7 @@ public class Main extends Application {
 	
 	/* Quiz Creation Menu UI elements */
 	private Scene quizCreationMenu;
-	private QuestionTypes createQuestionType;
+	//private QuestionTypes createQuestionType;
 	
 	
 	public static void main(String[] args) {
