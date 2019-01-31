@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 
+
 public class MainGUI extends Application {
 	public static void main(String[] args) {
 		// Check arguments, print usage if wrong
@@ -43,6 +44,7 @@ public class MainGUI extends Application {
 		
 		
 		try {
+			// Get window dimensions from configuration file
 			windowWidth = Integer.parseInt(CfgManager.getInstance().Get("gui.windowWidth"));
 			windowHeight = Integer.parseInt(CfgManager.getInstance().Get("gui.windowHeight"));
 		} catch (NumberFormatException e) {
@@ -51,6 +53,7 @@ public class MainGUI extends Application {
 		}
 		
 		try {
+			// Load first window which is login menu
 			root = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.login.fxml")));
 		} catch (NullPointerException e) {
 			Logger.Log("Fatal Error: FXML filename fetch for login menu failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
@@ -60,7 +63,7 @@ public class MainGUI extends Application {
 			System.exit(-1);
 		}
 		
-		
+		// Prepare window and show
 		primaryStage.setResizable(false);
 		primaryStage.setTitle("Quizmania - Learn, practice, success");
 		primaryStage.setScene(new Scene(root, windowWidth, windowHeight));

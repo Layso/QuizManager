@@ -1,10 +1,7 @@
 package com.layso.quizmanager.services;
 
 import com.layso.logger.datamodel.Logger;
-import com.layso.quizmanager.datamodel.Question;
-import com.layso.quizmanager.datamodel.Student;
-import com.layso.quizmanager.datamodel.Teacher;
-import com.layso.quizmanager.datamodel.User;
+import com.layso.quizmanager.datamodel.*;
 
 import java.sql.ResultSet;
 import java.sql.Connection;
@@ -64,6 +61,22 @@ public class DatabaseManager {
 		
 		return instance;
 	}
+	
+	
+	
+	/**
+	 * Predefined database insert method for quiz creation
+	 * @param quiz Quiz to save to database
+	 */
+	public void CreateQuiz(Quiz quiz) {
+		// TODO:
+		// Create new quiz and get ID
+		// Save each question and get their ID
+		// Save each question ID with quiz ID
+	}
+	
+	
+	
 	/**
 	 * Predefined database insert method for user register. Gets credentials and tries to insert to database
 	 * @param username  Username for new user
@@ -147,7 +160,7 @@ public class DatabaseManager {
 	
 	public boolean SchemaCheck() {
 		String userTable = "CREATE TABLE USER(ID INT PRIMARY KEY auto_increment, USERNAMAE VARCHAR(255), PASSWORD VARCHAR(255), AUTHORITY BOOLEAN)";
-		String questioonTable = "CREATE TABLE QUESTION(ID INT PRIMARY KEY auto_increment, QUESTION VARCHAR(255), RESOURCE BOOLEAN, TYPE VARCHAR(255))";
+		String questionTable = "CREATE TABLE QUESTION(ID INT PRIMARY KEY auto_increment, QUESTION VARCHAR(255), RESOURCE BOOLEAN, TYPE VARCHAR(255), DIFFICULTY INT, CORRECT_ANSWERS INT, FALSE_ANSWERS INT)";
 		String resourceTable = "CREATE TABLE RESOURCE(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), RESOURCE BLOB, SIZE INT)";
 		String topicTable = "CREATE TABLE TOPIC(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), TOPIC VARCHAR(255))";
 		String mcqChoicesTable = "CREATE TABLE MCQ_CHOICES(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), FIRST_ANSWER VARCHAR(255), SECOND_ANSWER VARCHAR(255), THIRD_ANSWER VARCHAR(255), CORRECT_ANSWER VARCHAR(255))";

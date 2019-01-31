@@ -8,8 +8,8 @@ public class AssociativeQuestion extends Question {
 	
 	
 	
-	public AssociativeQuestion(int id, String question, List<String> topics, boolean resource, QuestionType type, List<String> leftColumn, List<String> rightColumn) {
-		super(id, question, topics, resource, type);
+	public AssociativeQuestion(int id, String question, List<String> topics, boolean resource, QuestionType type, int difficulty, int correctAnswers, int falseAnswers, List<String> leftColumn, List<String> rightColumn) {
+		super(id, question, topics, resource, type, difficulty, correctAnswers, falseAnswers);
 		this.leftColumn = leftColumn;
 		this.rightColumn = rightColumn;
 	}

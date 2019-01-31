@@ -57,7 +57,7 @@
                                           <Font size="15.0" />
                                        </font>
                                     </Button>
-                                    <Button layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#LoginButton" prefHeight="44.0" prefWidth="147.5" stylesheets="@../css/button.css" text="Login">
+                                    <Button fx:id="loginButton" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#LoginButton" prefHeight="44.0" prefWidth="147.5" stylesheets="@../css/button.css" text="Login">
                                        <font>
                                           <Font size="15.0" />
                                        </font>

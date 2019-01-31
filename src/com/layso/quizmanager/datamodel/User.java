@@ -23,6 +23,12 @@ public abstract class User {
 	
 	
 	
+	public int GetID() {
+		return userID;
+	}
+	
+	
+	
 	
 	public String getUsername() {
 		return username;

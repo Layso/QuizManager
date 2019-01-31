@@ -25,6 +25,8 @@ public class MainMenuController implements Initializable {
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
+		skipButton.setDefaultButton(true);
+		Logger.Log("Main Menu initialized", Logger.LogType.INFO);
 	}
 	
 	public void Skip(ActionEvent event) {

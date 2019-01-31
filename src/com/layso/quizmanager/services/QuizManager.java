@@ -116,4 +116,14 @@ public class QuizManager {
 		
 		return result;
 	}
+	
+	
+	
+	/**
+	 * Getter for currently logged in user
+	 * @return currently logged in user
+	 */
+	public User GetUser() {
+		return user;
+	}
 }
