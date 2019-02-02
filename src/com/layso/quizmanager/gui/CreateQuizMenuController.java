@@ -35,7 +35,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	private Label questionInvalidError, quizTitleError, questionCountText, averageDifficultyText, noQuestionError;
 	
 	@FXML
-	private RadioButton customDifficulty;
+	private RadioButton customDifficulty, publicButton;
 	
 	@FXML
 	private VBox menuButtons;
@@ -128,7 +128,8 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			
 			// Create quiz, save to database, return to main menu
 			Quiz quiz = new Quiz(QuizManager.getInstance().GetUser().GetID(), quizTitle.getText(), questions,
-				customDifficultyLevel, 0, avarageDifficultyLevel/questions.size());
+				customDifficultyLevel, 0, avarageDifficultyLevel/questions.size(),
+				publicButton.isSelected());
 			DatabaseManager.getInstance().CreateQuiz(quiz);
 			ChangeScene(event, WindowStage.MainMenu);
 		}
@@ -179,14 +180,14 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		if (IsQuestionValid()) {
 			// Identify question type to get Question object
-			if (tab.equals(Question.QuestionType.MultipleChoice.name())) {
-				newQuestion = CreateMCQ();
-			} else if (tab.equals(Question.QuestionType.Associative.name())) {
-				newQuestion = CreateAssociative();
-			} else {
-				newQuestion = new OpenQuestion(-1, questionText.getText(), topics, !resourcePath.getText().equals(""),
-					Question.QuestionType.Open, ((int) difficultySlider.getValue()), 0, 0,
-					openTipsText.getText());
+			switch (Question.QuestionType.valueOf(quizTypeTabs.getSelectionModel().getSelectedItem().getId())) {
+				case MultipleChoice: newQuestion = CreateMCQ(); break;
+				case Associative: newQuestion = CreateAssociative(); break;
+				case Open: newQuestion = new OpenQuestion(-1, questionText.getText(), topics,
+					resourcePath.getText(), Question.QuestionType.Open, ((int) difficultySlider.getValue()),
+					0, 0,	QuizManager.getInstance().GetUser().GetID(),
+					openTipsText.getText()); break;
+				default: newQuestion = null;
 			}
 			
 			// Save question and clear screen for new one
@@ -233,7 +234,9 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			rightColumn.add(associativeRight5.getText());
 		}
 		
-		return new AssociativeQuestion(-1, questionText.getText(), GetTopics(), !resourcePath.getText().equals(""), Question.QuestionType.Associative, ((int) difficultySlider.getValue()), 0, 0, leftColumn, rightColumn);
+		return new AssociativeQuestion(-1, questionText.getText(), GetTopics(), resourcePath.getText(),
+			Question.QuestionType.Associative, ((int) difficultySlider.getValue()), 0, 0,
+			QuizManager.getInstance().GetUser().GetID(), leftColumn, rightColumn);
 	}
 	
 	
@@ -249,7 +252,9 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		answers.add(mcqSecondAnswer.getText());
 		answers.add(mcqThirdAnswer.getText());
 		
-		return new MultipleChoiceQuestion(-1, questionText.getText(), GetTopics(), !resourcePath.getText().equals(""), Question.QuestionType.MultipleChoice, ((int) difficultySlider.getValue()), 0, 0, mcqCorrectAnswer.getText(), answers);
+		return new MultipleChoiceQuestion(-1, questionText.getText(), GetTopics(), resourcePath.getText(),
+			Question.QuestionType.MultipleChoice, ((int) difficultySlider.getValue()), 0, 0,
+			QuizManager.getInstance().GetUser().GetID(), mcqCorrectAnswer.getText(), answers);
 	}
 	
 	
@@ -286,7 +291,9 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		// If it is an MCQ, all 4 answer text fields must be filled
 		if (tab.equals(Question.QuestionType.MultipleChoice.name())) {
-			valid = !(questionText.getText().equals("") || mcqFirstAnswer.getText().equals("") || mcqSecondAnswer.getText().equals("") || mcqThirdAnswer.getText().equals("") || mcqCorrectAnswer.getText().equals(""));
+			valid = !(questionText.getText().equals("") || mcqFirstAnswer.getText().equals("") ||
+				mcqSecondAnswer.getText().equals("") || mcqThirdAnswer.getText().equals("") ||
+				mcqCorrectAnswer.getText().equals(""));
 		}
 		
 		// If it is an associative question first two rows must be filled on both sides. Other rows can be filled but

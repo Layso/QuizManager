@@ -327,7 +327,7 @@
                         </HBox>
                      </children>
                   </HBox>
-                  <HBox alignment="CENTER" prefHeight="26.0" prefWidth="650.0" spacing="10.0">
+                  <HBox alignment="CENTER" prefHeight="60.0" prefWidth="675.0" spacing="10.0">
                      <children>
                         <Label prefHeight="20.0" prefWidth="113.0" text="Custom Difficulty" textFill="WHITE">
                            <font>
@@ -335,6 +335,31 @@
                            </font>
                         </Label>
                         <Slider fx:id="customDifficultySlider" blockIncrement="1.0" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="0" prefHeight="38.0" prefWidth="360.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="5.0" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" prefHeight="60.0" prefWidth="6750.0">
+                     <children>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <RadioButton fx:id="publicButton" mnemonicParsing="false" selected="true" text="Public" textFill="WHITE">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                                 <toggleGroup>
+                                    <ToggleGroup fx:id="publicityToggle" />
+                                 </toggleGroup>
+                              </RadioButton>
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="312.0" layoutY="10.0" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <RadioButton mnemonicParsing="false" text="Private" textFill="WHITE" toggleGroup="$publicityToggle">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </RadioButton>
+                           </children>
+                        </HBox>
                      </children>
                   </HBox>
                   <Label fx:id="quizTitleError" text="Please enter a quiz title to save" textFill="RED" visible="false">
@@ -358,16 +383,12 @@
                   </HBox>
                </children>
             </VBox>
-            <VBox layoutX="69.0" layoutY="196.0" prefHeight="120.0" prefWidth="16.0">
-               <children>
-                  <RadioButton fx:id="averageDifficulty" mnemonicParsing="false" prefHeight="55.0" selected="true">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="difficultyGroup" />
-                     </toggleGroup>
-                  </RadioButton>
-                  <RadioButton fx:id="customDifficulty" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="55.0" toggleGroup="$difficultyGroup" />
-               </children>
-            </VBox>
+            <RadioButton fx:id="averageDifficulty" layoutX="70.0" layoutY="157.0" mnemonicParsing="false" prefHeight="55.0" selected="true">
+               <toggleGroup>
+                  <ToggleGroup fx:id="difficultyGroup" />
+               </toggleGroup>
+            </RadioButton>
+            <RadioButton fx:id="customDifficulty" layoutX="70.0" layoutY="215.0" mnemonicParsing="false" prefHeight="55.0" toggleGroup="$difficultyGroup" />
          </children>
       </Pane>
    </children>

@@ -65,15 +65,11 @@ public class LoginMenuController extends Controller implements Initializable {
 	public void LoginButton(ActionEvent event) {
 		if (QuizManager.getInstance().UserLogin(loginUsername.getText(), loginPassword.getText())) {
 			loginSuccesfullMessage.setVisible(true);
-			/*loginInfo.setText("Logged in successfully!");
-			loginInfo.setTextFill(Paint.valueOf("yellow"));*/
 			ChangeScene(event, WindowStage.MainMenu);
 		}
 		
 		else {
 			loginErrorMessage.setVisible(true);
-			/*loginInfo.setText("Please check your login information");
-			loginInfo.setTextFill(Paint.valueOf("red"));*/
 		}
 	}
 	
@@ -87,14 +83,10 @@ public class LoginMenuController extends Controller implements Initializable {
 	public void RegisterButton(ActionEvent event) {
 		if (QuizManager.getInstance().UserRegister(registerUsername.getText(), registerPassword.getText())) {
 			registerSuccesfullMessage.setVisible(true);
-			/*registerInfo.setText("New user successfully registered!");
-			registerInfo.setTextFill(Paint.valueOf("yellow"));*/
 		}
 		
 		else {
 			registerErrorMessage.setVisible(true);
-			/*registerInfo.setText("This user already exists");
-			registerInfo.setTextFill(Paint.valueOf("red"));*/
 		}
 	}
 	

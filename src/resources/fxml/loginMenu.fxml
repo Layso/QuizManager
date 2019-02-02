@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/menuBackground.css" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.LoginMenuController">
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/menuBackground.css" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.LoginMenuController">
    <children>
       <ImageView fitHeight="214.0" fitWidth="1000.0" layoutX="12.0" pickOnBounds="true" preserveRatio="true">
          <image>
@@ -69,7 +69,12 @@
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </VBox>
-                                       <Label fx:id="loginInfo" alignment="CENTER" contentDisplay="CENTER" layoutX="1.0" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" textAlignment="CENTER" textFill="WHITE">
+                                       <Label fx:id="loginSuccesfullMessage" alignment="CENTER" contentDisplay="CENTER" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" text="Logged in succesfully" textAlignment="CENTER" textFill="YELLOW" visible="false">
+                           <padding>
+                              <Insets bottom="10.0" />
+                           </padding>
+                        </Label>
+                        <Label fx:id="loginErrorMessage" alignment="CENTER" contentDisplay="CENTER" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" text="Please check your login information" textAlignment="CENTER" textFill="RED" visible="false">
                            <padding>
                               <Insets bottom="10.0" />
                            </padding>
@@ -121,7 +126,12 @@
                               <Insets left="5.0" right="5.0" />
                            </padding>
                         </VBox>
-                        <Label fx:id="registerInfo" alignment="CENTER" contentDisplay="CENTER" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" textAlignment="CENTER" textFill="WHITE">
+                        <Label fx:id="registerSuccesfullMessage" alignment="CENTER" contentDisplay="CENTER" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" text="New user successfully registered!" textAlignment="CENTER" textFill="YELLOW">
+                           <padding>
+                              <Insets bottom="10.0" />
+                           </padding>
+                        </Label>
+                        <Label fx:id="registerErrorMessage" alignment="CENTER" contentDisplay="CENTER" layoutY="234.0" prefHeight="27.0" prefWidth="300.0" text="This user already exists" textAlignment="CENTER" textFill="RED">
                            <padding>
                               <Insets bottom="10.0" />
                            </padding>

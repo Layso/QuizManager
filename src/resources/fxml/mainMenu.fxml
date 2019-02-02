@@ -2,10 +2,11 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.MainMenuController">
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.MainMenuController">
    <children>
       <Label layoutX="347.0" layoutY="192.0" text="Main Menu">
          <font>
@@ -13,5 +14,7 @@
          </font>
       </Label>
       <Button fx:id="skipButton" layoutX="431.0" layoutY="302.0" mnemonicParsing="false" onAction="#Skip" prefHeight="63.0" prefWidth="110.0" text="Button" />
+      <ImageView fx:id="img" fitHeight="200.0" fitWidth="400.0" layoutX="339.0" layoutY="440.0" pickOnBounds="true" preserveRatio="true" />
+      <Button layoutX="676.0" layoutY="675.0" mnemonicParsing="false" onAction="#Test" text="Button" />
    </children>
 </AnchorPane>

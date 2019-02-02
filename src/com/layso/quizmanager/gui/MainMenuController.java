@@ -2,6 +2,7 @@ package com.layso.quizmanager.gui;
 
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.services.CfgManager;
+import com.layso.quizmanager.services.DatabaseManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,7 +11,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,6 +26,8 @@ public class MainMenuController implements Initializable {
 	@FXML
 	Button skipButton;
 	
+	@FXML
+	ImageView img;
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
@@ -45,5 +51,10 @@ public class MainMenuController implements Initializable {
 			Logger.Log("Fatal Error: GUI replacement for main menu failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
 			System.exit(-1);
 		}
+	}
+	
+	public void Test(ActionEvent event) {
+		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceByQuestionID(9).getAbsolutePath(), 400, 200, true, true);
+		img.setImage(image);
 	}
 }
