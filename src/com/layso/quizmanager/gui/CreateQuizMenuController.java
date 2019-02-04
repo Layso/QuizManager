@@ -81,6 +81,15 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	}
 	
 	
+	/**
+	 * Method to open question selection menu to reuse other questions
+	 * @param event ActionEvent produced by GUI
+	 */
+	public void SelectQuestionButton(ActionEvent event) {
+		ChangeScene(event, WindowStage.SelectQuestionMenu);
+	}
+	
+	
 	
 	/**
 	 * Method to return back to main menu
@@ -173,7 +182,6 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void SaveQuestion(ActionEvent event) {
-		String tab = quizTypeTabs.getSelectionModel().getSelectedItem().getId();
 		List<String> topics = GetTopics();
 		Question newQuestion;
 		
@@ -184,9 +192,9 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 				case MultipleChoice: newQuestion = CreateMCQ(); break;
 				case Associative: newQuestion = CreateAssociative(); break;
 				case Open: newQuestion = new OpenQuestion(-1, questionText.getText(), topics,
-					resourcePath.getText(), Question.QuestionType.Open, ((int) difficultySlider.getValue()),
-					0, 0,	QuizManager.getInstance().GetUser().GetID(),
-					openTipsText.getText()); break;
+					resourcePath.getText(), Question.QuestionType.Open, publicButton.isSelected(),
+					((int) difficultySlider.getValue()),0, 0,
+					QuizManager.getInstance().GetUser().GetID(), openTipsText.getText()); break;
 				default: newQuestion = null;
 			}
 			
@@ -206,7 +214,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * interface and calls constructor with proper parameters
 	 * @return  Returns newly created Associative Question
 	 */
-	public AssociativeQuestion CreateAssociative() {
+	private AssociativeQuestion CreateAssociative() {
 		List<String> leftColumn = new ArrayList<>();
 		List<String> rightColumn = new ArrayList<>();
 		
@@ -235,8 +243,8 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		}
 		
 		return new AssociativeQuestion(-1, questionText.getText(), GetTopics(), resourcePath.getText(),
-			Question.QuestionType.Associative, ((int) difficultySlider.getValue()), 0, 0,
-			QuizManager.getInstance().GetUser().GetID(), leftColumn, rightColumn);
+			Question.QuestionType.Associative, publicButton.isSelected(),((int) difficultySlider.getValue()),
+			0, 0, QuizManager.getInstance().GetUser().GetID(), leftColumn, rightColumn);
 	}
 	
 	
@@ -246,15 +254,16 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * calls constructor with proper parameters
 	 * @return  Returns newly created Multiple Choice Question
 	 */
-	public MultipleChoiceQuestion CreateMCQ() {
+	private MultipleChoiceQuestion CreateMCQ() {
 		List<String> answers = new ArrayList<>();
 		answers.add(mcqFirstAnswer.getText());
 		answers.add(mcqSecondAnswer.getText());
 		answers.add(mcqThirdAnswer.getText());
 		
 		return new MultipleChoiceQuestion(-1, questionText.getText(), GetTopics(), resourcePath.getText(),
-			Question.QuestionType.MultipleChoice, ((int) difficultySlider.getValue()), 0, 0,
-			QuizManager.getInstance().GetUser().GetID(), mcqCorrectAnswer.getText(), answers);
+			Question.QuestionType.MultipleChoice, publicButton.isSelected(),((int) difficultySlider.getValue()),
+			0, 0, QuizManager.getInstance().GetUser().GetID(), mcqCorrectAnswer.getText(),
+			answers);
 	}
 	
 	
@@ -264,7 +273,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * the found topics
 	 * @return  A list including all topics
 	 */
-	public List<String> GetTopics() {
+	private List<String> GetTopics() {
 		List<String> topics = new ArrayList<>();
 		
 		
@@ -284,7 +293,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * are different for different type of questions. It checks according to the question type
 	 * @return  Validness of the question
 	 */
-	public boolean IsQuestionValid() {
+	private boolean IsQuestionValid() {
 		String tab = quizTypeTabs.getSelectionModel().getSelectedItem().getId();
 		boolean valid;
 		

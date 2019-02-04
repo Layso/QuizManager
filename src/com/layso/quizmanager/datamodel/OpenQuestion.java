@@ -7,8 +7,10 @@ public class OpenQuestion extends Question {
 	
 	
 	
-	public OpenQuestion(int id, String question, List<String> topics, String resource, QuestionType type, int difficulty, int correctAnswers, int falseAnswers, int ownerID, String tips) {
-		super(id, question, topics, resource, type, difficulty, correctAnswers, falseAnswers, ownerID);
+	public OpenQuestion(int id, String question, List<String> topics, String resource, QuestionType type,
+	                    boolean publicity, int difficulty, int correctAnswers, int falseAnswers, int ownerID,
+	                    String tips) {
+		super(id, question, topics, resource, type, publicity, difficulty, correctAnswers, falseAnswers, ownerID);
 		this.tips = tips;
 	}
 	

@@ -10,7 +10,8 @@ import java.util.Scanner;
 public class QuizManager {
 	// One instance to rule them all, AKA singleton
 	private static QuizManager instance;
-	private static User user;
+	
+	private User user;
 	
 	
 	/**
@@ -81,7 +82,7 @@ public class QuizManager {
 	 *
 	 * @return Returns true if login successful, else returns false
 	 */
-	public static boolean UserLogin(String username, String password) {
+	public  boolean UserLogin(String username, String password) {
 		Logger.Log("User login attempt for username: " + username, Logger.LogType.INFO);
 		
 		
@@ -100,7 +101,7 @@ public class QuizManager {
 	 * @param username Username for new user
 	 * @param password Password for new user
 	 */
-	public static boolean UserRegister(String username, String password) {
+	public boolean UserRegister(String username, String password) {
 		Logger.Log("User register attempt for username: " + username, Logger.LogType.INFO);
 		boolean result;
 		

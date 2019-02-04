@@ -254,9 +254,14 @@
             <Font size="11.0" />
          </font>
       </Button>
-      <VBox fx:id="menuButtons" layoutX="864.0" layoutY="581.0" prefHeight="167.0" prefWidth="150.0" spacing="5.0">
+      <VBox fx:id="menuButtons" layoutX="864.0" layoutY="535.0" prefHeight="167.0" prefWidth="150.0" spacing="5.0">
          <children>
             <Button mnemonicParsing="false" onAction="#SaveQuestion" prefWidth="150.0" stylesheets="@../css/button.css" text="Next Question">
+               <font>
+                  <Font size="17.0" />
+               </font>
+            </Button>
+            <Button layoutX="15.0" layoutY="15.0" mnemonicParsing="false" onAction="#SelectQuestionButton" prefWidth="150.0" stylesheets="@../css/button.css" text="Pick Question">
                <font>
                   <Font size="17.0" />
                </font>
@@ -271,7 +276,7 @@
                   <Font size="17.0" />
                </font>
             </Button>
-            <Button layoutX="10.0" layoutY="60.0" mnemonicParsing="false" onAction="#QuitButton" prefWidth="150.0" stylesheets="@../css/button.css" text="Quit">
+            <Button layoutX="10.0" layoutY="60.0" mnemonicParsing="false" onAction="#QuitButton" prefWidth="150.0" stylesheets="@../css/button.css" text="Back">
                <font>
                   <Font size="17.0" />
                </font>

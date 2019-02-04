@@ -5,6 +5,7 @@ import com.layso.quizmanager.datamodel.*;
 
 import java.io.*;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -61,38 +62,218 @@ public class DatabaseManager {
 	
 	
 	
-	/**
-	 * Predefined database insert method for quiz creation
-	 * @param quiz Quiz to save to database
-	 */
-	public void CreateQuiz(Quiz quiz) {
-		String sqlQuery = "insert into QUIZ(TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, PUBLICITY) values(?, ?, ?, ?, ?, ?)";
-		int quizID;
+	public String GetUsernameByID(int userID) {
+		String sqlQuery = "select USERNAME from USER where ID = ?";
+		String username = null;
 		
 		
 		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-			statement.setString(1, quiz.GetTitle());
-			statement.setString(2, Integer.toString(quiz.GetQuestions().size()));
-			statement.setString(3, Integer.toString(quiz.GetCustomDifficulty()));
-			statement.setString(4, Double.toString(quiz.GetAverageDifficulty()));
-			statement.setString(5, Double.toString(quiz.GetTrueDifficulty()));
-			statement.setString(6, Boolean.toString(quiz.GetPublicity()));
-			statement.execute();
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(userID));
+			ResultSet results = statement.executeQuery();
 			
-			ResultSet result = statement.getGeneratedKeys();
-			result.next();
-			quizID = result.getInt("ID");
-			Logger.Log("New quiz created successfully with ID: " + quizID, Logger.LogType.INFO);
-			for (Question q : quiz.GetQuestions()) {
-				AssociateQuizAndQuestion(SaveQuestion(q), quizID);
+			if (results.next()) {
+				username = results.getString("USERNAME");
 			}
-			Logger.Log("All questions of quiz (ID: " + quizID + ") successfully inserted", Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new quiz: " + quiz.GetTitle() + ": " + e.getMessage(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to get user ID: " + userID + ": "+ e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
+		
+		return username;
 	}
+	
+	
+	
+	public List<Question> GetAllPublicQuestions() {
+		String sqlQuery = "select ID from QUESTION where PUBLICITY = TRUE or OWNER_ID = ?";
+		List<Question> questions = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(QuizManager.getInstance().GetUser().GetID()));
+			ResultSet results = statement.executeQuery();
+			
+			while(results.next()) {
+				int id = results.getInt("ID");
+				questions.add(GetQuestionByID(id));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get public questions: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		
+		return questions;
+	}
+	
+	
+	
+	private Question GetQuestionByID(int questionID) {
+		String sqlQuery = "select QUESTION, RESOURCE, TYPE, DIFFICULTY, PUBLICITY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID from QUESTION where ID = ?";
+		Question question = null;
+		boolean questionPublicity;
+		List<String> questionTopics;
+		String questionText, resourcePath;
+		Question.QuestionType questionType;
+		int questionDifficulty, questionCorrectAnswers, questionFalseAnswers, questionOwnerID;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(questionID));
+			ResultSet results = statement.executeQuery();
+			
+			results.next();
+			questionText = results.getString("QUESTION");
+			resourcePath = Boolean.valueOf(results.getString("RESOURCE")) ? GetResourceNameByQuestionID(questionID) : "";
+			questionType = Question.QuestionType.valueOf(results.getString("TYPE"));
+			questionDifficulty = results.getInt("DIFFICULTY");
+			questionCorrectAnswers = results.getInt("CORRECT_ANSWERS");
+			questionFalseAnswers = results.getInt("FALSE_ANSWERS");
+			questionOwnerID = results.getInt("OWNER_ID");
+			questionPublicity = results.getBoolean("PUBLICITY");
+			questionTopics = GetTopicsByQuestionID(questionID);
+			if (results.getBoolean("RESOURCE"))
+				GetResourceByQuestionID(questionID);
+			
+			switch (questionType) {
+				case MultipleChoice: question = GetMultipleChoiceQuestionByID(questionID, questionText, questionTopics, resourcePath, questionType, questionPublicity, questionDifficulty, questionCorrectAnswers, questionFalseAnswers, questionOwnerID); break;
+				case Associative: question = GetAssociativeQuestionByID(questionID, questionText, questionTopics, resourcePath, questionType, questionPublicity, questionDifficulty, questionCorrectAnswers, questionFalseAnswers, questionOwnerID); break;
+				case Open: question = GetOpenQuestionByID(questionID, questionText, questionTopics, resourcePath, questionType, questionPublicity, questionDifficulty, questionCorrectAnswers, questionFalseAnswers, questionOwnerID); break;
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get questions with ID: " + questionID + " " + e.getMessage(),
+				Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		return question;
+	}
+	
+	
+	
+	private MultipleChoiceQuestion GetMultipleChoiceQuestionByID(int questionID, String text, List<String> topics,
+	                                                             String path, Question.QuestionType type,
+	                                                             boolean publicity , int difficulty, int correctAnswers,
+	                                                             int falseAnswers, int ownerID) {
+		String sqlQuery = "select FIRST_ANSWER, SECOND_ANSWER, THIRD_ANSWER, CORRECT_ANSWER from MCQ_ANSWERS where QUESTION_ID = ?";
+		MultipleChoiceQuestion question = null;
+		List<String> otherAnswers = new ArrayList<>();
+		String correctAnswer;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(questionID));
+			ResultSet results = statement.executeQuery();
+			
+			if (results.next()) {
+				correctAnswer = results.getString("CORRECT_ANSWER");
+				otherAnswers.add(results.getString("FIRST_ANSWER"));
+				otherAnswers.add(results.getString("SECOND_ANSWER"));
+				otherAnswers.add(results.getString("THIRD_ANSWER"));
+				question = new MultipleChoiceQuestion(questionID, text, topics, path, type, publicity, difficulty,
+					correctAnswers, falseAnswers, ownerID, correctAnswer, otherAnswers);
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get multiple choice questions with ID: " + questionID + " " +
+					e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		return question;
+	}
+	
+	
+	
+	private AssociativeQuestion GetAssociativeQuestionByID(int questionID, String text, List<String> topics,
+	                                                       String path, Question.QuestionType type, boolean publicity,
+	                                                       int difficulty, int correctAnswers, int falseAnswers,
+	                                                       int ownerID) {
+		String sqlQuery = "select FIRST_CHOICE, SECOND_CHOICE from ASSOCIATIVE_CHOICES where QUESTION_ID = ?";
+		AssociativeQuestion question = null;
+		List<String> leftColumn = new ArrayList<>(), rightColumn = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(questionID));
+			ResultSet results =  statement.executeQuery();
+			
+			while (results.next()) {
+				leftColumn.add(results.getString("FIRST_CHOICE"));
+				rightColumn.add(results.getString("SECOND_CHOICE"));
+			}
+			question = new AssociativeQuestion(questionID, text, topics, path, type, publicity, difficulty,
+				correctAnswers, falseAnswers, ownerID, leftColumn, rightColumn);
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get associative questions with ID: " + questionID + " " +
+				e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		return question;
+	}
+	
+	
+	private OpenQuestion GetOpenQuestionByID(int questionID, String text, List<String> topics, String path,
+	                                         Question.QuestionType type, boolean publicity, int difficulty,
+	                                         int correctAnswers, int falseAnswers, int ownerID) {
+		String sqlQuery = "select TIP from OPEN_TIPS where QUESTION_ID = ?";
+		OpenQuestion question = null;
+		String tip;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(questionID));
+			ResultSet results =  statement.executeQuery();
+			
+			if (results.next()) {
+				tip = results.getString("TIP");
+				question = new OpenQuestion(questionID, text, topics, path, type, publicity, difficulty, correctAnswers,
+					falseAnswers, ownerID, tip);
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get open questions with ID: " + questionID + " " +
+				e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		return question;
+	}
+	
+	
+	
+	private List<String> GetTopicsByQuestionID(int questionID) {
+		String sqlQuery = "select TOPIC from TOPIC where QUESTION_ID = ?";
+		List<String> topics = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, Integer.toString(questionID));
+			ResultSet results =  statement.executeQuery();
+			
+			while (results.next()) {
+				topics.add(results.getString("TOPIC"));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get open questions with ID: " + questionID + " " +
+				e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return topics;
+	}
+	
 	
 	
 	public File GetResourceByQuestionID(int questionID) {
@@ -136,24 +317,66 @@ public class DatabaseManager {
 	
 	
 	/**
+	 * Predefined database insert method for quiz creation
+	 * @param quiz Quiz to save to database
+	 */
+	public void CreateQuiz(Quiz quiz) {
+		String sqlQuery = "insert into QUIZ(TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, PUBLICITY) values(?, ?, ?, ?, ?, ?)";
+		int quizID;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+			statement.setString(1, quiz.GetTitle());
+			statement.setString(2, Integer.toString(quiz.GetQuestions().size()));
+			statement.setString(3, Integer.toString(quiz.GetCustomDifficulty()));
+			statement.setString(4, Double.toString(quiz.GetAverageDifficulty()));
+			statement.setString(5, Double.toString(quiz.GetTrueDifficulty()));
+			statement.setString(6, Boolean.toString(quiz.GetPublicity()));
+			statement.execute();
+			
+			ResultSet result = statement.getGeneratedKeys();
+			result.next();
+			quizID = result.getInt("ID");
+			Logger.Log("New quiz created successfully with ID: " + quizID, Logger.LogType.INFO);
+			for (Question q : quiz.GetQuestions()) {
+				AssociateQuizAndQuestion(SaveQuestion(q), quizID);
+			}
+			Logger.Log("All questions of quiz (ID: " + quizID + ") successfully inserted", Logger.LogType.INFO);
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to insert new quiz: " + quiz.GetTitle() + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	
+	
+	
+	public String GetResourceNameByQuestionID(int questionID) {
+		return "RESOURCE_" + questionID + ".rs";
+	}
+	
+	
+	/**
 	 * Saves given question to database. First inserts the common Question attributes. Then calls question type specific
 	 * methods to insert remaining parts to the database
 	 * @param question  Question to insert
 	 */
 	private int SaveQuestion(Question question) {
-		String sqlQuery = "insert into QUESTION(QUESTION, RESOURCE, TYPE, DIFFICULTY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID) values(?, ?, ?, ?, ?, ?, ?)";
+		String sqlQuery = "insert into QUESTION(QUESTION, RESOURCE, TYPE, PUBLICITY, DIFFICULTY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID) values(?, ?, ?, ?, ?, ?, ?, ?)";
 		int questionID = 0;
 		
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-			statement.setString(1, question.GetQuestionText());
+			statement.setString(1, question.GetQuestion());
 			statement.setString(2, Boolean.toString(!question.GetResource().equals("")));
 			statement.setString(3, question.GetType().name());
-			statement.setString(4, Integer.toString(question.GetDifficulty()));
-			statement.setString(5, Integer.toString(question.GetCorrectAnswers()));
-			statement.setString(6, Integer.toString(question.GetFalseAnswers()));
-			statement.setString(7, Integer.toString(question.GetOwnerID()));
+			statement.setString(4, Boolean.toString(question.GetPublicity()));
+			statement.setString(5, Integer.toString(question.GetDifficulty()));
+			statement.setString(6, Integer.toString(question.GetCorrectAnswers()));
+			statement.setString(7, Integer.toString(question.GetFalseAnswers()));
+			statement.setString(8, Integer.toString(question.GetOwnerID()));
 			statement.execute();
 			
 			ResultSet result = statement.getGeneratedKeys();
@@ -169,7 +392,7 @@ public class DatabaseManager {
 			SaveResource(questionID, question.GetResource());
 			Logger.Log("New question inserted successfully with ID: " + questionID, Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new question: " + question.GetQuestionText(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to insert new question: " + question.GetQuestion(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 		
@@ -252,7 +475,7 @@ public class DatabaseManager {
 			statement.execute();
 			Logger.Log("All answers are insert for new multiple choice question ID: " + questionID, Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new multiple choice question " + question.GetQuestionText(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to insert new multiple choice question " + question.GetQuestion(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 	}
@@ -279,7 +502,7 @@ public class DatabaseManager {
 			}
 			Logger.Log("All rows are insert for new associative question ID: " + questionID, Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new associative question " + question.GetQuestionText(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to insert new associative question " + question.GetQuestion(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 	}
@@ -302,7 +525,7 @@ public class DatabaseManager {
 			statement.execute();
 			Logger.Log("Tips are insert for new multiple choice question ID: " + questionID, Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new open question " + question.GetQuestionText(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to insert new open question " + question.GetQuestion(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 	}
@@ -416,10 +639,10 @@ public class DatabaseManager {
 	
 	public boolean SchemaCheck() {
 		String userTable = "CREATE TABLE USER(ID INT PRIMARY KEY auto_increment, USERNAMAE VARCHAR(255), PASSWORD VARCHAR(255), AUTHORITY BOOLEAN)";
-		String questionTable = "CREATE TABLE QUESTION(ID INT PRIMARY KEY auto_increment, QUESTION VARCHAR(255), RESOURCE BOOLEAN, TYPE VARCHAR(255), DIFFICULTY INT, CORRECT_ANSWERS INT, FALSE_ANSWERS INT, OWNER_ID INT, foreign key (OWNER_ID) references USER(ID))";
+		String questionTable = "CREATE TABLE QUESTION(ID INT PRIMARY KEY auto_increment, QUESTION VARCHAR(255), RESOURCE BOOLEAN, TYPE VARCHAR(255), PUBLICITY BOOLEAN, DIFFICULTY INT, CORRECT_ANSWERS INT, FALSE_ANSWERS INT, OWNER_ID INT, foreign key (OWNER_ID) references USER(ID))";
 		String resourceTable = "CREATE TABLE RESOURCE(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), RESOURCE BLOB, SIZE INT)";
 		String topicTable = "CREATE TABLE TOPIC(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), TOPIC VARCHAR(255))";
-		String mcqChoicesTable = "CREATE TABLE MCQ_CHOICES(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), FIRST_ANSWER VARCHAR(255), SECOND_ANSWER VARCHAR(255), THIRD_ANSWER VARCHAR(255), CORRECT_ANSWER VARCHAR(255))";
+		String mcqChoicesTable = "CREATE TABLE MCQ_ANSWERS(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), FIRST_ANSWER VARCHAR(255), SECOND_ANSWER VARCHAR(255), THIRD_ANSWER VARCHAR(255), CORRECT_ANSWER VARCHAR(255))";
 		String associativeChoicesTable = "CREATE TABLE ASSOCIATIVE_CHOICES(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), FIRST_CHOICE VARCHAR(255), SECOND_CHOICE VARCHAR(255))";
 		String openTipsTable = "CREATE TABLE OPEN_TIPS(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), TIP VARCHAR(255))";
 		String quizTable = "CREATE TABLE QUIZ(ID INT PRIMARY KEY auto_increment, TITLE VARCHAR(255), QUESTION_COUNT INT, CUSTOM_DIFFICULTY INT, AVERAGE_DIFFICULTY DOUBLE, TRUE_DIFFICULTY DOUBLE, PUBLICITY BOOLEAN)";

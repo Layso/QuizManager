@@ -17,7 +17,7 @@ public class Controller {
 	/**
 	 * Enum type to define windows
 	 */
-	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu}
+	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu}
 	
 	
 	
@@ -37,7 +37,8 @@ public class Controller {
 			switch (stage) {
 				case LoginMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.login.fxml"))); break;
 				case MainMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.main.fxml"))); break;
-				case CreateQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.main.fxml"))); break;
+				case CreateQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.createQuiz.fxml"))); break;
+				case SelectQuestionMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.selectQuestion.fxml"))); break;
 			}
 			
 			// Set new scene
