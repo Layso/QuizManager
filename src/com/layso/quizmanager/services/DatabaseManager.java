@@ -62,6 +62,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to get username by user ID
+	 * @param userID    Id of the user
+	 * @return          Username of the user as string
+	 */
 	public String GetUsernameByID(int userID) {
 		String sqlQuery = "select USERNAME from USER where ID = ?";
 		String username = null;
@@ -85,6 +90,10 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to get all public questions saved on database. Public questions contains the private owned questions too
+	 * @return  List of questions that are either public or owned by currently logged in user
+	 */
 	public List<Question> GetAllPublicQuestions() {
 		String sqlQuery = "select ID from QUESTION where PUBLICITY = TRUE or OWNER_ID = ?";
 		List<Question> questions = new ArrayList<>();
@@ -111,6 +120,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to get the Question object with question ID
+	 * @param questionID    Id of the question to retrieve
+	 * @return              Question that matches the ID
+	 */
 	private Question GetQuestionByID(int questionID) {
 		String sqlQuery = "select QUESTION, RESOURCE, TYPE, DIFFICULTY, PUBLICITY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID from QUESTION where ID = ?";
 		Question question = null;
@@ -156,6 +170,20 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Helper method to create a multiple choice question
+	 * @param questionID        Id of question
+	 * @param text              Question text
+	 * @param topics            Topics of the question as string list
+	 * @param path              Path of the resource, if exists
+	 * @param type              Type of the question
+	 * @param publicity         Public or private value of question
+	 * @param difficulty        Difficulty value of the question
+	 * @param correctAnswers    Count of correct answers given to the question
+	 * @param falseAnswers      Count of false answers given to the question
+	 * @param ownerID           Id of the user who created the question
+	 * @return                  Returns the MultipleChoiceQuestion object which matches the given question ID
+	 */
 	private MultipleChoiceQuestion GetMultipleChoiceQuestionByID(int questionID, String text, List<String> topics,
 	                                                             String path, Question.QuestionType type,
 	                                                             boolean publicity , int difficulty, int correctAnswers,
@@ -191,6 +219,20 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Helper method to create an associative question
+	 * @param questionID        Id of question
+	 * @param text              Question text
+	 * @param topics            Topics of the question as string list
+	 * @param path              Path of the resource, if exists
+	 * @param type              Type of the question
+	 * @param publicity         Public or private value of question
+	 * @param difficulty        Difficulty value of the question
+	 * @param correctAnswers    Count of correct answers given to the question
+	 * @param falseAnswers      Count of false answers given to the question
+	 * @param ownerID           Id of the user who created the question
+	 * @return                  Returns the AssociativeQuestion object which matches the given question ID
+	 */
 	private AssociativeQuestion GetAssociativeQuestionByID(int questionID, String text, List<String> topics,
 	                                                       String path, Question.QuestionType type, boolean publicity,
 	                                                       int difficulty, int correctAnswers, int falseAnswers,
@@ -222,6 +264,21 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * Helper method to create an open question
+	 * @param questionID        Id of question
+	 * @param text              Question text
+	 * @param topics            Topics of the question as string list
+	 * @param path              Path of the resource, if exists
+	 * @param type              Type of the question
+	 * @param publicity         Public or private value of question
+	 * @param difficulty        Difficulty value of the question
+	 * @param correctAnswers    Count of correct answers given to the question
+	 * @param falseAnswers      Count of false answers given to the question
+	 * @param ownerID           Id of the user who created the question
+	 * @return                  Returns the OpenQuestion object which matches the given question ID
+	 */
 	private OpenQuestion GetOpenQuestionByID(int questionID, String text, List<String> topics, String path,
 	                                         Question.QuestionType type, boolean publicity, int difficulty,
 	                                         int correctAnswers, int falseAnswers, int ownerID) {
@@ -252,6 +309,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Helper method to retrieve topics for a question
+	 * @param questionID    ID of the question
+	 * @return              Topics as string list for the question matches with question ID
+	 */
 	private List<String> GetTopicsByQuestionID(int questionID) {
 		String sqlQuery = "select TOPIC from TOPIC where QUESTION_ID = ?";
 		List<String> topics = new ArrayList<>();
@@ -276,9 +338,13 @@ public class DatabaseManager {
 	
 	
 	
-	public File GetResourceByQuestionID(int questionID) {
+	/**
+	 * Helper method to retrieve the resource for a question
+	 * @param questionID    ID of the question
+	 */
+	public void GetResourceByQuestionID(int questionID) {
 		String sqlQuery = "select RESOURCE, SIZE from RESOURCE where QUESTION_ID = ?";
-		File resource = new File("RESOURCE_" + questionID + ".rs");
+		File resource = new File(GetResourceNameByQuestionID(questionID));
 		byte[] content;
 		int size;
 		
@@ -311,8 +377,6 @@ public class DatabaseManager {
 			// If this shows up, there is a potential error for image size
 			System.out.println("IMAGE SIZE IS NOT EQUAL TO WHAT READ FROM DATABASE");
 		}
-		
-		return resource;
 	}
 	
 	
@@ -351,10 +415,15 @@ public class DatabaseManager {
 	
 	
 	
-	
+	/**
+	 * Method to get resource file name of a question
+	 * @param questionID    ID of the question
+	 * @return              File name that contains the resource for matching question ID
+	 */
 	public String GetResourceNameByQuestionID(int questionID) {
 		return "RESOURCE_" + questionID + ".rs";
 	}
+	
 	
 	
 	/**
