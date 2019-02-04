@@ -91,6 +91,6 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # Program specific files
-*.cfg
 *.log
 *.txt
+*.rs
