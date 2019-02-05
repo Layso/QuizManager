@@ -1,9 +1,13 @@
 package com.layso.quizmanager.services;
 
 import com.layso.logger.datamodel.Logger;
+import com.layso.quizmanager.datamodel.Question;
+import com.layso.quizmanager.datamodel.Quiz;
 import com.layso.quizmanager.datamodel.User;
 import com.layso.quizmanager.services.DatabaseManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -12,12 +16,14 @@ public class QuizManager {
 	private static QuizManager instance;
 	
 	private User user;
+	private List<Question> tempQuiz;
 	
 	
 	/**
 	 * Private constructor to prevent object creations
 	 */
 	private QuizManager() {
+		tempQuiz = new ArrayList<>();
 		user = null;
 	}
 	
@@ -28,8 +34,9 @@ public class QuizManager {
 	 * @return Created instance of QuizManager
 	 */
 	public static QuizManager getInstance() {
-		if (instance == null)
+		if (instance == null) {
 			instance = new QuizManager();
+		}
 		
 		return instance;
 	}
@@ -77,12 +84,54 @@ public class QuizManager {
 	}
 	*/
 	
+	
+	/**
+	 * Method to save single question to the quiz which is on creation step
+	 * @param question Question to be stored
+	 */
+	public void SaveQuestion(Question question) {
+		tempQuiz.add(question);
+	}
+	
+	
+	
+	/**
+	 * Method to save the questions given as a list to the quiz which is on creation step
+	 * @param questions List of questions to store
+	 */
+	public void SaveQuestion(List<Question> questions) {
+		for (Question question : questions) {
+			tempQuiz.add(question);
+		}
+	}
+	
+	
+	
+	/**
+	 * Getter for all the questions saved to create a quiz
+	 * @return A list which stores given questions
+	 */
+	public List<Question> GetTempQuiz() {
+		return tempQuiz;
+	}
+	
+	
+	
+	/**
+	 *  Method to clear the temporary question list for next quiz creation
+	 */
+	public void ClearTempQuiz() {
+		tempQuiz.clear();
+	}
+	
+	
+	
 	/**
 	 * Gets input from user to login. Uses database manager to check if credentials are correct
 	 *
 	 * @return Returns true if login successful, else returns false
 	 */
-	public  boolean UserLogin(String username, String password) {
+	public boolean UserLogin(String username, String password) {
 		Logger.Log("User login attempt for username: " + username, Logger.LogType.INFO);
 		
 		
@@ -93,6 +142,7 @@ public class QuizManager {
 		
 		return !(user == null);
 	}
+	
 	
 	
 	/**

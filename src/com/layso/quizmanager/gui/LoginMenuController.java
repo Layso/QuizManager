@@ -96,12 +96,8 @@ public class LoginMenuController extends Controller implements Initializable {
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void ClearButton(ActionEvent event) {
-		registerUsername.setText("");
-		loginUsername.setText("");
-		registerPassword.setText("");
-		loginPassword.setText("");
-		registerInfo.setText("");
-		loginInfo.setText("");
+		ClearTextFields(registerUsername, loginUsername, registerPassword, loginPassword);
+		
 		registerSuccesfullMessage.setVisible(false);
 		loginSuccesfullMessage.setVisible(false);
 		registerErrorMessage.setVisible(false);

@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 
 
 
-public class MainMenuController implements Initializable {
+public class MainMenuController extends Controller implements Initializable {
 	@FXML
 	Button skipButton;
 	
@@ -36,25 +36,19 @@ public class MainMenuController implements Initializable {
 	}
 	
 	public void Skip(ActionEvent event) {
-		Stage window = ((Stage) ((Node) event.getSource()).getScene().getWindow());
-		double width = window.getWidth(), height = window.getHeight();
-		
-		
-		try {
-			Parent mainMenuParent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.createQuiz.fxml")));
-			Scene mainMenuScene = new Scene(mainMenuParent, width, height);
-			window.setScene(mainMenuScene);
-		} catch (NullPointerException e) {
-			Logger.Log("Fatal Error: FXML filename fetch for main menu failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
-			System.exit(-1);
-		} catch (IOException e) {
-			Logger.Log("Fatal Error: GUI replacement for main menu failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
-			System.exit(-1);
-		}
+		ChangeScene(event, WindowStage.CreateQuizMenu);
 	}
 	
+	
+	
+	public void EditDeleteButton(ActionEvent event) {
+		ChangeScene(event, WindowStage.EditDeleteQuizMenu);
+	}
+	
+	
+	
 	public void Test(ActionEvent event) {
-		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceByQuestionID(9).getAbsolutePath(), 400, 200, true, true);
+		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceNameByQuestionID(9), 400, 200, true, true);
 		img.setImage(image);
 	}
 }

@@ -1,23 +1,34 @@
 package com.layso.quizmanager.gui;
 
 import com.layso.logger.datamodel.Logger;
+import com.layso.quizmanager.datamodel.Question;
+import com.layso.quizmanager.datamodel.Quiz;
 import com.layso.quizmanager.services.CfgManager;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
-
+import java.util.List;
 
 
 public class Controller {
 	/**
 	 * Enum type to define windows
 	 */
-	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu}
+	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu, EditDeleteQuizMenu}
 	
 	
 	
@@ -28,7 +39,8 @@ public class Controller {
 	 */
 	public void ChangeScene(ActionEvent event, WindowStage stage) {
 		Stage currentWindow = ((Stage) ((Node) event.getSource()).getScene().getWindow());
-		double width = currentWindow.getWidth(), height = currentWindow.getHeight();
+		double width = Integer.parseInt(CfgManager.getInstance().Get("gui.windowWidth"));
+		double height = Integer.parseInt(CfgManager.getInstance().Get("gui.windowHeight"));
 		Parent parent = null;
 		
 		
@@ -39,6 +51,7 @@ public class Controller {
 				case MainMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.main.fxml"))); break;
 				case CreateQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.createQuiz.fxml"))); break;
 				case SelectQuestionMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.selectQuestion.fxml"))); break;
+				case EditDeleteQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.editDeleteQuiz.fxml"))); break;
 			}
 			
 			// Set new scene
@@ -49,8 +62,54 @@ public class Controller {
 			Logger.Log("Fatal Error: FXML filename fetch for failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
 			System.exit(-1);
 		} catch (IOException e) {
-			Logger.Log("Fatal Error: GUI replacement failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: GUI replacement failed: " + e.toString() + ": Terminating program", Logger.LogType.ERROR);
 			System.exit(-1);
 		}
+	}
+	
+	
+	
+	public void AssociateTableWithClass(List<PropertyValueFactory> factoryList, TableColumn ... columns) {
+		for (int i=0; i<columns.length; ++i) {
+			columns[i].setCellValueFactory(factoryList.get(i));
+		}
+	}
+	
+	
+	public void AssociateSearchCriteriaWithTable(ChoiceBox choiceBoxes, TableView table) {
+		ObservableList<String> availableChoices = FXCollections.observableArrayList();
+		for (int i=0; i<table.getColumns().size(); ++i) {
+			availableChoices.add(((TableColumn) table.getColumns().get(i)).getText());
+		}
+		
+		choiceBoxes.setItems(availableChoices);
+		choiceBoxes.getSelectionModel().selectFirst();
+	}
+	
+	public void ClearTextFields(TextField ... fields) {
+		for (TextField field : fields) {
+			field.setText("");
+		}
+	}
+	
+	/**
+	 * Opens a file chooser to let user select an image (only with extensions .png .jpg or .gif) to support question
+	 * @param event ActionEvent produced by GUI
+	 */
+	public String FileSelector() {
+		String path = "";
+		
+		
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Choose image to support the question");
+		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+		fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+		File file = fileChooser.showOpenDialog(null);
+		
+		if (file != null) {
+			path = file.getAbsolutePath();
+		}
+		
+		return path;
 	}
 }

@@ -1,7 +1,9 @@
 package com.layso.quizmanager.datamodel;
 
 import com.layso.quizmanager.services.DatabaseManager;
+import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Question {
@@ -30,6 +32,10 @@ public abstract class Question {
 		this.correctAnswers = correctAnswers;
 		this.falseAnswers = falseAnswers;
 		this.ownerID = ownerID;
+	}
+	
+	public int GetQuestionID() {
+		return id;
 	}
 	
 	public int GetDifficulty() {
@@ -104,5 +110,103 @@ public abstract class Question {
 	
 	public String getOwnerTable() {
 		return DatabaseManager.getInstance().GetUsernameByID(ownerID);
+	}
+	
+	public static List<PropertyValueFactory> GetPropertyValueFactory() {
+		List<PropertyValueFactory> list = new ArrayList<>();
+		
+		list.add(new PropertyValueFactory<Question,String>("questionTextTable"));
+		list.add(new PropertyValueFactory<Question,String>("topicsTable"));
+		list.add(new PropertyValueFactory<Question,String>("typeTable"));
+		list.add(new PropertyValueFactory<Question,String>("difficultyTable"));
+		list.add(new PropertyValueFactory<Question,String>("trueDifficultyTable"));
+		list.add(new PropertyValueFactory<Question,String>("ownerTable"));
+		
+		return list;
+	}
+	
+	
+	
+	/**
+	 * Helper method to see if question text is equals or contains given criteria
+	 * @param criteria  User input to check if question meets the requirement
+	 * @return          Returns true if question meets criteria, else returns false
+	 */
+	public boolean FilterQuestionText(String criteria) {
+		return question.toLowerCase().equals(criteria.toLowerCase()) || question.toLowerCase().contains(criteria.toLowerCase());
+	}
+	
+	
+	
+	/**
+	 * Helper method to see if question topics includes given criteria
+	 * @param criteria  User input to check if question meets the requirement
+	 * @return          Returns true if question meets criteria, else returns false
+	 */
+	public boolean FilterQuestionTopics(String criteria) {
+		return getTopicsTable().toLowerCase().equals(criteria.toLowerCase()) || getTopicsTable().toLowerCase().contains(criteria.toLowerCase());
+	}
+	
+	
+	
+	/**
+	 * Helper method to see if question type is equals or contains given criteria
+	 * @param criteria  User input to check if question meets the requirement
+	 * @return          Returns true if question meets criteria, else returns false
+	 */
+	public boolean FilterQuestionType(String criteria) {
+		return getTypeTable().toLowerCase().equals(criteria.toLowerCase()) || getTypeTable().toLowerCase().contains(criteria.toLowerCase());
+	}
+	
+	
+	
+	/**
+	 * Helper method to see if difficulty of question is higher than given criteria
+	 * @param criteria  User input to check if question meets the requirement
+	 * @return          Returns true if question meets criteria, else returns false
+	 */
+	public boolean FilterQuestionDifficulty(String criteria) {
+		int criteriaDifficulty;
+		
+		
+		try {
+			criteriaDifficulty = Integer.parseInt(criteria);
+		} catch (NumberFormatException e) {
+			criteriaDifficulty = 0;
+		}
+		
+		return difficulty > criteriaDifficulty;
+	}
+	
+	
+	
+	/**
+	 * Helper method to see if true difficulty of question is higher than given criteria
+	 * @param criteria  User input to check if question meets the requirement
+	 * @return          Returns true if question meets criteria, else returns false
+	 */
+	public boolean FilterQuestionTrueDifficulty(String criteria) {
+		double actualNumber = Double.parseDouble(getTrueDifficultyTable());
+		double criteriaNumber;
+		
+		
+		try {
+			criteriaNumber = Double.parseDouble(criteria);
+		} catch (NumberFormatException e) {
+			criteriaNumber = 0;
+		}
+		
+		return actualNumber > criteriaNumber;
+	}
+	
+	
+	
+	/**
+	 * Helper method to see if question owner includes or equals to given criteria
+	 * @param criteria  User input to check if question meets the requirement
+	 * @return          Returns true if question meets criteria, else returns false
+	 */
+	public boolean FilterQuestionOwner(String criteria) {
+		return getOwnerTable().toLowerCase().equals(criteria.toLowerCase()) || getOwnerTable().toLowerCase().contains(criteria.toLowerCase());
 	}
 }

@@ -3,6 +3,7 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.Question;
 import com.layso.quizmanager.services.DatabaseManager;
+import com.layso.quizmanager.services.QuizManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -35,25 +36,11 @@ public class SelectQuestionMenuController extends Controller implements Initiali
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		ObservableList<String> availableChoices = FXCollections.observableArrayList();
-		for (int i=0; i<table.getColumns().size(); ++i) {
-			availableChoices.add(((TableColumn) table.getColumns().get(i)).getText());
-		}
-		
-		searchCriteriaChoice.setItems(availableChoices);
-		searchCriteriaChoice.getSelectionModel().selectFirst();
 		table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		
-		
-		questionColumn.setCellValueFactory(new PropertyValueFactory<Question,String>("questionTextTable"));
-		topicsColumn.setCellValueFactory(new PropertyValueFactory<Question, String>("topicsTable"));
-		typeColumn.setCellValueFactory(new PropertyValueFactory<Question, String>("typeTable"));
-		difficultyColumn.setCellValueFactory(new PropertyValueFactory<Question, String>("difficultyTable"));
-		trueDifficultyColumn.setCellValueFactory(new PropertyValueFactory<Question, String>("trueDifficultyTable"));
-		ownerColumn.setCellValueFactory(new PropertyValueFactory<Question, String>("ownerTable"));
+		AssociateSearchCriteriaWithTable(searchCriteriaChoice, table);
+		AssociateTableWithClass(Question.GetPropertyValueFactory(), questionColumn, topicsColumn, typeColumn,
+			difficultyColumn, trueDifficultyColumn, ownerColumn);
 		SearchButton(null);
-		
-		
 		Logger.Log("Question Selection Menu initialized", Logger.LogType.INFO);
 	}
 	
@@ -82,9 +69,7 @@ public class SelectQuestionMenuController extends Controller implements Initiali
 			selectedQuestions.add(q);
 		}
 		
-		// TODO:
-		// Store the selected list in.. somewhere? (QuizManager maybe?)
-		
+		QuizManager.getInstance().SaveQuestion(selectedQuestions);
 		BackButton(event);
 	}
 	
@@ -99,134 +84,42 @@ public class SelectQuestionMenuController extends Controller implements Initiali
 		ObservableList<Question> data = FXCollections.observableArrayList();
 		
 		
-		// Using if else instead of switch to filter questions since switch needs constant cases
 		for (Question q : questions) {
 			if (searchCriteriaText.getText().equals("")) {
 				data.add(q);
 			}
 			
 			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(questionColumn.getText())
-				&& FilterQuestionText(q, searchCriteriaText.getText())) {
+				&& q.FilterQuestionText(searchCriteriaText.getText())) {
 				data.add(q);
 			}
 			
 			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(topicsColumn.getText())
-				&& FilterQuestionTopics(q, searchCriteriaText.getText())) {
+				&& q.FilterQuestionTopics(searchCriteriaText.getText())) {
 				data.add(q);
 			}
 			
 			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(typeColumn.getText())
-				&& FilterQuestionType(q, searchCriteriaText.getText())) {
+				&& q.FilterQuestionType(searchCriteriaText.getText())) {
 				data.add(q);
 			}
 			
 			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(difficultyColumn.getText())
-				&& FilterQuestionDifficulty(q, searchCriteriaText.getText())) {
+				&& q.FilterQuestionDifficulty(searchCriteriaText.getText())) {
 				data.add(q);
 			}
 			
 			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(trueDifficultyColumn.getText())
-				&& FilterQuestionTrueDifficulty(q, searchCriteriaText.getText())) {
+				&& q.FilterQuestionTrueDifficulty(searchCriteriaText.getText())) {
 				data.add(q);
 			}
 			
 			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(ownerColumn.getText())
-				&& FilterQuestionOwner(q, searchCriteriaText.getText())) {
+				&& q.FilterQuestionOwner(searchCriteriaText.getText())) {
 				data.add(q);
 			}
 		}
 		
 		table.setItems(data);
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question text is equals or contains given criteria
-	 * @param question  Question to compare with criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	private boolean FilterQuestionText(Question question, String criteria) {
-		return question.GetQuestion().toLowerCase().equals(criteria.toLowerCase()) || question.GetQuestion().toLowerCase().contains(criteria.toLowerCase());
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question topics includes given criteria
-	 * @param question  Question to compare with criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	private boolean FilterQuestionTopics(Question question, String criteria) {
-		return question.getTopicsTable().toLowerCase().equals(criteria.toLowerCase()) || question.getTopicsTable().toLowerCase().contains(criteria.toLowerCase());
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question type is equals or contains given criteria
-	 * @param question  Question to compare with criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	private boolean FilterQuestionType(Question question, String criteria) {
-		return question.getTypeTable().toLowerCase().equals(criteria.toLowerCase()) || question.getTypeTable().toLowerCase().contains(criteria.toLowerCase());
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if difficulty of question is higher than given criteria
-	 * @param question  Question to compare with criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	private boolean FilterQuestionDifficulty(Question question, String criteria) {
-		int criteriaDifficulty;
-		
-		
-		try {
-			criteriaDifficulty = Integer.parseInt(criteria);
-		} catch (NumberFormatException e) {
-			criteriaDifficulty = 0;
-		}
-		
-		return question.GetDifficulty() > criteriaDifficulty;
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if true difficulty of question is higher than given criteria
-	 * @param question  Question to compare with criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	private boolean FilterQuestionTrueDifficulty(Question question, String criteria) {
-		double actualNumber = Double.parseDouble(question.getTrueDifficultyTable());
-		double criteriaNumber;
-		
-		
-		try {
-			criteriaNumber = Double.parseDouble(criteria);
-		} catch (NumberFormatException e) {
-			criteriaNumber = 0;
-		}
-		
-		return actualNumber > criteriaNumber;
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question owner includes or equals to given criteria
-	 * @param question  Question to compare with criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	private boolean FilterQuestionOwner(Question question, String criteria) {
-		return question.getOwnerTable().toLowerCase().equals(criteria.toLowerCase()) || question.getOwnerTable().toLowerCase().contains(criteria.toLowerCase());
 	}
 }

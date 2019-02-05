@@ -25,9 +25,6 @@ import java.util.ResourceBundle;
 
 
 public class CreateQuizMenuController extends Controller implements Initializable {
-	private List<Question> questions;
-	
-	
 	@FXML
 	private TabPane quizTypeTabs;
 	
@@ -56,7 +53,6 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		questions = new ArrayList<>();
 		customDifficultySlider.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				customDifficulty.fire();
@@ -75,7 +71,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		for (Tab tab : quizTypeTabs.getTabs()) {
 			if (tab.getId().equals(((Node) event.getSource()).getId())) {
 				quizTypeTabs.getSelectionModel().select(tab);
-				Clear(event);
+				ClearSpecificFields();
 			}
 		}
 	}
@@ -96,7 +92,11 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void QuitButton(ActionEvent event) {
+		System.out.println(1);
+		QuizManager.getInstance().ClearTempQuiz();
+		System.out.println(2);
 		ChangeScene(event, WindowStage.MainMenu);
+		System.out.println(3);
 	}
 	
 	
@@ -126,6 +126,8 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		else {
 			int customDifficultyLevel = -1;
 			double avarageDifficultyLevel = 0;
+			List<Question> questions = QuizManager.getInstance().GetTempQuiz();
+			
 			
 			if (customDifficulty.isSelected()) {
 				customDifficultyLevel = ((int) customDifficultySlider.getValue());
@@ -135,11 +137,13 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 				avarageDifficultyLevel += q.GetDifficulty();
 			}
 			
+			
 			// Create quiz, save to database, return to main menu
-			Quiz quiz = new Quiz(QuizManager.getInstance().GetUser().GetID(), quizTitle.getText(), questions,
+			Quiz quiz = new Quiz(-1, QuizManager.getInstance().GetUser().GetID(), quizTitle.getText(), questions,
 				customDifficultyLevel, 0, avarageDifficultyLevel/questions.size(),
 				publicButton.isSelected());
 			DatabaseManager.getInstance().CreateQuiz(quiz);
+			QuizManager.getInstance().ClearTempQuiz();
 			ChangeScene(event, WindowStage.MainMenu);
 		}
 	}
@@ -152,6 +156,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void FinalizeQuiz(ActionEvent event) {
+		List<Question> questions = QuizManager.getInstance().GetTempQuiz();
 		int avg = 0;
 		
 		
@@ -183,7 +188,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 */
 	public void SaveQuestion(ActionEvent event) {
 		List<String> topics = GetTopics();
-		Question newQuestion;
+		Question newQuestion = null;
 		
 		
 		if (IsQuestionValid()) {
@@ -195,11 +200,10 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 					resourcePath.getText(), Question.QuestionType.Open, publicButton.isSelected(),
 					((int) difficultySlider.getValue()),0, 0,
 					QuizManager.getInstance().GetUser().GetID(), openTipsText.getText()); break;
-				default: newQuestion = null;
 			}
 			
 			// Save question and clear screen for new one
-			questions.add(newQuestion);
+			QuizManager.getInstance().SaveQuestion(newQuestion);
 			Clear(event);
 		} else {
 			noQuestionError.setVisible(false);
@@ -327,46 +331,24 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	
 	
 	
-	/**
-	 * Opens a file chooser to let user select an image (only with extensions .png .jpg or .gif) to support question
-	 * @param event ActionEvent produced by GUI
-	 */
 	public void SelectResourcePath(ActionEvent event) {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Choose image to support the question");
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		fileChooser.getExtensionFilters().addAll(
-			new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif")
-		);
-		File file = fileChooser.showOpenDialog(null);
-		resourcePath.setText(file.getAbsolutePath());
+		resourcePath.setText(FileSelector());
 	}
 	
-	
+	public void ClearSpecificFields() {
+		ClearTextFields(mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer, mcqCorrectAnswer, associativeLeft1,
+			associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5, associativeRight1,
+			associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText);
+	}
 	
 	/**
 	 * Clears all text fields and sets display property of error messages to false
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void Clear(ActionEvent event) {
-		questionText.setText("");
-		topicsText.setText("");
-		resourcePath.setText("");
-		mcqFirstAnswer.setText("");
-		mcqSecondAnswer.setText("");
-		mcqThirdAnswer.setText("");
-		mcqCorrectAnswer.setText("");
-		associativeLeft1.setText("");
-		associativeLeft2.setText("");
-		associativeLeft3.setText("");
-		associativeLeft4.setText("");
-		associativeLeft5.setText("");
-		associativeRight1.setText("");
-		associativeRight2.setText("");
-		associativeRight3.setText("");
-		associativeRight4.setText("");
-		associativeRight5.setText("");
-		openTipsText.setText("");
+		ClearTextFields(questionText, topicsText, resourcePath, mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer,
+			mcqCorrectAnswer, associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5,
+			associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText);
 		questionInvalidError.setVisible(false);
 		noQuestionError.setVisible(false);
 	}

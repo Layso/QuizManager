@@ -62,6 +62,78 @@ public class DatabaseManager {
 	
 	
 	
+	public List<Quiz> GetOwningQuizzes() {
+		String sqlQuery = "select ID from QUIZ where OWNER_ID = ?";
+		List<Quiz> quizzes = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, QuizManager.getInstance().GetUser().GetID());
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				quizzes.add(GetQuizByID(results.getInt("ID")));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get quizzes owned by current user: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return quizzes;
+	}
+	
+	
+	
+	private Quiz GetQuizByID(int quizID) {
+		String sqlQuery = "select TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, OWNER_ID, PUBLICITY from QUIZ where ID = ?";
+		Quiz quiz = null;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, quizID);
+			ResultSet results = statement.executeQuery();
+			
+			if (results.next()) {
+				quiz = new Quiz(quizID, results.getInt("OWNER_ID"), results.getString("TITLE"),
+					GetQuestionsByQuizID(quizID), results.getInt("CUSTOM_DIFFICULTY"),
+					results.getDouble("TRUE_DIFFICULTY"), results.getDouble("AVERAGE_DIFFICULTY"),
+					results.getBoolean("PUBLICITY"));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return quiz;
+	}
+	
+	
+	
+	public List<Question> GetQuestionsByQuizID(int quizID) {
+		String sqlQuery = "select QUESTION_ID from QUIZ_QUESTION_ASSOCIATION where QUIZ_ID = ?";
+		List<Question> questions = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, quizID);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				questions.add(GetQuestionByID(results.getInt("QUESTION_ID")));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get questions on quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return questions;
+	}
+	
+	
+	
 	/**
 	 * Method to get username by user ID
 	 * @param userID    Id of the user
@@ -125,7 +197,7 @@ public class DatabaseManager {
 	 * @param questionID    Id of the question to retrieve
 	 * @return              Question that matches the ID
 	 */
-	private Question GetQuestionByID(int questionID) {
+	public Question GetQuestionByID(int questionID) {
 		String sqlQuery = "select QUESTION, RESOURCE, TYPE, DIFFICULTY, PUBLICITY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID from QUESTION where ID = ?";
 		Question question = null;
 		boolean questionPublicity;
@@ -385,18 +457,19 @@ public class DatabaseManager {
 	 * @param quiz Quiz to save to database
 	 */
 	public void CreateQuiz(Quiz quiz) {
-		String sqlQuery = "insert into QUIZ(TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, PUBLICITY) values(?, ?, ?, ?, ?, ?)";
+		String sqlQuery = "insert into QUIZ(TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, OWNER_ID, PUBLICITY) values(?, ?, ?, ?, ?, ?, ?)";
 		int quizID;
 		
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-			statement.setString(1, quiz.GetTitle());
+			statement.setString(1, quiz.GetQuizTitle());
 			statement.setString(2, Integer.toString(quiz.GetQuestions().size()));
 			statement.setString(3, Integer.toString(quiz.GetCustomDifficulty()));
 			statement.setString(4, Double.toString(quiz.GetAverageDifficulty()));
 			statement.setString(5, Double.toString(quiz.GetTrueDifficulty()));
-			statement.setString(6, Boolean.toString(quiz.GetPublicity()));
+			statement.setInt(6, QuizManager.getInstance().GetUser().GetID());
+			statement.setString(7,  Boolean.toString(quiz.GetPublicity()));
 			statement.execute();
 			
 			ResultSet result = statement.getGeneratedKeys();
@@ -408,7 +481,7 @@ public class DatabaseManager {
 			}
 			Logger.Log("All questions of quiz (ID: " + quizID + ") successfully inserted", Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new quiz: " + quiz.GetTitle() + ": " + e.getMessage(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to insert new quiz: " + quiz.GetQuizTitle() + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 	}
@@ -714,7 +787,7 @@ public class DatabaseManager {
 		String mcqChoicesTable = "CREATE TABLE MCQ_ANSWERS(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), FIRST_ANSWER VARCHAR(255), SECOND_ANSWER VARCHAR(255), THIRD_ANSWER VARCHAR(255), CORRECT_ANSWER VARCHAR(255))";
 		String associativeChoicesTable = "CREATE TABLE ASSOCIATIVE_CHOICES(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), FIRST_CHOICE VARCHAR(255), SECOND_CHOICE VARCHAR(255))";
 		String openTipsTable = "CREATE TABLE OPEN_TIPS(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), TIP VARCHAR(255))";
-		String quizTable = "CREATE TABLE QUIZ(ID INT PRIMARY KEY auto_increment, TITLE VARCHAR(255), QUESTION_COUNT INT, CUSTOM_DIFFICULTY INT, AVERAGE_DIFFICULTY DOUBLE, TRUE_DIFFICULTY DOUBLE, PUBLICITY BOOLEAN)";
+		String quizTable = "CREATE TABLE QUIZ(ID INT PRIMARY KEY auto_increment, TITLE VARCHAR(255), QUESTION_COUNT INT, CUSTOM_DIFFICULTY INT, AVERAGE_DIFFICULTY DOUBLE, TRUE_DIFFICULTY DOUBLE, OWNER_ID INT, foreign key (OWNER_ID) references USER(ID), PUBLICITY BOOLEAN)";
 		String quizQuestionAsssociationTable = "CREATE TABLE QUIZ_QUESTION_ASSOCIATION(ID INT PRIMARY KEY auto_increment, QUIZ_ID INT, foreign key (QUIZ_ID) references QUIZ(ID), QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID))";
 		
 		return false;
