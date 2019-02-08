@@ -34,8 +34,6 @@ public abstract class Question {
 		this.owner = owner;
 	}
 	
-	
-	
 	/* Getters for member fields*/
 	public int GetID() {
 		return id;
