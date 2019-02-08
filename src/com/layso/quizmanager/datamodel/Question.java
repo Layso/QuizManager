@@ -10,6 +10,7 @@ public abstract class Question {
 	public enum QuestionType {MultipleChoice, Associative, Open}
 	
 	private int id;
+	private User owner;
 	private String question;
 	private List<String> topics;
 	private String resource;
@@ -18,10 +19,9 @@ public abstract class Question {
 	private int difficulty;
 	private int correctAnswers;
 	private int falseAnswers;
-	private int ownerID;
 	
 	
-	protected Question(int id, String question, List<String> topics, String resource, QuestionType type, boolean publicity, int difficulty, int correctAnswers, int falseAnswers, int ownerID) {
+	protected Question(int id, String question, List<String> topics, String resource, QuestionType type, boolean publicity, int difficulty, int correctAnswers, int falseAnswers, User owner) {
 		this.id = id;
 		this.question = question;
 		this.topics = topics;
@@ -31,10 +31,13 @@ public abstract class Question {
 		this.difficulty = difficulty;
 		this.correctAnswers = correctAnswers;
 		this.falseAnswers = falseAnswers;
-		this.ownerID = ownerID;
+		this.owner = owner;
 	}
 	
-	public int GetQuestionID() {
+	
+	
+	/* Getters for member fields*/
+	public int GetID() {
 		return id;
 	}
 	
@@ -70,11 +73,13 @@ public abstract class Question {
 		return falseAnswers;
 	}
 	
-	public int GetOwnerID() {
-		return ownerID;
+	public User GetOwner() {
+		return owner;
 	}
 	
 	
+	
+	/* Getters for GUI tables */
 	public String getQuestionTextTable() {
 		return question;
 	}
@@ -109,9 +114,15 @@ public abstract class Question {
 	}
 	
 	public String getOwnerTable() {
-		return DatabaseManager.getInstance().GetUsernameByID(ownerID);
+		return DatabaseManager.getInstance().GetUsernameByID(owner.GetID());
 	}
 	
+	
+	
+	/**
+	 * A getter for property list to associate Question on a TableView
+	 * @return  List of PropertyValueFactory for member fields to show on table
+	 */
 	public static List<PropertyValueFactory> GetPropertyValueFactory() {
 		List<PropertyValueFactory> list = new ArrayList<>();
 		

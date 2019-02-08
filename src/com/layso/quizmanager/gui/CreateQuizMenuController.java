@@ -14,9 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +47,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText,
 		quizTitle;
 	
+	private List<TextField> mcqAllChoices, associativeLeft, associativeRight;
 	
 	
 	@Override
@@ -58,9 +57,28 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 				customDifficulty.fire();
 			}
 		});
+		
+		mcqAllChoices = CreateTextFieldArray(mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer, mcqCorrectAnswer);
+		associativeLeft = CreateTextFieldArray(associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5);
+		associativeRight = CreateTextFieldArray(associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5);
 		Logger.Log("Quiz Creation Menu initialized", Logger.LogType.INFO);
 	}
 	
+	/**
+	 * Helper method to create list from TextFields
+	 * @param fields    Fields to include in list
+	 * @return          ArrayList created from input list
+	 */
+	public static List<TextField> CreateTextFieldArray(TextField ... fields) {
+		List<TextField> list = new ArrayList<>();
+		
+		
+		for (TextField field : fields) {
+			list.add(field);
+		}
+		
+		return list;
+	}
 	
 	
 	/**
@@ -75,6 +93,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 		}
 	}
+	
 	
 	
 	/**
@@ -187,19 +206,24 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void SaveQuestion(ActionEvent event) {
-		List<String> topics = GetTopics();
+		Question.QuestionType type = Question.QuestionType.valueOf(quizTypeTabs.getSelectionModel().getSelectedItem().getId());
 		Question newQuestion = null;
 		
 		
-		if (IsQuestionValid()) {
+		if (IsQuestionValid(type, questionText, mcqAllChoices, associativeLeft, associativeRight)) {
 			// Identify question type to get Question object
 			switch (Question.QuestionType.valueOf(quizTypeTabs.getSelectionModel().getSelectedItem().getId())) {
-				case MultipleChoice: newQuestion = CreateMCQ(); break;
-				case Associative: newQuestion = CreateAssociative(); break;
-				case Open: newQuestion = new OpenQuestion(-1, questionText.getText(), topics,
-					resourcePath.getText(), Question.QuestionType.Open, publicButton.isSelected(),
-					((int) difficultySlider.getValue()),0, 0,
-					QuizManager.getInstance().GetUser().GetID(), openTipsText.getText()); break;
+				case MultipleChoice: newQuestion = CreateMCQ(questionText.getText(), topicsText, resourcePath.getText(),
+					publicButton.isSelected(), ((int) difficultySlider.getValue()), mcqAllChoices, mcqCorrectAnswer.getText());
+					break;
+					
+				case Associative: newQuestion = CreateAssociative(questionText.getText(), topicsText, resourcePath.getText(),
+					publicButton.isSelected(), ((int) difficultySlider.getValue()), associativeLeft, associativeRight);
+					break;
+					
+				case Open: newQuestion = CreateOpenQuestion(questionText.getText(), topicsText, resourcePath.getText(),
+					publicButton.isSelected(), ((int) difficultySlider.getValue()), openTipsText.getText());
+					break;
 			}
 			
 			// Save question and clear screen for new one
@@ -215,40 +239,37 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	
 	/**
 	 * Helper function to create an associative question. Creates the left and right side lists given by user with
-	 * interface and calls constructor with proper parameters
-	 * @return  Returns newly created Associative Question
+	 * interface and calls constructor with proper parameters. Question must be valid to create without problems
+	 * @param question      Question text
+	 * @param topics        Topics TextField
+	 * @param resource      Resource text
+	 * @param isPublic      Publicity value
+	 * @param difficulty    Difficulty value
+	 * @param leftColumn    Left column of GUI with text fields, as List
+	 * @param rightColumn   Right column of GUI with text fields, as List
+	 * @return              Newly created Associative Question
 	 */
-	private AssociativeQuestion CreateAssociative() {
-		List<String> leftColumn = new ArrayList<>();
-		List<String> rightColumn = new ArrayList<>();
+	public static AssociativeQuestion CreateAssociative(String question, TextField topics, String resource, boolean isPublic,
+	                                             int difficulty, List<TextField> leftColumn, List<TextField> rightColumn) {
+		List<String> leftChoices = new ArrayList<>();
+		List<String> rightChoices = new ArrayList<>();
+		int i;
 		
 		
 		// At this point it is sure the question is valid. Directly add first 2 rows
-		leftColumn.add(associativeLeft1.getText());
-		rightColumn.add(associativeRight1.getText());
-		leftColumn.add(associativeLeft2.getText());
-		rightColumn.add(associativeRight2.getText());
-		
-		
-		// Check if there is any other row that is filled. Add the filled rows too
-		if (!associativeLeft3.getText().equals("")) {
-			leftColumn.add(associativeLeft3.getText());
-			rightColumn.add(associativeRight3.getText());
+		for (i=0; i<AssociativeQuestion.MINIMUM_ROW_COUNT; ++i) {
+			leftChoices.add(leftColumn.get(i).getText());
+			rightChoices.add(rightColumn.get(i).getText());
 		}
 		
-		if (!associativeLeft4.getText().equals("")) {
-			leftColumn.add(associativeLeft4.getText());
-			rightColumn.add(associativeRight4.getText());
+		// Add remaining rows where there is a data
+		for (; i<leftColumn.size(); ++i) {
+			leftChoices.add(leftColumn.get(i).getText());
+			rightChoices.add(rightColumn.get(i).getText());
 		}
 		
-		if (!associativeLeft5.getText().equals("")) {
-			leftColumn.add(associativeLeft5.getText());
-			rightColumn.add(associativeRight5.getText());
-		}
-		
-		return new AssociativeQuestion(-1, questionText.getText(), GetTopics(), resourcePath.getText(),
-			Question.QuestionType.Associative, publicButton.isSelected(),((int) difficultySlider.getValue()),
-			0, 0, QuizManager.getInstance().GetUser().GetID(), leftColumn, rightColumn);
+		return new AssociativeQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Associative,
+			isPublic, difficulty,0, 0, QuizManager.getInstance().GetUser(), leftChoices, rightChoices);
 	}
 	
 	
@@ -256,20 +277,49 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	/**
 	 * Helper function to create a multiple choice question. Creates the answer list given by user with interface and
 	 * calls constructor with proper parameters
-	 * @return  Returns newly created Multiple Choice Question
+	 * @param question      Question text
+	 * @param topics        Topics TextField
+	 * @param resource      Resource text
+	 * @param isPublic      Publicity value
+	 * @param difficulty    Difficulty value
+	 * @param allAnswers    List of TextField for all answer fields
+	 * @param correctAnswer The answer that is considered as correct
+	 * @return              Returns newly created Multiple Choice Question
 	 */
-	private MultipleChoiceQuestion CreateMCQ() {
+	public static MultipleChoiceQuestion CreateMCQ(String question, TextField topics, String resource, boolean isPublic,
+	                                         int difficulty, List<TextField> allAnswers, String correctAnswer) {
 		List<String> answers = new ArrayList<>();
-		answers.add(mcqFirstAnswer.getText());
-		answers.add(mcqSecondAnswer.getText());
-		answers.add(mcqThirdAnswer.getText());
 		
-		return new MultipleChoiceQuestion(-1, questionText.getText(), GetTopics(), resourcePath.getText(),
-			Question.QuestionType.MultipleChoice, publicButton.isSelected(),((int) difficultySlider.getValue()),
-			0, 0, QuizManager.getInstance().GetUser().GetID(), mcqCorrectAnswer.getText(),
-			answers);
+		
+		for (TextField field : allAnswers) {
+			System.out.println(field.getText());
+			if (!field.getText().equals(correctAnswer)) {
+				answers.add(field.getText());
+			}
+		}
+		
+		
+		return new MultipleChoiceQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.MultipleChoice,
+			isPublic, difficulty,0, 0, QuizManager.getInstance().GetUser(), correctAnswer, answers);
 	}
 	
+	
+	
+	/**
+	 * Helper function to create an open question
+	 * @param question      Question text
+	 * @param topics        Topics TextField
+	 * @param resource      Resource text
+	 * @param isPublic      Publicity value
+	 * @param difficulty    Difficulty value
+	 * @param tips          Tips for question
+	 * @return              Newly created open question
+	 */
+	public static OpenQuestion CreateOpenQuestion(String question, TextField topics, String resource, boolean isPublic,
+	                                       int difficulty, String tips) {
+		return new OpenQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Open, isPublic,
+			difficulty, 0, 0, QuizManager.getInstance().GetUser(), tips);
+	}
 	
 	
 	/**
@@ -277,12 +327,12 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * the found topics
 	 * @return  A list including all topics
 	 */
-	private List<String> GetTopics() {
+	public static List<String> GetTopics(TextField topicField) {
 		List<String> topics = new ArrayList<>();
 		
 		
 		// If there is anything filled, split it with predefined delimiters and add each topic to list
-		for (String topic : topicsText.getText().split("[ ]|[;]|[-]|[,]|[.]")) {
+		for (String topic : topicField.getText().split("[ ]|[;]|[-]|[,]|[.]")) {
 			if (!topic.equals(""))
 				topics.add(topic);
 		}
@@ -293,53 +343,75 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	
 	
 	/**
-	 * Checks the user input fields to determine if given information is enough to create a question. Required fields
-	 * are different for different type of questions. It checks according to the question type
-	 * @return  Validness of the question
+	 * Helper method to check the user input fields to determine if given information is enough to create a question.
+	 * Required fields are different for different type of questions. It checks according to the question type
+	 * @param type                      Type of the question
+	 * @param question                  Question text
+	 * @param mcqAnswers                List of all answers for multiple choice
+	 * @param associativeLeftFields     Left column of GUI input fields for associated question as list
+	 * @param associativeRightFields    Right column of GUI input fields for associated question as list
+	 * @return                          Validness of question
 	 */
-	private boolean IsQuestionValid() {
-		String tab = quizTypeTabs.getSelectionModel().getSelectedItem().getId();
-		boolean valid;
+	public static boolean IsQuestionValid(Question.QuestionType type, TextField question, List<TextField> mcqAnswers,
+	                                List<TextField> associativeLeftFields, List<TextField> associativeRightFields) {
+		boolean notValid = false;
 		
 		
 		// If it is an MCQ, all 4 answer text fields must be filled
-		if (tab.equals(Question.QuestionType.MultipleChoice.name())) {
-			valid = !(questionText.getText().equals("") || mcqFirstAnswer.getText().equals("") ||
-				mcqSecondAnswer.getText().equals("") || mcqThirdAnswer.getText().equals("") ||
-				mcqCorrectAnswer.getText().equals(""));
+		if (type == Question.QuestionType.MultipleChoice) {
+			for (TextField field : mcqAnswers) {
+				notValid |= field.getText().equals("");
+			}
 		}
 		
 		// If it is an associative question first two rows must be filled on both sides. Other rows can be filled but
-		// it can't be filled only on 1 side
-		else if (tab.equals(Question.QuestionType.Associative.name())) {
-			boolean firstRow = associativeLeft1.getText().equals("") || associativeRight1.getText().equals("");
-			boolean secondRow = associativeLeft2.getText().equals("") || associativeRight2.getText().equals("");
-			boolean thirdRow = associativeLeft3.getText().equals("") ^ associativeRight3.getText().equals("");
-			boolean fourthRow = associativeLeft4.getText().equals("") ^ associativeRight4.getText().equals("");
-			boolean fifthRow = associativeLeft5.getText().equals("") ^ associativeRight5.getText().equals("");
+		// it can't be filled only on 1 side. Using XOR to test this case
+		else if (type == Question.QuestionType.Associative) {
+			if (associativeLeftFields.size() == associativeRightFields.size()) {
+				int i;
+				
+				for (i=0; i<AssociativeQuestion.MINIMUM_ROW_COUNT; ++i) {
+					notValid |= associativeLeftFields.get(i).getText().equals("") || associativeRightFields.get(i).getText().equals("");
+				}
+				
+				for (; i<associativeLeftFields.size(); ++i) {
+					notValid |= associativeLeftFields.get(i).getText().equals("") ^ associativeRightFields.get(i).getText().equals("");
+				}
+			}
 			
-			valid = !(questionText.getText().equals("") || firstRow || secondRow || thirdRow || fourthRow || fifthRow);
+			else {
+				notValid = true;
+			}
 		}
 		
-		// For an open question, question text is the only thing required
-		else {
-			valid = !questionText.getText().equals("");
-		}
+		// No constraints for open question, question text is the only thing required for all of them
+		notValid |= question.getText().equals("");
 		
-		return valid;
+		return !notValid;
 	}
 	
 	
 	
+	/**
+	 * Button action to get path selection
+	 * @param event ActionEvent created by GUI
+	 */
 	public void SelectResourcePath(ActionEvent event) {
 		resourcePath.setText(FileSelector());
 	}
 	
+	
+	
+	/**
+	 * Helper to clear the answer fields when question type is changed
+	 */
 	public void ClearSpecificFields() {
 		ClearTextFields(mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer, mcqCorrectAnswer, associativeLeft1,
 			associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5, associativeRight1,
 			associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText);
 	}
+	
+	
 	
 	/**
 	 * Clears all text fields and sets display property of error messages to false

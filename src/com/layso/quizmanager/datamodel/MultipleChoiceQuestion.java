@@ -11,9 +11,9 @@ public class MultipleChoiceQuestion extends Question {
 	
 	
 	public MultipleChoiceQuestion(int id, String question, List<String> topics, String resource, QuestionType type,
-	                              boolean publicity, int difficulty, int correctAnswers, int falseAnswers, int ownerID,
+	                              boolean publicity, int difficulty, int correctAnswers, int falseAnswers, User owner,
 	                              String correctAnswer, List<String> otherAnswers) {
-		super(id, question, topics, resource, type, publicity, difficulty, correctAnswers, falseAnswers, ownerID);
+		super(id, question, topics, resource, type, publicity, difficulty, correctAnswers, falseAnswers, owner);
 		this.correctAnswer = correctAnswer;
 		this.otherAnswers = otherAnswers;
 	}

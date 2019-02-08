@@ -3,15 +3,16 @@ package com.layso.quizmanager.datamodel;
 import java.util.List;
 
 public class AssociativeQuestion extends Question {
+	public static final int MINIMUM_ROW_COUNT = 2;
 	private List<String> leftColumn;
 	private List<String> rightColumn;
 	
 	
 	
 	public AssociativeQuestion(int id, String question, List<String> topics, String resource, QuestionType type,
-	                           boolean publicity, int difficulty, int correctAnswers, int falseAnswers, int ownerID,
+	                           boolean publicity, int difficulty, int correctAnswers, int falseAnswers, User owner,
 	                           List<String> leftColumn, List<String> rightColumn) {
-		super(id, question, topics, resource, type, publicity, difficulty, correctAnswers, falseAnswers, ownerID);
+		super(id, question, topics, resource, type, publicity, difficulty, correctAnswers, falseAnswers, owner);
 		this.leftColumn = leftColumn;
 		this.rightColumn = rightColumn;
 	}

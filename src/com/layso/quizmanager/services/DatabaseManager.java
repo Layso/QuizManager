@@ -61,6 +61,162 @@ public class DatabaseManager {
 	}
 	
 	
+	public void ChangeQuestion(Question oldQuestion, Question newQuestion) {
+		String sqlQuery = "select QUIZ_ID from QUIZ_QUESTION_ASSOCIATION where QUESTION_ID = ?";
+		int newID = SaveQuestion(newQuestion);
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, oldQuestion.GetID());
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				ChangeQuizQuestion(oldQuestion.GetID(), newID, results.getInt("QUIZ_ID"));
+			}
+			
+			DeleteQuestionByID(oldQuestion.GetID());
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to update question ID from " + oldQuestion.GetID() + " to " + newID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	
+	public void ChangeQuizQuestion(int oldID, int newID, int quizID) {
+		String sqlQuery = "update QUIZ_QUESTION_ASSOCIATION set QUESTION_ID = ? where QUESTION_ID = ? and QUIZ_ID = ?";
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, newID);
+			statement.setInt(2, oldID);
+			statement.setInt(3, quizID);
+			statement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to update question ID from " + oldID + " to " + newID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	
+	public void DeleteQuestionByID(int questionID) {
+		String[] queries = {"delete from RESOURCE where QUESTION_ID = ?",
+							"delete from TOPIC where QUESTION_ID = ?",
+							"delete from QUESTION where ID = ?",
+							"delete from MCQ_ANSWERS where QUESTION_ID = ?",
+							"delete from ASSOCIATIVE_CHOICES where QUESTION_ID = ?",
+							"delete from OPEN_TIPS where QUESTION_ID = ?"};
+		
+		String sqlQueryResource = "delete from RESOURCE where QUESTION_ID = ?";
+		String sqlQueryTopic = "delete from TOPIC where QUESTION_ID = ?";
+		String sqlQueryQuestion = "delete from QUESTION where ID = ?";
+		String sqlQueryMcqAnswers = "delete from MCQ_ANSWERS where QUESTION_ID = ?";
+		String sqlQueryAssociative = "delete from ASSOCIATIVE_CHOICES where QUESTION_ID = ?";
+		String sqlQueryOpenTips = "delete from OPEN_TIPS where QUESTION_ID = ?";
+		
+		
+		try {
+			PreparedStatement statement1 = connection.prepareStatement(sqlQueryResource);
+			statement1.setInt(1, questionID);
+			statement1.execute();
+			
+			PreparedStatement statement2 = connection.prepareStatement(sqlQueryTopic);
+			statement2.setInt(1, questionID);
+			statement2.execute();
+			
+			PreparedStatement statement3 = connection.prepareStatement(sqlQueryQuestion);
+			statement3.setInt(1, questionID);
+			statement3.execute();
+			
+			PreparedStatement statement4 = connection.prepareStatement(sqlQueryMcqAnswers);
+			statement4.setInt(1, questionID);
+			statement4.execute();
+			
+			PreparedStatement statement5 = connection.prepareStatement(sqlQueryAssociative);
+			statement5.setInt(1, questionID);
+			statement5.execute();
+			
+			PreparedStatement statement6 = connection.prepareStatement(sqlQueryOpenTips);
+			statement6.setInt(1, questionID);
+			statement6.execute();
+			
+			
+			SafeQuestionDeletion(questionID);
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to remove question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	
+	private void SafeQuestionDeletion(int questionID) {
+		String sqlQuery = "select QUIZ_ID from QUIZ_QUESTION_ASSOCIATION where QUESTION_ID = ?";
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, questionID);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				DeleteQuestionFromQuiz(results.getInt("QUIZ_ID"), questionID);
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to safely delete question ID: " + questionID + " from quiz: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	
+	
+	public void DeleteQuestionFromQuiz(int quizID, int questionID) {
+		String sqlDeleteQuery = "delete from QUIZ_QUESTION_ASSOCIATION where QUIZ_ID = ? and QUESTION_ID = ?";
+		String sqlUpdateQuery = "update QUIZ set QUESTION_COUNT = ? where ID = ?";
+		String sqlCheckQuery = "select QUESTION_COUNT from QUIZ where ID = ?";
+		
+		System.out.println("Delete " + questionID + " from " + quizID);
+		try {
+			PreparedStatement deleteStatement = connection.prepareStatement(sqlDeleteQuery);
+			deleteStatement.setInt(1, quizID);
+			deleteStatement.setInt(2, questionID);
+			deleteStatement.execute();
+			
+			PreparedStatement checkStatement = connection.prepareStatement(sqlCheckQuery);
+			checkStatement.setInt(1, quizID);
+			ResultSet results = checkStatement.executeQuery();
+			
+			if (results.next()) {
+				int questionCount = results.getInt("QUESTION_COUNT");
+				if (questionCount == 1) {
+					DeleteQuizByID(quizID);
+				}
+				
+				else {
+					PreparedStatement updateStatement = connection.prepareStatement(sqlUpdateQuery);
+					updateStatement.setInt(1, questionCount - 1);
+					updateStatement.setInt(2, quizID);
+					updateStatement.execute();
+				}
+			}
+			
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to remove question ID: " + questionID + " from quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	public void DeleteQuizByID(int quizID) {
+		String sqlQuery = "delete from QUIZ where ID = ?";
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, quizID);
+			statement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to remove quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
 	
 	public List<Quiz> GetOwningQuizzes() {
 		String sqlQuery = "select ID from QUIZ where OWNER_ID = ?";
@@ -277,7 +433,7 @@ public class DatabaseManager {
 				otherAnswers.add(results.getString("SECOND_ANSWER"));
 				otherAnswers.add(results.getString("THIRD_ANSWER"));
 				question = new MultipleChoiceQuestion(questionID, text, topics, path, type, publicity, difficulty,
-					correctAnswers, falseAnswers, ownerID, correctAnswer, otherAnswers);
+					correctAnswers, falseAnswers, GetUserByID(ownerID), correctAnswer, otherAnswers);
 			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to get multiple choice questions with ID: " + questionID + " " +
@@ -324,7 +480,7 @@ public class DatabaseManager {
 				rightColumn.add(results.getString("SECOND_CHOICE"));
 			}
 			question = new AssociativeQuestion(questionID, text, topics, path, type, publicity, difficulty,
-				correctAnswers, falseAnswers, ownerID, leftColumn, rightColumn);
+				correctAnswers, falseAnswers, GetUserByID(ownerID), leftColumn, rightColumn);
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to get associative questions with ID: " + questionID + " " +
 				e.getMessage(), Logger.LogType.ERROR);
@@ -367,7 +523,7 @@ public class DatabaseManager {
 			if (results.next()) {
 				tip = results.getString("TIP");
 				question = new OpenQuestion(questionID, text, topics, path, type, publicity, difficulty, correctAnswers,
-					falseAnswers, ownerID, tip);
+					falseAnswers, GetUserByID(ownerID), tip);
 			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to get open questions with ID: " + questionID + " " +
@@ -504,7 +660,7 @@ public class DatabaseManager {
 	 * methods to insert remaining parts to the database
 	 * @param question  Question to insert
 	 */
-	private int SaveQuestion(Question question) {
+	public int SaveQuestion(Question question) {
 		String sqlQuery = "insert into QUESTION(QUESTION, RESOURCE, TYPE, PUBLICITY, DIFFICULTY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID) values(?, ?, ?, ?, ?, ?, ?, ?)";
 		int questionID = 0;
 		
@@ -518,7 +674,7 @@ public class DatabaseManager {
 			statement.setString(5, Integer.toString(question.GetDifficulty()));
 			statement.setString(6, Integer.toString(question.GetCorrectAnswers()));
 			statement.setString(7, Integer.toString(question.GetFalseAnswers()));
-			statement.setString(8, Integer.toString(question.GetOwnerID()));
+			statement.setString(8, Integer.toString(question.GetOwner().GetID()));
 			statement.execute();
 			
 			ResultSet result = statement.getGeneratedKeys();
@@ -617,7 +773,8 @@ public class DatabaseManager {
 			statement.execute();
 			Logger.Log("All answers are insert for new multiple choice question ID: " + questionID, Logger.LogType.INFO);
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to insert new multiple choice question " + question.GetQuestion(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: Failed to insert new multiple choice question " + question.GetQuestion() +
+				": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 	}
@@ -693,6 +850,36 @@ public class DatabaseManager {
 			Logger.Log("Fatal Error: Failed to insert new question (ID: " + questionID + ") to associated quiz (ID: " + quizID + ")", Logger.LogType.ERROR);
 			System.exit(1);
 		}
+	}
+	
+	
+	
+	/**
+	 * Method to get the User by its ID
+	 * @param userID    ID of the user
+	 * @return          User object (Student or Teacher) according to authority
+	 */
+	public User GetUserByID(int userID) {
+		String sqlQuery = "select USERNAME, AUTHORITY from USER where ID = ?";
+		User user = null;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, userID);
+			ResultSet results = statement.executeQuery();
+			
+			if (results.next()) {
+				String username = results.getString("USERNAME");
+				boolean authority = results.getBoolean("AUTHORITY");
+				user = authority ? new Teacher(userID, username) : new Student(userID, username) ;
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Couldn't get the user with ID: " + userID, Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return user;
 	}
 	
 	

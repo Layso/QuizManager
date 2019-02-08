@@ -17,8 +17,6 @@ public abstract class User {
 		this.username = username;
 		this.sessionEnd = false;
 		this.authoritative = authoritative;
-		
-		Logger.Log("Login attempt successful for user: " + username, Logger.LogType.INFO);
 	}
 	
 	

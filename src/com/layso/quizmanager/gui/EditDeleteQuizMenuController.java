@@ -11,10 +11,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 
 
-import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -47,79 +45,109 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	@FXML
 	VBox multipleChoiceQuestionParent, associativeQuestionParent, openQuestionParent;
 	
-	int quizID;
-	int questionID;
+	@FXML
+	RadioButton publicButton, privateButton;
+	
+	int selectedQuizID;
+	int selectedQuestionID;
+	List<TextField> mcqAllChoices, associativeLeft, associativeRight;
+	
 	
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
+		// Constructing the TableView elements by associating with classes
 		AssociateSearchCriteriaWithTable(searchCriteriaChoiceQuiz, quizTable);
 		AssociateTableWithClass(Quiz.GetPropertyValueFactory(), nameColumnQuiz, questionCountColumnQuiz, difficultyColumnQuiz);
-		
 		
 		AssociateSearchCriteriaWithTable(searchCriteriaChoiceQuestion, questionTable);
 		AssociateTableWithClass(Question.GetPropertyValueFactory(), questionColumnQuestion, topicsColumnQuestion,
 			typeColumnQuestion, difficultyColumnQuestion, trueDifficultyColumnQuestion, ownerColumnQuestion);
-		
 		QuizSearchButton(null);
+		
+		
+		mcqAllChoices = CreateQuizMenuController.CreateTextFieldArray(mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer, mcqCorrectAnswer);
+		associativeLeft = CreateQuizMenuController.CreateTextFieldArray(associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5);
+		associativeRight = CreateQuizMenuController.CreateTextFieldArray(associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5);
 		Logger.Log("Quiz Edit/Delete Menu initialized", Logger.LogType.INFO);
 	}
 	
 	
 	
 	public void SaveButton(ActionEvent event) {
-		// TODO:
-		// Check question validness
-		// If type is different than old, delete question
-			// Create new question
-			// Change old questionID from association table with new id
+		if (CreateQuizMenuController.IsQuestionValid(GetQuestionTypeByTab(), questionText, mcqAllChoices, associativeLeft, associativeRight)) {
+			Question newQuestion = CreateQuestion(event);
+			DatabaseManager.getInstance().ChangeQuestion(((Question) questionTable.getSelectionModel().getSelectedItem()), newQuestion);
+			SelectQuizButton(event);
+		}
 		
-		// Else
-			// Alter question tables
-		
-		// Reload question selection menu
+		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	public void SaveOnQuizButton(ActionEvent event) {
-		// TODO:
-		// Check question validness
-		// Create new question
-		// Change questionID with new produced ID on association table where quiz id is quizID
+		if (CreateQuizMenuController.IsQuestionValid(GetQuestionTypeByTab(), questionText, mcqAllChoices, associativeLeft, associativeRight)) {
+			Question newQuestion = CreateQuestion(event);
+			int newID = DatabaseManager.getInstance().SaveQuestion(newQuestion);
+			DatabaseManager.getInstance().ChangeQuizQuestion(selectedQuestionID, newID, selectedQuizID);
+			SelectQuizButton(event);
+		}
 		
-		// Reload question selection menu
+		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	public void RemoveButton(ActionEvent event) {
-		// TODO:
-		// Delete question
-		// Delete entries on association table where question ıd is questionID
+		if (questionTable.getSelectionModel().getSelectedItem() != null) {
+			selectedQuestionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetID();
+			DatabaseManager.getInstance().DeleteQuestionByID(selectedQuestionID);
+			QuestionSearchButton(event);
+		}
 		
-		// Reload question selection menu
+		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	
 	public void RemoveFromQuizButton(ActionEvent event) {
-		// TODO:
-		// Delete entries on association table where question ıd is questionID
+		if (questionTable.getSelectionModel().getSelectedItem() != null) {
+			selectedQuestionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetID();
+			DatabaseManager.getInstance().DeleteQuestionFromQuiz(selectedQuizID, selectedQuestionID);
+			QuestionSearchButton(event);
+		}
 		
-		// Reload question selection menu
+		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	
 	
+	/**
+	 * Method to get resource path from file selector
+	 * @param event
+	 */
 	public void SelectResourcePath(ActionEvent event) {
 		resourcePath.setText(FileSelector());
 	}
 	
-	private void BuildQuestionScreen(ActionEvent event) {
-		Question question = DatabaseManager.getInstance().GetQuestionByID(questionID);
+	
+	
+	/**
+	 * Method to build the scene with a question object
+	 * @param event
+	 */
+	private void BuildQuestionEditScreen(ActionEvent event) {
+		Question question = DatabaseManager.getInstance().GetQuestionByID(selectedQuestionID);
 		
 		
+		Clear();
 		ChangeQuestionNavigationByQuestion(question);
 		questionText.setText(question.GetQuestion());
 		topicsText.setText(question.getTopicsTable());
-		resourcePath.setText("".equals(question.GetResource()) ? "" : DatabaseManager.getInstance().GetResourceNameByQuestionID(question.GetQuestionID()));
+		resourcePath.setText("".equals(question.GetResource()) ? "" : DatabaseManager.getInstance().GetResourceNameByQuestionID(question.GetID()));
 		difficultySlider.setValue(question.GetDifficulty());
+		
+		
+		if (question.GetPublicity())
+			publicButton.fire();
+		else
+			privateButton.fire();
 		
 		
 		if (question.GetType() == Question.QuestionType.MultipleChoice) {
@@ -151,24 +179,42 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		}
 	}
 	
+	
+	
+	/**
+	 * If there is a selected quiz, changes scene to quiz edit menu
+	 * @param event ActionEvent created by GUI
+	 */
 	public void SelectQuizButton(ActionEvent event) {
 		if (quizTable.getSelectionModel().getSelectedItem() != null) {
-			quizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetQuizID();
+			selectedQuizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetQuizID();
 			QuestionSearchButton(event);
 			ChangeNavigation(event);
 		}
 	}
 	
+	
+	
+	/**
+	 * If there is a selected question, changes scene to question edit menu
+	 * @param event
+	 */
 	public void SelectQuestionButton(ActionEvent event) {
 		if (questionTable.getSelectionModel().getSelectedItem() != null) {
-			questionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetQuestionID();
-			BuildQuestionScreen(event);
+			selectedQuestionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetID();
+			BuildQuestionEditScreen(event);
 			ChangeNavigation(event);
 		}
 	}
 	
-	private void ChangeQuestionNavigationByQuestion(Question q) {
-		switch (q.GetType()) {
+	
+	
+	/**
+	 * Changes question type tab selection according to the type of given Question
+	 * @param question  Question to get type
+	 */
+	private void ChangeQuestionNavigationByQuestion(Question question) {
+		switch (question.GetType()) {
 			case MultipleChoice:
 				((RadioButton) multipleChoiceQuestionParent.getChildren().get(0)).fire(); break;
 			case Associative:
@@ -178,14 +224,27 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		}
 	}
 	
+	
+	
+	/**
+	 * Changes question type tab selection according to the GUI tab clicked by user
+	 * @param event ActionEvent created by GUI
+	 */
 	public void ChangeQuestionNavigation(ActionEvent event) {
 		for (Tab tab : questionTypeTabs.getTabs()) {
 			if (tab.getId().equals(((Node) event.getSource()).getId())) {
 				questionTypeTabs.getSelectionModel().select(tab);
+				QuizSearchButton(event);
 			}
 		}
 	}
 	
+	
+	
+	/**
+	 * Changes menu navigation according to user GUI input
+	 * @param event ActionEvent created by GUI
+	 */
 	public void ChangeNavigation(ActionEvent event) {
 		for (Tab tab : tabs.getTabs()) {
 			if (tab.getId().equals(((Node) event.getSource()).getId())) {
@@ -194,11 +253,22 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		}
 	}
 	
+	
+	
+	/**
+	 * Button action to change scene
+	 * @param event ActionEvent created by GUI
+	 */
 	public void QuizBackButton(ActionEvent event) {
 		ChangeScene(event, WindowStage.MainMenu);
 	}
 	
 	
+	
+	/**
+	 * Button action to search quiz
+	 * @param event ActionEvent created by GUI
+	 */
 	public void QuizSearchButton(ActionEvent event) {
 		List<Quiz> quizzes = DatabaseManager.getInstance().GetOwningQuizzes();
 		ObservableList<Quiz> data = FXCollections.observableArrayList();
@@ -225,13 +295,17 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 			}
 		}
 		
-		
 		quizTable.setItems(data);
 	}
 	
 	
+	
+	/**
+	 * Button action to search question
+	 * @param event ActionEvent created by GUI
+	 */
 	public void QuestionSearchButton(ActionEvent event) {
-		List<Question> questions = DatabaseManager.getInstance().GetQuestionsByQuizID(quizID);
+		List<Question> questions = DatabaseManager.getInstance().GetQuestionsByQuizID(selectedQuizID);
 		ObservableList<Question> data = FXCollections.observableArrayList();
 		
 		
@@ -274,9 +348,57 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		questionTable.setItems(data);
 	}
 	
+	
+	
+	/**
+	 * Helper method to clear fields when question changes
+	 */
 	public void Clear() {
 		ClearTextFields(questionText, topicsText, resourcePath, mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer,
 			mcqCorrectAnswer, associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5,
 			associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText);
+	}
+	
+	
+	
+	/**
+	 * Checks if the question is valid. If it is, shows the question type by the id of current tab (question type).
+	 * Then calls appropriate helper method to create the Question object. Saves new object to questions array, clears
+	 * the screen for new question. If it is not valid then shows an error message
+	 * @param event ActionEvent produced by GUI
+	 */
+	public Question CreateQuestion(ActionEvent event) {
+		Question newQuestion = null;
+		
+		
+		switch (GetQuestionTypeByTab()) {
+			case MultipleChoice: newQuestion = CreateQuizMenuController.CreateMCQ(questionText.getText(), topicsText,
+				resourcePath.getText(), publicButton.isSelected(), ((int) difficultySlider.getValue()), mcqAllChoices,
+				mcqCorrectAnswer.getText()); break;
+			
+			case Associative: newQuestion = CreateQuizMenuController.CreateAssociative(questionText.getText(), topicsText,
+				resourcePath.getText(), publicButton.isSelected(), ((int) difficultySlider.getValue()), associativeLeft,
+				associativeRight); break;
+				
+			case Open: newQuestion = CreateQuizMenuController.CreateOpenQuestion(questionText.getText(), topicsText,
+				resourcePath.getText(), publicButton.isSelected(), ((int) difficultySlider.getValue()),
+				openTipsText.getText()); break;
+		}
+		
+		return newQuestion;
+	}
+	
+	
+	
+	/**
+	 * Helper method to get question type by the currently open tab
+	 * @return  QuestionType of question
+	 */
+	private Question.QuestionType GetQuestionTypeByTab() {
+		String tabName = questionTypeTabs.getSelectionModel().getSelectedItem().getId().toLowerCase();
+		String mcqName = Question.QuestionType.MultipleChoice.name().toLowerCase();
+		String associativeName = Question.QuestionType.Associative.name().toLowerCase();
+		return tabName.contains(mcqName) ? Question.QuestionType.MultipleChoice :
+			(tabName.contains(associativeName) ? Question.QuestionType.Associative : Question.QuestionType.Open);
 	}
 }
