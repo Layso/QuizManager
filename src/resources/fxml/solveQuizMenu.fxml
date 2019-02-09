@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #282828;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.SolveQuizMenuController">
+   <children>
+      <TabPane fx:id="tabs" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/hideTabHeader.css" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab fx:id="quizSelection" text="QuizSelection">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <Label layoutX="412.0" layoutY="37.0" text="Edit Quiz" textFill="WHITE">
+                                 <font>
+                                    <Font size="50.0" />
+                                 </font>
+                              </Label>
+                              <HBox layoutX="62.0" layoutY="138.0" prefHeight="30.0" prefWidth="900.0">
+                                 <children>
+                                    <TextField fx:id="searchCriteriaTextQuiz" prefHeight="30.0" prefWidth="700.0" promptText="Enter your search criteria" />
+                                    <ChoiceBox fx:id="searchCriteriaChoiceQuiz" prefHeight="30.0" prefWidth="150.0" />
+                                    <Button mnemonicParsing="false" onAction="#QuizSearchButton" prefHeight="30.0" prefWidth="75.0" text="Search" />
+                                 </children>
+                              </HBox>
+                              <TableView fx:id="quizTable" layoutX="62.0" layoutY="180.0" prefHeight="500.0" prefWidth="900.0">
+                                 <columns>
+                                    <TableColumn fx:id="nameColumnQuiz" prefWidth="561.0" text="Name" />
+                                    <TableColumn fx:id="questionCountColumnQuiz" prefWidth="173.0" text="Question Count" />
+                                    <TableColumn fx:id="difficultyColumnQuiz" minWidth="0.0" prefWidth="165.0" text="Difficulty" />
+                                 </columns>
+                              </TableView>
+                              <HBox layoutX="652.0" layoutY="702.0" prefHeight="38.0" prefWidth="310.0" spacing="10.0">
+                                 <children>
+                                    <Button fx:id="pickQuestion" mnemonicParsing="false" onAction="#SelectQuizButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Select">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Button>
+                                    <Button mnemonicParsing="false" onAction="#QuizBackButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Back">
+                                       <font>
+                                          <Font size="17.0" />
+                                       </font>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                           </children>
+                              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutX="412.0" layoutY="37.0" text="Edit Quiz" textFill="WHITE">
+                                       <font>
+                                          <Font size="50.0" />
+                                       </font>
+                                    </Label>
+                                    <HBox layoutX="62.0" layoutY="138.0" prefHeight="30.0" prefWidth="900.0">
+                                       <children>
+                                          <TextField fx:id="searchCriteriaTextQuiz1" prefHeight="30.0" prefWidth="700.0" promptText="Enter your search criteria" />
+                                          <ChoiceBox fx:id="searchCriteriaChoiceQuiz1" prefHeight="30.0" prefWidth="150.0" />
+                                          <Button mnemonicParsing="false" onAction="#QuizSearchButton" prefHeight="30.0" prefWidth="75.0" text="Search" />
+                                       </children>
+                                    </HBox>
+                                    <TableView fx:id="quizTable1" layoutX="62.0" layoutY="180.0" prefHeight="500.0" prefWidth="900.0">
+                                       <columns>
+                                          <TableColumn fx:id="nameColumnQuiz1" prefWidth="561.0" text="Name" />
+                                          <TableColumn fx:id="questionCountColumnQuiz1" prefWidth="173.0" text="Question Count" />
+                                          <TableColumn fx:id="difficultyColumnQuiz1" minWidth="0.0" prefWidth="165.0" text="Difficulty" />
+                                       </columns>
+                                    </TableView>
+                                    <HBox layoutX="652.0" layoutY="702.0" prefHeight="38.0" prefWidth="310.0" spacing="10.0">
+                                       <children>
+                                          <Button fx:id="pickQuestion1" mnemonicParsing="false" onAction="#SelectQuizButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Select">
+                                             <font>
+                                                <Font size="17.0" />
+                                             </font>
+                                          </Button>
+                                          <Button mnemonicParsing="false" onAction="#QuizBackButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Back">
+                                             <font>
+                                                <Font size="17.0" />
+                                             </font>
+                                          </Button>
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </AnchorPane>
+                        </AnchorPane>
+                     </children>
+                  </AnchorPane>
+            </content>
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="389.0" layoutY="37.0" text="Select Quiz" textFill="WHITE">
+                           <font>
+                              <Font size="50.0" />
+                           </font>
+                        </Label>
+                        <HBox layoutX="62.0" layoutY="138.0" prefHeight="30.0" prefWidth="900.0">
+                           <children>
+                              <TextField fx:id="searchCriteriaTextQuiz" prefHeight="30.0" prefWidth="700.0" promptText="Enter your search criteria" />
+                              <ChoiceBox fx:id="searchCriteriaChoiceQuiz" prefHeight="30.0" prefWidth="150.0" />
+                              <Button mnemonicParsing="false" onAction="#QuizSearchButton" prefHeight="30.0" prefWidth="75.0" text="Search" />
+                           </children>
+                        </HBox>
+                        <TableView fx:id="quizTable" layoutX="62.0" layoutY="180.0" prefHeight="500.0" prefWidth="900.0">
+                           <columns>
+                              <TableColumn fx:id="nameColumnQuiz" prefWidth="447.0" text="Name" />
+                              <TableColumn fx:id="questionCountColumnQuiz" prefWidth="167.0" text="Question Count" />
+                              <TableColumn fx:id="difficultyColumnQuiz" minWidth="0.0" prefWidth="153.0" text="Difficulty" />
+                              <TableColumn fx:id="trueDifficultyColumnQuiz" minWidth="0.0" prefWidth="132.0" text="True Difficulty" />
+                           </columns>
+                        </TableView>
+                        <HBox layoutX="652.0" layoutY="702.0" prefHeight="38.0" prefWidth="310.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="questionSolving" mnemonicParsing="false" onAction="#SelectQuizButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Select">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                              <Button mnemonicParsing="false" onAction="#QuizBackButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Back">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </content>
+          </Tab>
+          <Tab fx:id="questionSolving" text="QuestionSolving">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

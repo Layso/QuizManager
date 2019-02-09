@@ -17,5 +17,6 @@
       <ImageView fx:id="img" fitHeight="200.0" fitWidth="400.0" layoutX="339.0" layoutY="440.0" pickOnBounds="true" preserveRatio="true" />
       <Button layoutX="676.0" layoutY="675.0" mnemonicParsing="false" onAction="#Test" text="Button" />
       <Button layoutX="431.0" layoutY="377.0" mnemonicParsing="false" onAction="#EditDeleteButton" prefHeight="63.0" prefWidth="110.0" text="Edit/Delete Quiz" />
+      <Button layoutX="431.0" layoutY="453.0" mnemonicParsing="false" onAction="#SolveQuizButton" prefHeight="63.0" prefWidth="110.0" text="Solve Quiz" />
    </children>
 </AnchorPane>

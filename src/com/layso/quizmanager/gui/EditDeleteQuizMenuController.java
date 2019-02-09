@@ -28,8 +28,9 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	TableView quizTable, questionTable;
 	
 	@FXML
-	TableColumn nameColumnQuiz, questionCountColumnQuiz, difficultyColumnQuiz, questionColumnQuestion, topicsColumnQuestion,
-		typeColumnQuestion, difficultyColumnQuestion, trueDifficultyColumnQuestion, ownerColumnQuestion;
+	TableColumn nameColumnQuiz, questionCountColumnQuiz, difficultyColumnQuiz, trueDifficultyColumnQuiz,
+		questionColumnQuestion, topicsColumnQuestion, typeColumnQuestion, difficultyColumnQuestion,
+		trueDifficultyColumnQuestion, ownerColumnQuestion;
 	
 	@FXML
 	TabPane tabs, questionTypeTabs;
@@ -58,7 +59,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	public void initialize(URL url, ResourceBundle rb) {
 		// Constructing the TableView elements by associating with classes
 		AssociateSearchCriteriaWithTable(searchCriteriaChoiceQuiz, quizTable);
-		AssociateTableWithClass(Quiz.GetPropertyValueFactory(), nameColumnQuiz, questionCountColumnQuiz, difficultyColumnQuiz);
+		AssociateTableWithClass(Quiz.GetPropertyValueFactory(), nameColumnQuiz, questionCountColumnQuiz, difficultyColumnQuiz, trueDifficultyColumnQuiz);
 		
 		AssociateSearchCriteriaWithTable(searchCriteriaChoiceQuestion, questionTable);
 		AssociateTableWithClass(Question.GetPropertyValueFactory(), questionColumnQuestion, topicsColumnQuestion,
@@ -187,9 +188,9 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	 */
 	public void SelectQuizButton(ActionEvent event) {
 		if (quizTable.getSelectionModel().getSelectedItem() != null) {
-			selectedQuizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetQuizID();
-			QuestionSearchButton(event);
 			ChangeNavigation(event);
+			QuestionSearchButton(event);
+			selectedQuizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetQuizID();
 		}
 	}
 	
@@ -231,26 +232,15 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	 * @param event ActionEvent created by GUI
 	 */
 	public void ChangeQuestionNavigation(ActionEvent event) {
-		for (Tab tab : questionTypeTabs.getTabs()) {
-			if (tab.getId().equals(((Node) event.getSource()).getId())) {
-				questionTypeTabs.getSelectionModel().select(tab);
-				QuizSearchButton(event);
-			}
-		}
+		ChangeNavigation(event, questionTypeTabs);
+		QuizSearchButton(event);
 	}
 	
 	
 	
-	/**
-	 * Changes menu navigation according to user GUI input
-	 * @param event ActionEvent created by GUI
-	 */
+	
 	public void ChangeNavigation(ActionEvent event) {
-		for (Tab tab : tabs.getTabs()) {
-			if (tab.getId().equals(((Node) event.getSource()).getId())) {
-				tabs.getSelectionModel().select(tab);
-			}
-		}
+		ChangeNavigation(event, tabs);
 	}
 	
 	
@@ -274,25 +264,11 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		ObservableList<Quiz> data = FXCollections.observableArrayList();
 		
 		
-		for (Quiz quiz : quizzes) {
-			if (searchCriteriaTextQuiz.getText().equals("")) {
-				data.add(quiz);
-			}
-			
-			else if (searchCriteriaChoiceQuiz.getSelectionModel().getSelectedItem().toString().equals(nameColumnQuiz.getText())
-				&& quiz.FilterQuizName(searchCriteriaTextQuiz.getText())) {
-				data.add(quiz);
-			}
-			
-			else if (searchCriteriaChoiceQuiz.getSelectionModel().getSelectedItem().toString().equals(questionCountColumnQuiz.getText())
-				&& quiz.FilterQuizQuestionCount(searchCriteriaTextQuiz.getText())) {
-				data.add(quiz);
-			}
-			
-			else if (searchCriteriaChoiceQuiz.getSelectionModel().getSelectedItem().toString().equals(difficultyColumnQuiz.getText())
-				&& quiz.FilterQuizDifficulty(searchCriteriaTextQuiz.getText())) {
-				data.add(quiz);
-			}
+		if (searchCriteriaTextQuiz.getText().equals("")) {
+			for (Quiz q : quizzes)
+			data.add(q);
+		} else {
+			data = SearchHelper(quizzes, searchCriteriaTextQuiz.getText(), searchCriteriaChoiceQuiz.getSelectionModel().getSelectedItem().toString());
 		}
 		
 		quizTable.setItems(data);
@@ -309,40 +285,12 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		ObservableList<Question> data = FXCollections.observableArrayList();
 		
 		
-		for (Question q : questions) {
-			if (searchCriteriaTextQuestion.getText().equals("")) {
+		if (searchCriteriaTextQuestion.getText().equals("")) {
+			for (Question q : questions) {
 				data.add(q);
 			}
-			
-			else if (searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString().equals(questionColumnQuestion.getText())
-				&& q.FilterQuestionText(searchCriteriaTextQuestion.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString().equals(topicsColumnQuestion.getText())
-				&& q.FilterQuestionTopics(searchCriteriaTextQuestion.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString().equals(typeColumnQuestion.getText())
-				&& q.FilterQuestionType(searchCriteriaTextQuestion.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString().equals(difficultyColumnQuestion.getText())
-				&& q.FilterQuestionDifficulty(searchCriteriaTextQuestion.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString().equals(trueDifficultyColumnQuestion.getText())
-				&& q.FilterQuestionTrueDifficulty(searchCriteriaTextQuestion.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString().equals(ownerColumnQuestion.getText())
-				&& q.FilterQuestionOwner(searchCriteriaTextQuestion.getText())) {
-				data.add(q);
-			}
+		} else {
+			data = SearchHelper(questions, searchCriteriaTextQuestion.getText(), searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString());
 		}
 		
 		questionTable.setItems(data);

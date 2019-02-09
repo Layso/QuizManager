@@ -6,8 +6,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class Question {
+public abstract class Question implements Searchable{
 	public enum QuestionType {MultipleChoice, Associative, Open}
+	public enum QuestionSearchTerms{Question, Topics, Difficulty, TrueDifficulty, Type, Owner}
 	
 	private int id;
 	private User owner;
@@ -134,7 +135,34 @@ public abstract class Question {
 		return list;
 	}
 	
-	
+	/**
+	 * Search method implementation for Searchable interface to be able to compare with given criteria of given term
+	 * @param criteria  Criteria to look if question provides
+	 * @param term      Term to search the given criteria
+	 * @return          Boolean result, true if the criteria is provided, else false
+	 */
+	@Override
+	public boolean Search(String criteria, String term) {
+		QuestionSearchTerms termEnum = QuestionSearchTerms.valueOf(term.trim());
+		criteria = criteria.toLowerCase();
+		boolean result = false;
+		
+		
+		try {
+			switch (termEnum) {
+				case Type: result = type.name().toLowerCase().contains(criteria); break;
+				case Owner: result = owner.getUsername().toLowerCase().contains(criteria); break;
+				case Topics: result = getTopicsTable().contains(criteria); break;
+				case Question: result = question.toLowerCase().contains(criteria); break;
+				case Difficulty: result = difficulty >= Integer.parseInt(criteria); break;
+				case TrueDifficulty: result = Integer.parseInt(getTrueDifficultyTable()) >= Integer.parseInt(criteria); break;
+			}
+		} catch (NumberFormatException e) {
+			result = false;
+		}
+		
+		return result;
+	}
 	
 	/**
 	 * Helper method to see if question text is equals or contains given criteria

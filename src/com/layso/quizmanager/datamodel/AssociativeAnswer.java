@@ -11,4 +11,12 @@ public class AssociativeAnswer extends Answer {
 		this.leftSide = leftSide;
 		this.rightSide = rightSide;
 	}
+	
+	public String GetLeft(int i) {
+		return leftSide.get(i);
+	}
+	
+	public String GetRight(int i) {
+		return rightSide.get(i);
+	}
 }

@@ -2,7 +2,7 @@ package com.layso.quizmanager.datamodel;
 
 import java.util.List;
 
-public class OpenQuestion extends Question {
+public class OpenQuestion extends Question  {
 	private String tips;
 	
 	

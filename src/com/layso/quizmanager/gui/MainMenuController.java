@@ -45,6 +45,9 @@ public class MainMenuController extends Controller implements Initializable {
 		ChangeScene(event, WindowStage.EditDeleteQuizMenu);
 	}
 	
+	public void SolveQuizButton(ActionEvent event) {
+		ChangeScene(event, WindowStage.SolveQuizMenu);
+	}
 	
 	
 	public void Test(ActionEvent event) {

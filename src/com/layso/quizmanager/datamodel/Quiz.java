@@ -5,7 +5,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Quiz {
+public class Quiz implements Searchable {
+	public enum QuizSearchTerms {Name, QuestionCount, Difficulty, TrueDifficulty}
+	
 	int id;
 	int quizOwnerID;
 	String quizTitle;
@@ -14,7 +16,6 @@ public class Quiz {
 	double trueDifficulty;
 	double averageDifficulty;
 	boolean publicity;
-	String name;
 	
 	
 	public Quiz(int id, int quizOwnerID, String quizTitle, List<Question> questions, int customDifficulty, double trueDifficulty, double averageDifficulty, boolean publicity) {
@@ -68,30 +69,46 @@ public class Quiz {
 		return customDifficulty == -1 ? Double.toString(averageDifficulty) : Integer.toString(customDifficulty);
 	}
 	
+	public String getTrueDifficultyTable() {
+		return Double.toString(trueDifficulty);
+	}
+	
 	public static List<PropertyValueFactory> GetPropertyValueFactory() {
 		List<PropertyValueFactory> list = new ArrayList<>();
 		
 		list.add(new PropertyValueFactory<Quiz,String>("quizNameTable"));
 		list.add(new PropertyValueFactory<Quiz,String>("questionCountTable"));
 		list.add(new PropertyValueFactory<Quiz,String>("difficultyTable"));
+		list.add(new PropertyValueFactory<Quiz,String>("trueDifficultyTable"));
 		
 		return list;
 	}
 	
 	
-	public boolean FilterQuizName(String criteria) {
-		return false;
-	}
-	
-	public boolean FilterQuizQuestionCount(String criteria) {
-		return false;
-	}
-	
-	public boolean FilterQuizDifficulty(String criteria) {
-		return false;
-	}
-	
-	public String getName() {
-		return name;
+	@Override
+	public boolean Search(String criteria, String term) {
+		System.out.println(QuizSearchTerms.valueOf(term.trim()));
+		// TODO: remove whitespace
+		QuizSearchTerms termEnum = QuizSearchTerms.valueOf(term.replaceAll("\\s+",""));
+		criteria = criteria.toLowerCase();
+		boolean result = false;
+		
+		System.out.println(quizTitle);
+		System.out.println(criteria);
+		
+		try {
+			switch (termEnum) {
+				case Name: result = quizTitle.toLowerCase().contains(criteria); break;
+				case Difficulty: result = (customDifficulty == -1 ? averageDifficulty : customDifficulty) >= Integer.parseInt(criteria); break;
+				case QuestionCount: result = questions.size() >= Integer.parseInt(criteria); break;
+				case TrueDifficulty: result = trueDifficulty >= Integer.parseInt(criteria); break;
+				default:
+					System.out.println("hmm");
+			}
+		} catch (NumberFormatException e) {
+			result = false;
+		}
+		System.out.println("ehe");
+		return result;
 	}
 }

@@ -86,12 +86,8 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void ChangeNavigation(ActionEvent event) {
-		for (Tab tab : quizTypeTabs.getTabs()) {
-			if (tab.getId().equals(((Node) event.getSource()).getId())) {
-				quizTypeTabs.getSelectionModel().select(tab);
-				ClearSpecificFields();
-			}
-		}
+		ChangeNavigation(event, quizTypeTabs);
+		ClearSpecificFields();
 	}
 	
 	

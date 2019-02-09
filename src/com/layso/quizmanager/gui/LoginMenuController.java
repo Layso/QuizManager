@@ -47,12 +47,8 @@ public class LoginMenuController extends Controller implements Initializable {
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void ChangeNavigation(ActionEvent event) {
-		for (Tab tab : navigationTabs.getTabs()) {
-			if (tab.getId().equals(((Node) event.getSource()).getId())) {
-				ClearButton(event);
-				navigationTabs.getSelectionModel().select(tab);
-			}
-		}
+		ChangeNavigation(event, navigationTabs);
+		ClearButton(event);
 	}
 	
 	

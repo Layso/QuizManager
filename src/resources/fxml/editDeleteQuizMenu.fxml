@@ -44,7 +44,8 @@
                            <columns>
                               <TableColumn fx:id="nameColumnQuiz" prefWidth="561.0" text="Name" />
                               <TableColumn fx:id="questionCountColumnQuiz" prefWidth="173.0" text="Question Count" />
-                              <TableColumn fx:id="difficultyColumnQuiz" minWidth="0.0" prefWidth="165.0" text="Difficulty" />
+                              <TableColumn fx:id="difficultyColumnQuiz" minWidth="0.0" prefWidth="70.0" text="Difficulty" />
+                              <TableColumn fx:id="trueDifficultyColumnQuiz" prefWidth="95.0" text="True Difficulty" />
                            </columns>
                         </TableView>
                         <HBox layoutX="652.0" layoutY="702.0" prefHeight="38.0" prefWidth="310.0" spacing="10.0">

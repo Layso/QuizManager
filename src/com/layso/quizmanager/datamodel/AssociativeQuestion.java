@@ -25,4 +25,14 @@ public class AssociativeQuestion extends Question {
 	public List<String> GetRightColumn() {
 		return rightColumn;
 	}
+	
+	public boolean CheckAnswer(AssociativeAnswer answer) {
+		for (int i=0; i<leftColumn.size(); ++i) {
+			if (leftColumn.indexOf(answer.GetLeft(i)) != rightColumn.indexOf(answer.GetRight(i))) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
 }

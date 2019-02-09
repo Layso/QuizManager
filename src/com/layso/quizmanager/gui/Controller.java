@@ -3,6 +3,7 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.Question;
 import com.layso.quizmanager.datamodel.Quiz;
+import com.layso.quizmanager.datamodel.Searchable;
 import com.layso.quizmanager.services.CfgManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,16 +12,14 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -28,7 +27,7 @@ public class Controller {
 	/**
 	 * Enum type to define windows
 	 */
-	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu, EditDeleteQuizMenu}
+	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu, EditDeleteQuizMenu, SolveQuizMenu}
 	
 	
 	
@@ -52,6 +51,7 @@ public class Controller {
 				case CreateQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.createQuiz.fxml"))); break;
 				case SelectQuestionMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.selectQuestion.fxml"))); break;
 				case EditDeleteQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.editDeleteQuiz.fxml"))); break;
+				case SolveQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.solveQuiz.fxml"))); break;
 			}
 			
 			// Set new scene
@@ -92,9 +92,11 @@ public class Controller {
 		}
 	}
 	
+	
+	
 	/**
 	 * Opens a file chooser to let user select an image (only with extensions .png .jpg or .gif) to support question
-	 * @param event ActionEvent produced by GUI
+	 * @return Returns the full path of the selected file
 	 */
 	public String FileSelector() {
 		String path = "";
@@ -111,5 +113,46 @@ public class Controller {
 		}
 		
 		return path;
+	}
+	
+	
+	
+	/**
+	 * Changes the tab according to the clicked button ID
+	 * @param event ActionEvent created by GUI
+	 * @param tabs  TabPane object to select new tab from
+	 */
+	public void ChangeNavigation(ActionEvent event, TabPane tabs) {
+		System.out.println(((Node) event.getSource()).getId());
+		for (Tab tab : tabs.getTabs()) {
+			if (tab.getId().equals(((Node) event.getSource()).getId())) {
+				tabs.getSelectionModel().select(tab);
+			}
+		}
+	}
+	
+	/**
+	 * Generic search method to prevent duplications on list searches
+	 * @param list              List of objects to be check if they provide the criteria
+	 * @param searchCriteria    Criteria of search, the thing user is looking for
+	 * @param searchTerm        Term of search, in which part of the object user is looking for the criteria
+	 * @param <T>               An object which implements the Searchable interface
+	 * @return                  Observable list of items which provide the criteria
+	 */
+	public <T extends Searchable> ObservableList<T> SearchHelper(List<T> list, String searchCriteria, String searchTerm) {
+		ObservableList<T> data = FXCollections.observableArrayList();
+		
+		try {
+			for (T item : list) {
+				System.out.println(((Quiz) item).GetQuizTitle() + " ******");
+				if (item.Search(searchCriteria, searchTerm)) {
+					data.add(item);
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e + " -----");
+		}
+		
+		return data;
 	}
 }

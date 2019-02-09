@@ -4,7 +4,7 @@ import java.util.List;
 
 
 
-public class MultipleChoiceQuestion extends Question {
+public class MultipleChoiceQuestion extends Question implements AutoCorrectable {
 	private String correctAnswer;
 	private List<String> otherAnswers;
 	
@@ -24,5 +24,11 @@ public class MultipleChoiceQuestion extends Question {
 	
 	public List<String> GetAnswers() {
 		return otherAnswers;
+	}
+	
+	@Override
+	public boolean CheckAnswer(Answer answer) {
+		MultipleChoiceAnswer mcqAnswer = ((MultipleChoiceAnswer) answer);
+		return mcqAnswer.GetAnswer().equals(correctAnswer);
 	}
 }

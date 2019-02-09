@@ -61,6 +61,16 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	
+	public List<Quiz> GetAllPublicQuizzes() {
+		// TODO
+		// Implement function to include un-owned public quizzes on returned list
+		return GetOwningQuizzes();
+	}
+	
+	
+	
 	public void ChangeQuestion(Question oldQuestion, Question newQuestion) {
 		String sqlQuery = "select QUIZ_ID from QUIZ_QUESTION_ASSOCIATION where QUESTION_ID = ?";
 		int newID = SaveQuestion(newQuestion);
