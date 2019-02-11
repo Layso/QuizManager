@@ -1,7 +1,6 @@
 package com.layso.quizmanager.datamodel;
 
 import java.util.List;
-import java.util.Map;
 
 public class AssociativeQuestion extends Question {
 	public static final int MINIMUM_ROW_COUNT = 2;

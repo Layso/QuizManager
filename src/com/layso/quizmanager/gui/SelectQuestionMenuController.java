@@ -81,45 +81,6 @@ public class SelectQuestionMenuController extends Controller implements Initiali
 	 */
 	public void SearchButton(ActionEvent event) {
 		List<Question> questions = DatabaseManager.getInstance().GetAllPublicQuestions();
-		ObservableList<Question> data = FXCollections.observableArrayList();
-		
-		
-		for (Question q : questions) {
-			if (searchCriteriaText.getText().equals("")) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(questionColumn.getText())
-				&& q.FilterQuestionText(searchCriteriaText.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(topicsColumn.getText())
-				&& q.FilterQuestionTopics(searchCriteriaText.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(typeColumn.getText())
-				&& q.FilterQuestionType(searchCriteriaText.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(difficultyColumn.getText())
-				&& q.FilterQuestionDifficulty(searchCriteriaText.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(trueDifficultyColumn.getText())
-				&& q.FilterQuestionTrueDifficulty(searchCriteriaText.getText())) {
-				data.add(q);
-			}
-			
-			else if (searchCriteriaChoice.getSelectionModel().getSelectedItem().toString().equals(ownerColumn.getText())
-				&& q.FilterQuestionOwner(searchCriteriaText.getText())) {
-				data.add(q);
-			}
-		}
-		
-		table.setItems(data);
+		table.setItems(SearchHelper(questions, searchCriteriaText.getText(), searchCriteriaChoice.getSelectionModel().getSelectedItem().toString()));
 	}
 }

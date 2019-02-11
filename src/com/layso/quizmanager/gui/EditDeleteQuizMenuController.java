@@ -261,17 +261,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	 */
 	public void QuizSearchButton(ActionEvent event) {
 		List<Quiz> quizzes = DatabaseManager.getInstance().GetOwningQuizzes();
-		ObservableList<Quiz> data = FXCollections.observableArrayList();
-		
-		
-		if (searchCriteriaTextQuiz.getText().equals("")) {
-			for (Quiz q : quizzes)
-			data.add(q);
-		} else {
-			data = SearchHelper(quizzes, searchCriteriaTextQuiz.getText(), searchCriteriaChoiceQuiz.getSelectionModel().getSelectedItem().toString());
-		}
-		
-		quizTable.setItems(data);
+		quizTable.setItems(SearchHelper(quizzes, searchCriteriaTextQuiz.getText(), searchCriteriaChoiceQuiz.getSelectionModel().getSelectedItem().toString()));
 	}
 	
 	
@@ -282,18 +272,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	 */
 	public void QuestionSearchButton(ActionEvent event) {
 		List<Question> questions = DatabaseManager.getInstance().GetQuestionsByQuizID(selectedQuizID);
-		ObservableList<Question> data = FXCollections.observableArrayList();
-		
-		
-		if (searchCriteriaTextQuestion.getText().equals("")) {
-			for (Question q : questions) {
-				data.add(q);
-			}
-		} else {
-			data = SearchHelper(questions, searchCriteriaTextQuestion.getText(), searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString());
-		}
-		
-		questionTable.setItems(data);
+		questionTable.setItems(SearchHelper(questions, searchCriteriaTextQuestion.getText(), searchCriteriaChoiceQuestion.getSelectionModel().getSelectedItem().toString()));
 	}
 	
 	

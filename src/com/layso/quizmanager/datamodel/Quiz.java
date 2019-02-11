@@ -87,28 +87,29 @@ public class Quiz implements Searchable {
 	
 	@Override
 	public boolean Search(String criteria, String term) {
-		System.out.println(QuizSearchTerms.valueOf(term.trim()));
 		// TODO: remove whitespace
-		QuizSearchTerms termEnum = QuizSearchTerms.valueOf(term.replaceAll("\\s+",""));
+		QuizSearchTerms termEnum = QuizSearchTerms.valueOf(term.replace(" ",""));
 		criteria = criteria.toLowerCase();
 		boolean result = false;
 		
-		System.out.println(quizTitle);
-		System.out.println(criteria);
 		
-		try {
-			switch (termEnum) {
-				case Name: result = quizTitle.toLowerCase().contains(criteria); break;
-				case Difficulty: result = (customDifficulty == -1 ? averageDifficulty : customDifficulty) >= Integer.parseInt(criteria); break;
-				case QuestionCount: result = questions.size() >= Integer.parseInt(criteria); break;
-				case TrueDifficulty: result = trueDifficulty >= Integer.parseInt(criteria); break;
-				default:
-					System.out.println("hmm");
-			}
-		} catch (NumberFormatException e) {
-			result = false;
+		if (criteria.equals("")) {
+			result = true;
 		}
-		System.out.println("ehe");
+		
+		else {
+			try {
+				switch (termEnum) {
+					case Name: result = quizTitle.toLowerCase().contains(criteria); break;
+					case Difficulty: result = (customDifficulty == -1 ? averageDifficulty : customDifficulty) >= Integer.parseInt(criteria); break;
+					case QuestionCount: result = questions.size() >= Integer.parseInt(criteria); break;
+					case TrueDifficulty: result = trueDifficulty >= Integer.parseInt(criteria); break;
+				}
+			} catch (NumberFormatException e) {
+				result = false;
+			}
+		}
+		
 		return result;
 	}
 }

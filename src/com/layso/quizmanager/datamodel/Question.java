@@ -143,107 +143,32 @@ public abstract class Question implements Searchable{
 	 */
 	@Override
 	public boolean Search(String criteria, String term) {
-		QuestionSearchTerms termEnum = QuestionSearchTerms.valueOf(term.trim());
+		QuestionSearchTerms termEnum = QuestionSearchTerms.valueOf(term.replace(" ", ""));
 		criteria = criteria.toLowerCase();
 		boolean result = false;
 		
 		
-		try {
-			switch (termEnum) {
-				case Type: result = type.name().toLowerCase().contains(criteria); break;
-				case Owner: result = owner.getUsername().toLowerCase().contains(criteria); break;
-				case Topics: result = getTopicsTable().contains(criteria); break;
-				case Question: result = question.toLowerCase().contains(criteria); break;
-				case Difficulty: result = difficulty >= Integer.parseInt(criteria); break;
-				case TrueDifficulty: result = Integer.parseInt(getTrueDifficultyTable()) >= Integer.parseInt(criteria); break;
-			}
-		} catch (NumberFormatException e) {
-			result = false;
+		if (criteria.equals("")) {
+			result = true;
 		}
+		
+		else {
+			//TODO: BUG FIX: TRUE DIFFICULTY SEARCH
+			try {
+				switch (termEnum) {
+					case Type: result = type.name().toLowerCase().contains(criteria); break;
+					case Owner: result = owner.getUsername().toLowerCase().contains(criteria); break;
+					case Topics: result = getTopicsTable().contains(criteria); break;
+					case Question: result = question.toLowerCase().contains(criteria); break;
+					case Difficulty: result = difficulty >= Integer.parseInt(criteria); break;
+					case TrueDifficulty: result = Double.parseDouble(getTrueDifficultyTable()) >= Integer.parseInt(criteria); break;
+				}
+			} catch (NumberFormatException e) {
+				result = false;
+			}
+		}
+		
 		
 		return result;
-	}
-	
-	/**
-	 * Helper method to see if question text is equals or contains given criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	public boolean FilterQuestionText(String criteria) {
-		return question.toLowerCase().equals(criteria.toLowerCase()) || question.toLowerCase().contains(criteria.toLowerCase());
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question topics includes given criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	public boolean FilterQuestionTopics(String criteria) {
-		return getTopicsTable().toLowerCase().equals(criteria.toLowerCase()) || getTopicsTable().toLowerCase().contains(criteria.toLowerCase());
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question type is equals or contains given criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	public boolean FilterQuestionType(String criteria) {
-		return getTypeTable().toLowerCase().equals(criteria.toLowerCase()) || getTypeTable().toLowerCase().contains(criteria.toLowerCase());
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if difficulty of question is higher than given criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	public boolean FilterQuestionDifficulty(String criteria) {
-		int criteriaDifficulty;
-		
-		
-		try {
-			criteriaDifficulty = Integer.parseInt(criteria);
-		} catch (NumberFormatException e) {
-			criteriaDifficulty = 0;
-		}
-		
-		return difficulty > criteriaDifficulty;
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if true difficulty of question is higher than given criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	public boolean FilterQuestionTrueDifficulty(String criteria) {
-		double actualNumber = Double.parseDouble(getTrueDifficultyTable());
-		double criteriaNumber;
-		
-		
-		try {
-			criteriaNumber = Double.parseDouble(criteria);
-		} catch (NumberFormatException e) {
-			criteriaNumber = 0;
-		}
-		
-		return actualNumber > criteriaNumber;
-	}
-	
-	
-	
-	/**
-	 * Helper method to see if question owner includes or equals to given criteria
-	 * @param criteria  User input to check if question meets the requirement
-	 * @return          Returns true if question meets criteria, else returns false
-	 */
-	public boolean FilterQuestionOwner(String criteria) {
-		return getOwnerTable().toLowerCase().equals(criteria.toLowerCase()) || getOwnerTable().toLowerCase().contains(criteria.toLowerCase());
 	}
 }

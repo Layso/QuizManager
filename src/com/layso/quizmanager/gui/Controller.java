@@ -123,7 +123,6 @@ public class Controller {
 	 * @param tabs  TabPane object to select new tab from
 	 */
 	public void ChangeNavigation(ActionEvent event, TabPane tabs) {
-		System.out.println(((Node) event.getSource()).getId());
 		for (Tab tab : tabs.getTabs()) {
 			if (tab.getId().equals(((Node) event.getSource()).getId())) {
 				tabs.getSelectionModel().select(tab);
@@ -142,15 +141,15 @@ public class Controller {
 	public <T extends Searchable> ObservableList<T> SearchHelper(List<T> list, String searchCriteria, String searchTerm) {
 		ObservableList<T> data = FXCollections.observableArrayList();
 		
+		
 		try {
 			for (T item : list) {
-				System.out.println(((Quiz) item).GetQuizTitle() + " ******");
-				if (item.Search(searchCriteria, searchTerm)) {
+				if (searchCriteria.equals("") || item.Search(searchCriteria, searchTerm)) {
 					data.add(item);
 				}
 			}
 		} catch (Exception e) {
-			System.out.println(e + " -----");
+			System.out.println("Search fail: " + e.getMessage());
 		}
 		
 		return data;

@@ -63,6 +63,8 @@ public class DatabaseManager {
 	
 	
 	
+	
+	
 	public List<Quiz> GetAllPublicQuizzes() {
 		// TODO
 		// Implement function to include un-owned public quizzes on returned list
@@ -251,7 +253,7 @@ public class DatabaseManager {
 	
 	
 	
-	private Quiz GetQuizByID(int quizID) {
+	public Quiz GetQuizByID(int quizID) {
 		String sqlQuery = "select TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, OWNER_ID, PUBLICITY from QUIZ where ID = ?";
 		Quiz quiz = null;
 		
