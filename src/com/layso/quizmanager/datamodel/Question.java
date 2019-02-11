@@ -76,7 +76,12 @@ public abstract class Question implements Searchable{
 		return owner;
 	}
 	
-	
+	public double GetTrueDifficulty() {
+		double totalAnswers = correctAnswers + falseAnswers;
+		Double trueDifficulty = (totalAnswers == 0) ? 0.0 : (falseAnswers / totalAnswers) * 5;
+		
+		return trueDifficulty;
+	}
 	
 	/* Getters for GUI tables */
 	public String getQuestionTextTable() {
@@ -106,10 +111,7 @@ public abstract class Question implements Searchable{
 	}
 	
 	public String getTrueDifficultyTable() {
-		double totalAnswers = correctAnswers + falseAnswers;
-		Double trueDifficulty = (totalAnswers == 0) ? 0.0 : (falseAnswers / totalAnswers) * 5;
-		
-		return String.format("%.2f", trueDifficulty);
+		return String.format("%.2f", GetTrueDifficulty());
 	}
 	
 	public String getOwnerTable() {
@@ -148,26 +150,18 @@ public abstract class Question implements Searchable{
 		boolean result = false;
 		
 		
-		if (criteria.equals("")) {
-			result = true;
-		}
-		
-		else {
-			//TODO: BUG FIX: TRUE DIFFICULTY SEARCH
-			try {
-				switch (termEnum) {
-					case Type: result = type.name().toLowerCase().contains(criteria); break;
-					case Owner: result = owner.getUsername().toLowerCase().contains(criteria); break;
-					case Topics: result = getTopicsTable().contains(criteria); break;
-					case Question: result = question.toLowerCase().contains(criteria); break;
-					case Difficulty: result = difficulty >= Integer.parseInt(criteria); break;
-					case TrueDifficulty: result = Double.parseDouble(getTrueDifficultyTable()) >= Integer.parseInt(criteria); break;
-				}
-			} catch (NumberFormatException e) {
-				result = false;
+		try {
+			switch (termEnum) {
+				case Type: result = type.name().toLowerCase().contains(criteria); break;
+				case Owner: result = owner.getUsername().toLowerCase().contains(criteria); break;
+				case Topics: result = getTopicsTable().contains(criteria); break;
+				case Question: result = question.toLowerCase().contains(criteria); break;
+				case Difficulty: result = difficulty >= Integer.parseInt(criteria); break;
+				case TrueDifficulty: result = GetTrueDifficulty() >= Integer.parseInt(criteria); break;
 			}
+		} catch (NumberFormatException e) {
+			result = false;
 		}
-		
 		
 		return result;
 	}

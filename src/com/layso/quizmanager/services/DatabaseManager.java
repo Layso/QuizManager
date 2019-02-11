@@ -404,7 +404,6 @@ public class DatabaseManager {
 			System.exit(1);
 		}
 		
-		
 		return question;
 	}
 	

@@ -149,7 +149,7 @@ public class Controller {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Search fail: " + e.getMessage());
+			System.out.println("Search fail: " + e.toString());
 		}
 		
 		return data;

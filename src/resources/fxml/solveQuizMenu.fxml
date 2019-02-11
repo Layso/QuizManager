@@ -14,7 +14,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="background" prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #282828;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.SolveQuizMenuController">
@@ -350,6 +349,5 @@
           </Tab>
         </tabs>
       </TabPane>
-      <Line fx:id="LINE" endX="150.0" endY="50.0" startX="50.0" startY="50.0" strokeWidth="5.0" />
    </children>
 </AnchorPane>

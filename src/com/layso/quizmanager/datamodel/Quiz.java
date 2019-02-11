@@ -93,21 +93,16 @@ public class Quiz implements Searchable {
 		boolean result = false;
 		
 		
-		if (criteria.equals("")) {
-			result = true;
-		}
 		
-		else {
-			try {
-				switch (termEnum) {
-					case Name: result = quizTitle.toLowerCase().contains(criteria); break;
-					case Difficulty: result = (customDifficulty == -1 ? averageDifficulty : customDifficulty) >= Integer.parseInt(criteria); break;
-					case QuestionCount: result = questions.size() >= Integer.parseInt(criteria); break;
-					case TrueDifficulty: result = trueDifficulty >= Integer.parseInt(criteria); break;
-				}
-			} catch (NumberFormatException e) {
-				result = false;
+		try {
+			switch (termEnum) {
+				case Name: result = quizTitle.toLowerCase().contains(criteria); break;
+				case Difficulty: result = (customDifficulty == -1 ? averageDifficulty : customDifficulty) >= Integer.parseInt(criteria); break;
+				case QuestionCount: result = questions.size() >= Integer.parseInt(criteria); break;
+				case TrueDifficulty: result = trueDifficulty >= Integer.parseInt(criteria); break;
 			}
+		} catch (NumberFormatException e) {
+			result = false;
 		}
 		
 		return result;
