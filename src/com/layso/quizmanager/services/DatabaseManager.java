@@ -64,6 +64,13 @@ public class DatabaseManager {
 	
 	
 	
+	public void SaveAllAnswers(List<Answer> answers) {
+		// TODO:
+		// Save all answers to database
+		// Save time with answers to prevent conflicts
+		// Correct auto correctable answers and update the false/correct answer counts of questions
+	}
+	
 	
 	public List<Quiz> GetAllPublicQuizzes() {
 		// TODO

@@ -87,11 +87,9 @@ public class Quiz implements Searchable {
 	
 	@Override
 	public boolean Search(String criteria, String term) {
-		// TODO: remove whitespace
 		QuizSearchTerms termEnum = QuizSearchTerms.valueOf(term.replace(" ",""));
 		criteria = criteria.toLowerCase();
 		boolean result = false;
-		
 		
 		
 		try {

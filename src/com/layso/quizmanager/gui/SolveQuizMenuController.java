@@ -3,6 +3,7 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.*;
 import com.layso.quizmanager.services.DatabaseManager;
+import com.layso.quizmanager.services.QuizManager;
 import com.sun.javafx.scene.control.skin.ContextMenuContent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,7 +42,7 @@ public class SolveQuizMenuController extends Controller implements Initializable
 	TabPane tabs, questionTabs;
 	
 	@FXML
-	Label totalQuestionCount, currentQuestionCount, questionTextLabel, openTipLabel, mcqChoice1, mcqChoice2, mcqChoice3, mcqChoice4;
+	Label totalQuestionCount, currentQuestionCount, questionTextLabel, openTipLabel, mcqChoice1, mcqChoice2, mcqChoice3, mcqChoice4, errorMessage;
 	
 	@FXML
 	VBox leftVBox, rightVBox;
@@ -51,6 +52,9 @@ public class SolveQuizMenuController extends Controller implements Initializable
 	
 	@FXML
 	AnchorPane background;
+	
+	@FXML
+	Pane endPrompt;
 	
 	@FXML
 	Button associativeLeftSelection1, associativeLeftSelection2, associativeLeftSelection3, associativeLeftSelection4, associativeLeftSelection5, associativeRightSelection1,
@@ -81,6 +85,7 @@ public class SolveQuizMenuController extends Controller implements Initializable
 		QuizSearchButton(null);
 		
 		lines = new ArrayList<>();
+		answers = new ArrayList<>();
 		mcqChoices = new ArrayList<>();
 		leftSelections = new ArrayList<>();
 		rightSelections = new ArrayList<>();
@@ -120,19 +125,18 @@ public class SolveQuizMenuController extends Controller implements Initializable
 	public void NextQuestionButton(ActionEvent event) {
 		if (IsQuestionAnswered()) {
 			++currentQuestion;
+			SaveAnswer();
+			Clear();
+			
 			
 			if (currentQuestion >= questions.size()) {
-				// TODO: end screen
-				System.out.println("bitti");
-			}
-			
-			else {
-				Clear();
+				endPrompt.setVisible(true);
+				
+			} else {
 				BuildQuestionMenu(questions.get(currentQuestion));
 			}
-			
 		} else {
-			// TODO: show error message
+			errorMessage.setVisible(true);
 		}
 	}
 	
@@ -150,10 +154,22 @@ public class SolveQuizMenuController extends Controller implements Initializable
 		
 		else if (!((leftSelections.contains(lastClickedAssociative) && leftSelections.contains(clickedAssociative)) ||
 			(rightSelections.contains(lastClickedAssociative) && rightSelections.contains(clickedAssociative)))) {
-			Bounds firstBound = clickedAssociative.localToScene(clickedAssociative.getBoundsInLocal());
-			Bounds secondBound = lastClickedAssociative.localToScene(clickedAssociative.getBoundsInLocal());
-			Line line = new Line((firstBound.getMaxX()+firstBound.getMinX())/2,(firstBound.getMaxY()+firstBound.getMinY())/2,
-				(secondBound.getMaxX()+secondBound.getMinX())/2, (secondBound.getMaxY()+secondBound.getMinY())/2);
+			Bounds firstBound;
+			Bounds secondBound;
+			
+			
+			if (leftSelections.contains(clickedAssociative)) {
+				firstBound = clickedAssociative.localToScene(clickedAssociative.getBoundsInLocal());
+				secondBound = lastClickedAssociative.localToScene(clickedAssociative.getBoundsInLocal());
+			}
+			
+			else {
+				firstBound = lastClickedAssociative.localToScene(lastClickedAssociative.getBoundsInLocal());
+				secondBound = clickedAssociative.localToScene(clickedAssociative.getBoundsInLocal());
+			}
+			
+			Line line = new Line(firstBound.getMaxX(),(firstBound.getMaxY()+firstBound.getMinY())/2,
+				secondBound.getMinX(), (secondBound.getMaxY()+secondBound.getMinY())/2);
 			
 			
 			line.strokeProperty().set(Paint.valueOf(STROKE_COLOR));
@@ -254,7 +270,69 @@ public class SolveQuizMenuController extends Controller implements Initializable
 			background.getChildren().remove(line);
 		}
 		
+		for (int i=0; i<leftSelections.size(); ++i) {
+			leftSelections.get(i).setDisable(false);
+			rightSelections.get(i).setDisable(false);
+		}
+		
+		for (int i=0; i<unusedLeftSelections.size(); ++i) {
+			unusedLeftSelections.get(i).setDisable(false);
+			unusedRightSelections.get(i).setDisable(false);
+		}
+		
+		errorMessage.setVisible(false);
 		lines.clear();
 		openUserInput.setText("");
+	}
+	
+	private void SaveAnswer() {
+		Question question = questions.get(currentQuestion-1);
+		Answer answer;
+		
+		
+		if (question.GetType() == Question.QuestionType.MultipleChoice) {
+			RadioButton selected = ((RadioButton) mcqSelectionGroup.getSelectedToggle());
+			String mcqAnswer = "";
+			
+			
+			for (Label label : mcqChoices) {
+				if (selected.getId().contains(label.getId())) {
+					mcqAnswer = label.getText();
+				}
+			}
+			
+			answer = new MultipleChoiceAnswer(quiz.GetQuizID(), question.GetID(), QuizManager.getInstance().GetUser(), mcqAnswer);
+		}
+		
+		else if (question.GetType() == Question.QuestionType.Associative) {
+			List<String> leftAnswer = new ArrayList<>(), rightAnswer = new ArrayList<>();
+			
+			for (Line line : lines) {
+				Double firstY = line.getStartY();
+				Double secondY = line.getEndY();
+				
+				for (Button button : leftSelections) {
+					Bounds bound = button.localToScene(button.getBoundsInLocal());
+					if (bound.getMinY() < firstY && firstY < bound.getMaxY()) {
+						leftAnswer.add(button.getText());
+					}
+				}
+				
+				for (Button button : rightSelections) {
+					Bounds bound = button.localToScene(button.getBoundsInLocal());
+					if (bound.getMinY() < secondY && secondY < bound.getMaxY()) {
+						rightAnswer.add(button.getText());
+					}
+				}
+			}
+			
+			answer = new AssociativeAnswer(quiz.GetQuizID(), question.GetID(), QuizManager.getInstance().GetUser(), leftAnswer, rightAnswer);
+		}
+		
+		else {
+			answer = new OpenAnswer(quiz.GetQuizID(), question.GetID(), QuizManager.getInstance().GetUser(), openUserInput.getText());
+		}
+		
+		answers.add(answer);
 	}
 }

@@ -13,6 +13,7 @@
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -146,6 +147,7 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
+                        <Label fx:id="errorMessage" layoutX="413.0" layoutY="672.0" text="Please solve the question to continue" textFill="RED" visible="false" />
                         <Label layoutX="382.0" layoutY="37.0" text="Taking Quiz" textFill="WHITE">
                            <font>
                               <Font size="50.0" />
@@ -179,7 +181,7 @@
                               </HBox>
                            </children>
                         </HBox>
-                        <Label fx:id="questionTextLabel" layoutX="112.0" layoutY="247.0" prefHeight="127.0" prefWidth="800.0" text="Question textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion text" textFill="WHITE" wrapText="true">
+                        <Label fx:id="questionTextLabel" layoutX="112.0" layoutY="247.0" prefHeight="125.0" prefWidth="800.0" text="Question textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion text" textFill="WHITE" wrapText="true">
                            <font>
                               <Font size="20.0" />
                            </font>
@@ -192,7 +194,7 @@
                                        <children>
                                           <HBox layoutX="81.0" layoutY="66.0" prefHeight="30.0" prefWidth="300.0">
                                              <children>
-                                                <RadioButton mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="A) " textFill="WHITE">
+                                                <RadioButton fx:id="mcqChoice1Radio" mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="A) " textFill="WHITE">
                                                    <font>
                                                       <Font size="15.0" />
                                                    </font>
@@ -209,7 +211,7 @@
                                           </HBox>
                                           <HBox layoutX="455.0" layoutY="66.0" prefHeight="30.0" prefWidth="300.0">
                                              <children>
-                                                <RadioButton mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="B) " textFill="WHITE" toggleGroup="$mcqSelectionGroup">
+                                                <RadioButton fx:id="mcqChoice2Radio" mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="B) " textFill="WHITE" toggleGroup="$mcqSelectionGroup">
                                                    <font>
                                                       <Font size="15.0" />
                                                    </font>
@@ -223,7 +225,7 @@
                                           </HBox>
                                           <HBox layoutX="81.0" layoutY="165.0" prefHeight="30.0" prefWidth="300.0">
                                              <children>
-                                                <RadioButton mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="C) " textFill="WHITE" toggleGroup="$mcqSelectionGroup">
+                                                <RadioButton fx:id="mcqChoice3Radio" mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="C) " textFill="WHITE" toggleGroup="$mcqSelectionGroup">
                                                    <font>
                                                       <Font size="15.0" />
                                                    </font>
@@ -237,7 +239,7 @@
                                           </HBox>
                                           <HBox layoutX="455.0" layoutY="165.0" prefHeight="30.0" prefWidth="300.0">
                                              <children>
-                                                <RadioButton mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="D) " textFill="WHITE" toggleGroup="$mcqSelectionGroup">
+                                                <RadioButton fx:id="mcqChoice4Radio" mnemonicParsing="false" prefHeight="30.0" prefWidth="47.0" text="D) " textFill="WHITE" toggleGroup="$mcqSelectionGroup">
                                                    <font>
                                                       <Font size="15.0" />
                                                    </font>
@@ -344,6 +346,20 @@
                               </Button>
                            </children>
                         </HBox>
+                        <Pane fx:id="endPrompt" layoutY="206.0" prefHeight="562.0" prefWidth="1024.0" style="-fx-background-color: #282828;" visible="false">
+                           <children>
+                              <Button layoutX="437.0" layoutY="263.0" mnemonicParsing="false" onAction="#QuizBackButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Back to Menu">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                              <Label layoutX="344.0" layoutY="148.0" text="Congratulations you finished the quiz!" textFill="WHITE">
+                                 <font>
+                                    <Font size="20.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </Pane>
                      </children></AnchorPane>
             </content>
           </Tab>

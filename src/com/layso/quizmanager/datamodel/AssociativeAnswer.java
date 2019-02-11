@@ -10,6 +10,9 @@ public class AssociativeAnswer extends Answer {
 		
 		this.leftSide = leftSide;
 		this.rightSide = rightSide;
+		for (int i=0; i<leftSide.size(); ++i) {
+			System.out.println(leftSide.get(i) + " - " + rightSide.get(i));
+		}
 	}
 	
 	public String GetLeft(int i) {

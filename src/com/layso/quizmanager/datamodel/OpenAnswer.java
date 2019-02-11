@@ -6,6 +6,7 @@ public class OpenAnswer extends Answer {
 	public OpenAnswer(int quizID, int questionID, User answerer, String answer) {
 		super(quizID, questionID, answerer);
 		
+		System.out.println(answer);
 		this.answer = answer;
 	}
 	
