@@ -260,8 +260,10 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		// Add remaining rows where there is a data
 		for (; i<leftColumn.size(); ++i) {
-			leftChoices.add(leftColumn.get(i).getText());
-			rightChoices.add(rightColumn.get(i).getText());
+			if (!leftColumn.get(i).getText().equals("")) {
+				leftChoices.add(leftColumn.get(i).getText());
+				rightChoices.add(rightColumn.get(i).getText());
+			}
 		}
 		
 		return new AssociativeQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Associative,
