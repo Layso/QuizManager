@@ -61,6 +61,43 @@ public class DatabaseManager {
 	}
 	
 	
+	public  void UpdateUserAuthority(int userID, boolean authorititive) {
+		String sqlQuery = "update USER set AUTHORITY = ? where ID = ?";
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setBoolean(1, authorititive);
+			statement.setInt(2, userID);
+			statement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to update userID: " + userID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	public List<User> GetAllUsers() {
+		String sqlQuery = "select ID, USERNAME, AUTHORITY from USER";
+		List<User> list = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			ResultSet results = statement.executeQuery();
+			
+			while(results.next()) {
+				User newUser = new User(results.getInt("ID"), results.getString("USERNAME"), results.getBoolean("AUTHORITY"));
+				list.add(newUser);
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get all users: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		return list;
+	}
+	
 	public List<AnswerTable> GetAllAnswersByUserID (int userID) {
 		String sqlQuery = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE";
 		List<AnswerTable> list = new ArrayList<>();
@@ -1016,9 +1053,7 @@ public class DatabaseManager {
 			ResultSet results = statement.executeQuery();
 			
 			if (results.next()) {
-				String username = results.getString("USERNAME");
-				boolean authority = results.getBoolean("AUTHORITY");
-				user = authority ? new Teacher(userID, username) : new Student(userID, username) ;
+				user = new User(userID, results.getString("USERNAME"), results.getBoolean("AUTHORITY"));
 			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Couldn't get the user with ID: " + userID, Logger.LogType.ERROR);
@@ -1037,13 +1072,13 @@ public class DatabaseManager {
 	 */
 	public void UserRegister(String username, String password) {
 		String sqlQuery = "insert into USER(USERNAME, PASSWORD, AUTHORITY) values(?, ?, ?)";
-		
+		List<User> userList = GetAllUsers();
 		
 		try {
 			PreparedStatement statement = connection.prepareStatement(sqlQuery);
 			statement.setString(1, username);
 			statement.setString(2, password);
-			statement.setString(3, Boolean.toString(false));
+			statement.setBoolean(3, userList.isEmpty());
 			statement.execute();
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to insert new user " + username, Logger.LogType.ERROR);
@@ -1071,9 +1106,7 @@ public class DatabaseManager {
 			
 			while(results.next()) {
 				if (results.getString("USERNAME").equals(username) && results.getString("PASSWORD").equals(password)) {
-					int id = Integer.parseInt(results.getString("ID"));
-					boolean auth = Boolean.valueOf(results.getString("AUTHORITY"));
-					user =  auth ? new Teacher(id, username) : new Student(id, username);
+					user = new User(results.getInt("ID"), results.getString("USERNAME"), results.getBoolean("AUTHORITY"));
 				}
 			}
 			
