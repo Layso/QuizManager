@@ -8,14 +8,14 @@ import java.util.List;
 public class Quiz implements Searchable {
 	public enum QuizSearchTerms {Name, QuestionCount, Difficulty, TrueDifficulty}
 	
-	int id;
-	int quizOwnerID;
-	String quizTitle;
-	List<Question> questions;
-	int customDifficulty;
-	double trueDifficulty;
-	double averageDifficulty;
-	boolean publicity;
+	private int id;
+	private int quizOwnerID;
+	private String quizTitle;
+	private List<Question> questions;
+	private int customDifficulty;
+	private double trueDifficulty;
+	private double averageDifficulty;
+	private boolean publicity;
 	
 	
 	public Quiz(int id, int quizOwnerID, String quizTitle, List<Question> questions, int customDifficulty, double trueDifficulty, double averageDifficulty, boolean publicity) {
@@ -29,7 +29,7 @@ public class Quiz implements Searchable {
 		this.publicity = publicity;
 	}
 	
-	public int GetQuizID() {
+	public int GetID() {
 		return id;
 	}
 	

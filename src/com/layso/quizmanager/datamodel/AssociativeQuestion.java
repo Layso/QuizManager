@@ -2,7 +2,7 @@ package com.layso.quizmanager.datamodel;
 
 import java.util.List;
 
-public class AssociativeQuestion extends Question {
+public class AssociativeQuestion extends Question implements AutoCorrectable{
 	public static final int MINIMUM_ROW_COUNT = 2;
 	private List<String> leftColumn;
 	private List<String> rightColumn;
@@ -25,9 +25,13 @@ public class AssociativeQuestion extends Question {
 		return rightColumn;
 	}
 	
-	public boolean CheckAnswer(AssociativeAnswer answer) {
+	@Override
+	public boolean CheckAnswer(Answer answer) {
+		AssociativeAnswer associativeAnswer = ((AssociativeAnswer) answer);
+		
+		
 		for (int i=0; i<leftColumn.size(); ++i) {
-			if (leftColumn.indexOf(answer.GetLeft(i)) != rightColumn.indexOf(answer.GetRight(i))) {
+			if (leftColumn.indexOf(associativeAnswer.GetLeft(i)) != rightColumn.indexOf(associativeAnswer.GetRight(i))) {
 				return false;
 			}
 		}

@@ -83,6 +83,16 @@ public abstract class Question implements Searchable{
 		return trueDifficulty;
 	}
 	
+	public void IncreaseFalseAnwers() {
+		falseAnswers += 1;
+	}
+	
+	public void IncreaseCorrectAnswers() {
+		correctAnswers += 1;
+	}
+	
+	
+	
 	/* Getters for GUI tables */
 	public String getQuestionTextTable() {
 		return question;

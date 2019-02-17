@@ -3,12 +3,9 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.*;
 import com.layso.quizmanager.services.DatabaseManager;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
@@ -190,7 +187,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		if (quizTable.getSelectionModel().getSelectedItem() != null) {
 			ChangeNavigation(event);
 			QuestionSearchButton(event);
-			selectedQuizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetQuizID();
+			selectedQuizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetID();
 		}
 	}
 	

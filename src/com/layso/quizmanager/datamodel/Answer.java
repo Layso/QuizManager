@@ -11,4 +11,12 @@ public abstract class Answer {
 		this.questionID = questionID;
 		this.answerer = answerer;
 	}
+	
+	public int GetQuizID() {
+		return quizID;
+	}
+	
+	public User GetAnswerer() {
+		return answerer;
+	}
 }

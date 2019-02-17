@@ -61,21 +61,162 @@ public class DatabaseManager {
 	}
 	
 	
+	public List<AnswerTable> GetAllAnswersByUserID (int userID) {
+		String sqlQuery = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE";
+		List<AnswerTable> list = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				AnswerTable answerTable = new AnswerTable(GetQuizByID(results.getInt("QUIZ_ID")),
+					GetUserByID(results.getInt("USER_ID")), results.getInt("NOT_CORRECTED_ANSWERS"),
+					results.getInt("FALSE_ANSWERS"), results.getInt("TRUE_ANSWERS"));
+				
+				list.add(answerTable);
+			}
+			
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get answer table list: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return list;
+	}
 	
 	
+	public List<NotCorrectedOpenQuestion> GetAllUncorrectedQuestions() {
+		String sqlQuery = "select ID, QUESTION_ID, QUIZ_ID, USER_ID, ANSWER from NOT_CORRECTED_OPEN";
+		List<NotCorrectedOpenQuestion> list = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				NotCorrectedOpenQuestion ncoq = new NotCorrectedOpenQuestion(results.getInt("ID"),
+					GetQuizByID(results.getInt("QUIZ_ID")), ((OpenQuestion) GetQuestionByID(results.getInt("QUESTION_ID"))),
+					results.getString("ANSWER"), GetUserByID(results.getInt("USER_ID")));
+				
+				list.add(ncoq);
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get not corrected answers list: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return list;
+	}
 	
-	public void SaveAllAnswers(List<Answer> answers) {
-		// TODO:
-		// Save all answers to database
-		// Save time with answers to prevent conflicts
-		// Correct auto correctable answers and update the false/correct answer counts of questions
+	
+	public void SaveAnswer(int quizID, int userID, int correctedCount, int trueCount, int falseCount) {
+		String sqlQuery = "insert into ANSWER_TABLE(QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS) values(?, ?, ?, ?, ?)";
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, quizID);
+			statement.setInt(2, userID);
+			statement.setInt(3, correctedCount);
+			statement.setInt(4, trueCount);
+			statement.setInt(5, falseCount);
+			statement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to save answers for quizID: " + quizID + "  for userID: " + userID
+				+ ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	private AnswerTable GetAnswerTableByQuizAndUser(int quizID, int userID) {
+		String sqlQuery = "select NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE where QUIZ_ID = ? and USER_ID = ?";
+		AnswerTable table = null;
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, quizID);
+			statement.setInt(2, userID);
+			ResultSet results = statement.executeQuery();
+			
+			if (results.next()) {
+				table = new AnswerTable(GetQuizByID(quizID), GetUserByID(userID), results.getInt("NOT_CORRECTED_ANSWERS"),
+					results.getInt("FALSE_ANSWERS"), results.getInt("TRUE_ANSWERS"));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get answer table for quizID: " + quizID + "  for userID: " + userID
+				+ ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		
+		return table;
+	}
+	
+	public void UpdateNotCorrected(NotCorrectedOpenQuestion notCorrected, boolean result) {
+		String sqlDeleteQuery = "delete from NOT_CORRECTED_OPEN where ID = ?";
+		String sqlUpdateQuery = "update ANSWER_TABLE set NOT_CORRECTED_ANSWERS = ?, TRUE_ANSWERS = ?, FALSE_ANSWERS = ? where QUIZ_ID = ? and USER_ID = ?";
+		AnswerTable table = GetAnswerTableByQuizAndUser(notCorrected.GetQuiz().GetID(), notCorrected.GetAnswerer().GetID());
+		
+		
+		try {
+			PreparedStatement deleteStatement = connection.prepareStatement(sqlDeleteQuery);
+			deleteStatement.setInt(1, notCorrected.GetID());
+			deleteStatement.execute();
+			
+			PreparedStatement updateStatement = connection.prepareStatement(sqlUpdateQuery);
+			updateStatement.setInt(1, table.GetNotCorrectedAnswers() - 1);
+			updateStatement.setInt(2, table.GetTrueAnswers() + (result ? 1 : 0));
+			updateStatement.setInt(3, table.GetFalseAnswers() + (result ? 0 : 1));
+			updateStatement.setInt(4, table.GetQuiz().GetID());
+			updateStatement.setInt(5, table.GetAnswerer().GetID());
+			updateStatement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to update open answer correction for quizID: " + table.GetQuiz().GetID() +
+				"  for userID: " + table.GetAnswerer().GetID() + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	public void SaveNotCorrected(OpenQuestion question, OpenAnswer answer) {
+		String sqlQuery = "insert into NOT_CORRECTED_OPEN(QUESTION_ID, QUIZ_ID, USER_ID, ANSWER) values(?, ?, ?, ?)";
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, question.GetID());
+			statement.setInt(2, answer.GetQuizID());
+			statement.setInt(3, answer.GetAnswerer().GetID());
+			statement.setString(4, answer.GetAnswer());
+			statement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to save open answer for quizID: " + answer.GetQuizID() +
+				"  for userID: " + answer.GetAnswerer().GetID() + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
 	}
 	
 	
 	public List<Quiz> GetAllPublicQuizzes() {
-		// TODO
-		// Implement function to include un-owned public quizzes on returned list
-		return GetOwningQuizzes();
+		String sqlQuery = "select ID from QUIZ where PUBLICITY = TRUE";
+		List<Quiz> quizzes = new ArrayList<>();
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				quizzes.add(GetQuizByID(results.getInt("ID")));
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to get public quizzes: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return quizzes;
 	}
 	
 	
@@ -994,6 +1135,8 @@ public class DatabaseManager {
 		String openTipsTable = "CREATE TABLE OPEN_TIPS(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), TIP VARCHAR(255))";
 		String quizTable = "CREATE TABLE QUIZ(ID INT PRIMARY KEY auto_increment, TITLE VARCHAR(255), QUESTION_COUNT INT, CUSTOM_DIFFICULTY INT, AVERAGE_DIFFICULTY DOUBLE, TRUE_DIFFICULTY DOUBLE, OWNER_ID INT, foreign key (OWNER_ID) references USER(ID), PUBLICITY BOOLEAN)";
 		String quizQuestionAsssociationTable = "CREATE TABLE QUIZ_QUESTION_ASSOCIATION(ID INT PRIMARY KEY auto_increment, QUIZ_ID INT, foreign key (QUIZ_ID) references QUIZ(ID), QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID))";
+		String answerTableTable = "CREATE TABLE ANSWER_TABLE(ID INT PRIMARY KEY auto_increment, QUIZ_ID INT, foreign key (QUIZ_ID) references QUIZ(ID), USER_ID INT, foreign key (USER_ID) references USER(ID), NOT_CORRECTED_ANSWERS INT, TRUE_ANSWERS INT, FALSE_ANSWERS INT)";
+		String notCorrectedOpenTable = "CREATE TABLE NOT_CORRECTED_OPEN(ID INT primary key auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), QUIZ_ID INT, foreign key (QUIZ_ID) references QUIZ(ID), USER_ID INT, foreign key (USER_ID) references USER(ID), ANSWER VARCHAR(255))";
 		
 		return false;
 	}

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #282828;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.CheckAnswersMenuController">
+   <children>
+      <TabPane fx:id="tabs" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/hideTabHeader.css" tabClosingPolicy="UNAVAILABLE">
+         <tabs>
+            <Tab fx:id="questionSelection" text="QuestionSelection">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="325.0" layoutY="37.0" text="Correct Question" textFill="WHITE">
+                           <font>
+                              <Font size="50.0" />
+                           </font>
+                        </Label>
+                        <HBox layoutX="62.0" layoutY="138.0" prefHeight="30.0" prefWidth="900.0">
+                           <children>
+                              <TextField fx:id="searchCriteriaText" prefHeight="30.0" prefWidth="700.0" promptText="Enter your search criteria" />
+                              <ChoiceBox fx:id="searchCriteriaChoice" prefHeight="30.0" prefWidth="150.0" />
+                              <Button mnemonicParsing="false" onAction="#QuestionSearchButton" prefHeight="30.0" prefWidth="75.0" text="Search" />
+                           </children>
+                        </HBox>
+                        <TableView fx:id="questionTable" layoutX="62.0" layoutY="180.0" prefHeight="500.0" prefWidth="900.0">
+                           <columns>
+                              <TableColumn fx:id="questionColumn" prefWidth="378.0" text="Question" />
+                              <TableColumn fx:id="answerColumn" prefWidth="380.0" text="Answer" />
+                              <TableColumn fx:id="answererColumn" minWidth="0.0" prefWidth="141.0" text="Answerer" />
+                           </columns>
+                        </TableView>
+                        <HBox layoutX="652.0" layoutY="702.0" prefHeight="38.0" prefWidth="310.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="questionCorrection" mnemonicParsing="false" onAction="#SelectQuestionButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Select">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                              <Button mnemonicParsing="false" onAction="#BackToMenuButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Back">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="questionCorrection" text="QuestionCorrection">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="325.0" layoutY="37.0" text="Correct Question" textFill="WHITE">
+                           <font>
+                              <Font size="50.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="questionTextLabel" layoutX="112.0" layoutY="247.0" prefHeight="125.0" prefWidth="800.0" text="Question textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion textQuestion text" textFill="WHITE" wrapText="true">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Label>
+                        <TabPane layoutX="112.0" layoutY="381.0" prefHeight="287.0" prefWidth="800.0" tabClosingPolicy="UNAVAILABLE">
+                           <tabs>
+                              <Tab text="Open">
+                                 <content>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="314.0" prefWidth="800.0">
+                                       <children>
+                                          <Label fx:id="openTipLabel" prefHeight="58.0" prefWidth="800.0" text="Tip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes hereTip goes here" textFill="#7d7d7d" wrapText="true" />
+                                          <TextArea fx:id="openUserInput" editable="false" layoutX="75.0" layoutY="68.0" prefHeight="209.0" prefWidth="650.0" />
+                                       </children>
+                                    </AnchorPane>
+                                 </content>
+                              </Tab>
+                           </tabs>
+                        </TabPane>
+                        <HBox layoutX="492.0" layoutY="702.0" prefHeight="38.0" prefWidth="470.0" spacing="10.0">
+                           <children>
+                              <Button fx:id="questionSelection" mnemonicParsing="false" onAction="#CorrectButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Correct">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="questionSelection" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#FalseButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="False">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="questionSelection" mnemonicParsing="false" onAction="#BackButton" prefHeight="38.0" prefWidth="150.0" stylesheets="@../css/button.css" text="Back">
+                                 <font>
+                                    <Font size="17.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

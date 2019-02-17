@@ -49,6 +49,14 @@ public class MainMenuController extends Controller implements Initializable {
 		ChangeScene(event, WindowStage.SolveQuizMenu);
 	}
 	
+	public void SeeResultsButton(ActionEvent event) {
+		ChangeScene(event, WindowStage.SeeResultsMenu);
+	}
+	
+	public void CorrectAnswer(ActionEvent event) {
+		ChangeScene(event, WindowStage.CheckAnswersMenu);
+	}
+	
 	
 	public void Test(ActionEvent event) {
 		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceNameByQuestionID(9), 400, 200, true, true);

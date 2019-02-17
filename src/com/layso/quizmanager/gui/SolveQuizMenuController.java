@@ -4,14 +4,10 @@ import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.*;
 import com.layso.quizmanager.services.DatabaseManager;
 import com.layso.quizmanager.services.QuizManager;
-import com.sun.javafx.scene.control.skin.ContextMenuContent;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Bounds;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -115,6 +111,7 @@ public class SolveQuizMenuController extends Controller implements Initializable
 			currentQuestion = 0;
 			BuildQuestionMenu(questions.get(currentQuestion));
 			totalQuestionCount.setText(Integer.toString(questions.size()));
+			Clear();
 		}
 	}
 	
@@ -131,13 +128,43 @@ public class SolveQuizMenuController extends Controller implements Initializable
 			
 			if (currentQuestion >= questions.size()) {
 				endPrompt.setVisible(true);
-				
+				SaveAllAnswers();
 			} else {
 				BuildQuestionMenu(questions.get(currentQuestion));
 			}
 		} else {
 			errorMessage.setVisible(true);
 		}
+	}
+	
+	private void SaveAllAnswers() {
+		int trueCount = 0;
+		int notCorrectedCount = 0;
+		
+		
+		for (int i=0; i<answers.size(); ++i) {
+			Question current = questions.get(i);
+			
+			if (current.GetType() == Question.QuestionType.MultipleChoice || current.GetType() == Question.QuestionType.Associative) {
+				AutoCorrectable correctable = ((AutoCorrectable) current);
+				Question newStats = current;
+				
+				if (correctable.CheckAnswer(answers.get(i))) {
+					newStats.IncreaseCorrectAnswers();
+					++trueCount;
+				} else {
+					newStats.IncreaseFalseAnwers();
+				}
+				
+				DatabaseManager.getInstance().ChangeQuestion(current, newStats);
+			} else  {
+				++notCorrectedCount;
+				DatabaseManager.getInstance().SaveNotCorrected(((OpenQuestion) current), ((OpenAnswer) answers.get(i)));
+			}
+		}
+		
+		DatabaseManager.getInstance().SaveAnswer(quiz.GetID(), QuizManager.getInstance().GetUser().GetID(),
+			notCorrectedCount, trueCount, questions.size() - (trueCount + notCorrectedCount));
 	}
 	
 	public void QuitQuizButton (ActionEvent event) {
@@ -205,8 +232,8 @@ public class SolveQuizMenuController extends Controller implements Initializable
 	
 	private void BuildAssociative(AssociativeQuestion question) {
 		AssociativeQuestion associative = question;
-		List<String> left = associative.GetLeftColumn();
-		List<String> right = associative.GetRightColumn();
+		List<String> left = new ArrayList<>(question.GetLeftColumn());
+		List<String> right = new ArrayList<>(question.GetRightColumn());
 		
 		
 		Collections.shuffle(left);
@@ -301,37 +328,39 @@ public class SolveQuizMenuController extends Controller implements Initializable
 				}
 			}
 			
-			answer = new MultipleChoiceAnswer(quiz.GetQuizID(), question.GetID(), QuizManager.getInstance().GetUser(), mcqAnswer);
+			answer = new MultipleChoiceAnswer(quiz.GetID(), question.GetID(), QuizManager.getInstance().GetUser(), mcqAnswer);
 		}
 		
 		else if (question.GetType() == Question.QuestionType.Associative) {
 			List<String> leftAnswer = new ArrayList<>(), rightAnswer = new ArrayList<>();
 			
 			for (Line line : lines) {
-				Double firstY = line.getStartY();
-				Double secondY = line.getEndY();
+				Double startY = line.getStartY();
+				Double endY = line.getEndY();
 				
-				for (Button button : leftSelections) {
-					Bounds bound = button.localToScene(button.getBoundsInLocal());
-					if (bound.getMinY() < firstY && firstY < bound.getMaxY()) {
-						leftAnswer.add(button.getText());
+				
+				for (int i=0; i<leftSelections.size(); ++i) {
+					Bounds boundLeft = leftSelections.get(i).localToScene(leftSelections.get(i).getBoundsInLocal());
+					Bounds boundRight = rightSelections.get(i).localToScene(rightSelections.get(i).getBoundsInLocal());
+					
+					
+					if (boundLeft.getMinY() < startY && startY < boundLeft.getMaxY()) {
+						leftAnswer.add(leftSelections.get(i).getText());
 					}
-				}
-				
-				for (Button button : rightSelections) {
-					Bounds bound = button.localToScene(button.getBoundsInLocal());
-					if (bound.getMinY() < secondY && secondY < bound.getMaxY()) {
-						rightAnswer.add(button.getText());
+					
+					if (boundRight.getMinY() < endY && endY < boundRight.getMaxY()) {
+						rightAnswer.add(rightSelections.get(i).getText());
 					}
 				}
 			}
 			
-			answer = new AssociativeAnswer(quiz.GetQuizID(), question.GetID(), QuizManager.getInstance().GetUser(), leftAnswer, rightAnswer);
+			answer = new AssociativeAnswer(quiz.GetID(), question.GetID(), QuizManager.getInstance().GetUser(), leftAnswer, rightAnswer);
 		}
 		
 		else {
-			answer = new OpenAnswer(quiz.GetQuizID(), question.GetID(), QuizManager.getInstance().GetUser(), openUserInput.getText());
+			answer = new OpenAnswer(quiz.GetID(), question.GetID(), QuizManager.getInstance().GetUser(), openUserInput.getText());
 		}
+		
 		
 		answers.add(answer);
 	}

@@ -18,5 +18,7 @@
       <Button layoutX="676.0" layoutY="675.0" mnemonicParsing="false" onAction="#Test" text="Button" />
       <Button layoutX="431.0" layoutY="377.0" mnemonicParsing="false" onAction="#EditDeleteButton" prefHeight="63.0" prefWidth="110.0" text="Edit/Delete Quiz" />
       <Button layoutX="431.0" layoutY="453.0" mnemonicParsing="false" onAction="#SolveQuizButton" prefHeight="63.0" prefWidth="110.0" text="Solve Quiz" />
+      <Button layoutX="431.0" layoutY="530.0" mnemonicParsing="false" onAction="#SeeResultsButton" prefHeight="63.0" prefWidth="110.0" text="See Results" />
+      <Button layoutX="431.0" layoutY="609.0" mnemonicParsing="false" onAction="#CorrectAnswer" prefHeight="63.0" prefWidth="110.0" text="Correct Answers" />
    </children>
 </AnchorPane>

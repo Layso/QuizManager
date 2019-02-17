@@ -27,7 +27,7 @@ public class Controller {
 	/**
 	 * Enum type to define windows
 	 */
-	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu, EditDeleteQuizMenu, SolveQuizMenu}
+	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu, EditDeleteQuizMenu, SolveQuizMenu, SeeResultsMenu, CheckAnswersMenu}
 	
 	
 	
@@ -52,6 +52,8 @@ public class Controller {
 				case SelectQuestionMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.selectQuestion.fxml"))); break;
 				case EditDeleteQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.editDeleteQuiz.fxml"))); break;
 				case SolveQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.solveQuiz.fxml"))); break;
+				case SeeResultsMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.seeResults.fxml"))); break;
+				case CheckAnswersMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.checkAnswers.fxml"))); break;
 			}
 			
 			// Set new scene
@@ -149,7 +151,7 @@ public class Controller {
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Search fail: " + e.toString());
+			System.out.println("Search fail: " + e.toString()); // TODO: REMOVE
 		}
 		
 		return data;
