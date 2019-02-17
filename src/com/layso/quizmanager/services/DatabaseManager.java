@@ -222,86 +222,32 @@ public class DatabaseManager {
 	
 	
 	public void ChangeQuestion(Question oldQuestion, Question newQuestion) {
-		String sqlQuery = "select QUIZ_ID from QUIZ_QUESTION_ASSOCIATION where QUESTION_ID = ?";
-		int newID = SaveQuestion(newQuestion);
-		
-		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery);
-			statement.setInt(1, oldQuestion.GetID());
-			ResultSet results = statement.executeQuery();
-			
-			while (results.next()) {
-				ChangeQuizQuestion(oldQuestion.GetID(), newID, results.getInt("QUIZ_ID"));
-			}
-			
-			DeleteQuestionByID(oldQuestion.GetID());
-		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to update question ID from " + oldQuestion.GetID() + " to " + newID + ": " + e.getMessage(), Logger.LogType.ERROR);
-			System.exit(1);
-		}
+		DeleteQuestionByID(oldQuestion.GetID(), false);
+		SaveQuestion(oldQuestion.GetID(), newQuestion);
+		UpdateAllQuizzes();
 	}
 	
 	
-	public void ChangeQuizQuestion(int oldID, int newID, int quizID) {
-		String sqlQuery = "update QUIZ_QUESTION_ASSOCIATION set QUESTION_ID = ? where QUESTION_ID = ? and QUIZ_ID = ?";
-		
-		
-		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery);
-			statement.setInt(1, newID);
-			statement.setInt(2, oldID);
-			statement.setInt(3, quizID);
-			statement.execute();
-		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to update question ID from " + oldID + " to " + newID + ": " + e.getMessage(), Logger.LogType.ERROR);
-			System.exit(1);
-		}
-	}
-	
-	
-	public void DeleteQuestionByID(int questionID) {
+	public void DeleteQuestionByID(int questionID, boolean safeDelete) {
 		String[] queries = {"delete from RESOURCE where QUESTION_ID = ?",
 							"delete from TOPIC where QUESTION_ID = ?",
-							"delete from QUESTION where ID = ?",
 							"delete from MCQ_ANSWERS where QUESTION_ID = ?",
 							"delete from ASSOCIATIVE_CHOICES where QUESTION_ID = ?",
-							"delete from OPEN_TIPS where QUESTION_ID = ?"};
-		
-		String sqlQueryResource = "delete from RESOURCE where QUESTION_ID = ?";
-		String sqlQueryTopic = "delete from TOPIC where QUESTION_ID = ?";
-		String sqlQueryQuestion = "delete from QUESTION where ID = ?";
-		String sqlQueryMcqAnswers = "delete from MCQ_ANSWERS where QUESTION_ID = ?";
-		String sqlQueryAssociative = "delete from ASSOCIATIVE_CHOICES where QUESTION_ID = ?";
-		String sqlQueryOpenTips = "delete from OPEN_TIPS where QUESTION_ID = ?";
-		
+							"delete from OPEN_TIPS where QUESTION_ID = ?",
+							"delete from NOT_CORRECTED_OPEN where QUESTION_ID = ?",
+							"delete from QUESTION where ID = ?"};
 		
 		try {
-			PreparedStatement statement1 = connection.prepareStatement(sqlQueryResource);
-			statement1.setInt(1, questionID);
-			statement1.execute();
-			
-			PreparedStatement statement2 = connection.prepareStatement(sqlQueryTopic);
-			statement2.setInt(1, questionID);
-			statement2.execute();
-			
-			PreparedStatement statement3 = connection.prepareStatement(sqlQueryQuestion);
-			statement3.setInt(1, questionID);
-			statement3.execute();
-			
-			PreparedStatement statement4 = connection.prepareStatement(sqlQueryMcqAnswers);
-			statement4.setInt(1, questionID);
-			statement4.execute();
-			
-			PreparedStatement statement5 = connection.prepareStatement(sqlQueryAssociative);
-			statement5.setInt(1, questionID);
-			statement5.execute();
-			
-			PreparedStatement statement6 = connection.prepareStatement(sqlQueryOpenTips);
-			statement6.setInt(1, questionID);
-			statement6.execute();
+			for (String query : queries) {
+				PreparedStatement statement = connection.prepareStatement(query);
+				statement.setInt(1, questionID);
+				statement.execute();
+			}
 			
 			
-			SafeQuestionDeletion(questionID);
+			if (safeDelete) {
+				SafeQuestionDeletion(questionID);
+			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to remove question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
@@ -321,57 +267,88 @@ public class DatabaseManager {
 			while (results.next()) {
 				DeleteQuestionFromQuiz(results.getInt("QUIZ_ID"), questionID);
 			}
+			UpdateAllQuizzes();
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to safely delete question ID: " + questionID + " from quiz: " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
+		
+		UpdateAllQuizzes();
 	}
 	
 	
 	
 	public void DeleteQuestionFromQuiz(int quizID, int questionID) {
 		String sqlDeleteQuery = "delete from QUIZ_QUESTION_ASSOCIATION where QUIZ_ID = ? and QUESTION_ID = ?";
-		String sqlUpdateQuery = "update QUIZ set QUESTION_COUNT = ? where ID = ?";
-		String sqlCheckQuery = "select QUESTION_COUNT from QUIZ where ID = ?";
 		
-		System.out.println("Delete " + questionID + " from " + quizID);
+		
 		try {
 			PreparedStatement deleteStatement = connection.prepareStatement(sqlDeleteQuery);
 			deleteStatement.setInt(1, quizID);
 			deleteStatement.setInt(2, questionID);
 			deleteStatement.execute();
-			
-			PreparedStatement checkStatement = connection.prepareStatement(sqlCheckQuery);
-			checkStatement.setInt(1, quizID);
-			ResultSet results = checkStatement.executeQuery();
-			
-			if (results.next()) {
-				int questionCount = results.getInt("QUESTION_COUNT");
-				if (questionCount == 1) {
-					DeleteQuizByID(quizID);
-				}
-				
-				else {
-					PreparedStatement updateStatement = connection.prepareStatement(sqlUpdateQuery);
-					updateStatement.setInt(1, questionCount - 1);
-					updateStatement.setInt(2, quizID);
-					updateStatement.execute();
-				}
-			}
-			
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to remove question ID: " + questionID + " from quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		Quiz quiz = GetQuizByID(quizID);
+		List<Question> questions = quiz.GetQuestions();
+		if (questions.isEmpty()) {
+			DeleteQuizByID(quizID);
+		}
+	}
+	
+	public void UpdateAllQuizzes() {
+		String sqlQuery = "select ID from QUIZ";
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			ResultSet results = statement.executeQuery();
+			
+			while (results.next()) {
+				Quiz quiz = GetQuizByID(results.getInt("ID"));
+				quiz.RecalculateDifficulties();
+				UpdateQuizByID(quiz.GetID(), quiz);
+			}
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to update all quizzes: " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+	}
+	
+	public void UpdateQuizByID(int quizID, Quiz newData) {
+		String sqlQuery = "update QUIZ set TITLE = ?, QUESTION_COUNT = ?, CUSTOM_DIFFICULTY = ?, AVERAGE_DIFFICULTY = ?, TRUE_DIFFICULTY = ?, PUBLICITY = ? where ID = ?";
+		
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setString(1, newData.GetQuizTitle());
+			statement.setInt(2, newData.GetQuestions().size());
+			statement.setInt(3, newData.GetCustomDifficulty());
+			statement.setDouble(4, newData.GetAverageDifficulty());
+			statement.setDouble(5, newData.GetTrueDifficulty());
+			statement.setBoolean(6, newData.GetPublicity());
+			statement.setInt(7, quizID);
+			statement.execute();
+		} catch (SQLException e) {
+			Logger.Log("Fatal Error: Failed to update quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
 	}
 	
 	public void DeleteQuizByID(int quizID) {
-		String sqlQuery = "delete from QUIZ where ID = ?";
+		String[] queries = {"delete from ANSWER_TABLE where QUIZ_ID = ?",
+							"delete from NOT_CORRECTED_OPEN where QUIZ_ID = ?",
+							"delete from QUIZ where ID = ?"};
 		
 		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery);
-			statement.setInt(1, quizID);
-			statement.execute();
+			for (String query : queries) {
+				PreparedStatement answerTableStatement = connection.prepareStatement(query);
+				answerTableStatement.setInt(1, quizID);
+				answerTableStatement.execute();
+			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to remove quiz ID: " + quizID + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
@@ -547,8 +524,9 @@ public class DatabaseManager {
 				case Open: question = GetOpenQuestionByID(questionID, questionText, questionTopics, resourcePath, questionType, questionPublicity, questionDifficulty, questionCorrectAnswers, questionFalseAnswers, questionOwnerID); break;
 			}
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: Failed to get questions with ID: " + questionID + " " + e.getMessage(),
+			Logger.Log("Fatal Error: Failed to get question with ID: " + questionID + " " + e.getMessage(),
 				Logger.LogType.ERROR);
+			e.printStackTrace();
 			System.exit(1);
 		}
 		
@@ -754,26 +732,23 @@ public class DatabaseManager {
 			is.close();
 			os.close();
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: SQL exception caught while trying to get resource for question ID: " + questionID, Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: SQL exception caught while trying to get resource for question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		} catch (IOException e) {
-			Logger.Log("Fatal Error: IO exception caught while trying to get resource for question ID: " + questionID, Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: IO exception caught while trying to get resource for question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
-		} catch (Exception e) {
-			// TODO:
-			// If this shows up, there is a potential error for image size
-			System.out.println("IMAGE SIZE IS NOT EQUAL TO WHAT READ FROM DATABASE");
 		}
 	}
 	
 	
 	/**
 	 * Predefined database insert method for quiz creation
-	 * @param quiz Quiz to save to database
+	 * @param quiz  Quiz to save to database
+	 * @return      Returns the ID of new quiz
 	 */
-	public void CreateQuiz(Quiz quiz) {
+	public int CreateQuiz(Quiz quiz) {
 		String sqlQuery = "insert into QUIZ(TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, OWNER_ID, PUBLICITY) values(?, ?, ?, ?, ?, ?, ?)";
-		int quizID;
+		int quizID = -1;
 		
 		
 		try {
@@ -792,15 +767,16 @@ public class DatabaseManager {
 			quizID = result.getInt("ID");
 			Logger.Log("New quiz created successfully with ID: " + quizID, Logger.LogType.INFO);
 			for (Question q : quiz.GetQuestions()) {
-				AssociateQuizAndQuestion(SaveQuestion(q), quizID);
+				AssociateQuizAndQuestion(SaveQuestion(-1, q), quizID);
 			}
 			Logger.Log("All questions of quiz (ID: " + quizID + ") successfully inserted", Logger.LogType.INFO);
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to insert new quiz: " + quiz.GetQuizTitle() + ": " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
 		}
+		
+		return quizID;
 	}
-	
 	
 	
 	/**
@@ -819,13 +795,17 @@ public class DatabaseManager {
 	 * methods to insert remaining parts to the database
 	 * @param question  Question to insert
 	 */
-	public int SaveQuestion(Question question) {
-		String sqlQuery = "insert into QUESTION(QUESTION, RESOURCE, TYPE, PUBLICITY, DIFFICULTY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID) values(?, ?, ?, ?, ?, ?, ?, ?)";
+	public int SaveQuestion(int customID, Question question) {
+		String sqlQuery = customID == -1 ?
+			"insert into QUESTION(QUESTION, RESOURCE, TYPE, PUBLICITY, DIFFICULTY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID) values(?, ?, ?, ?, ?, ?, ?, ?)" :
+			"insert into QUESTION(QUESTION, RESOURCE, TYPE, PUBLICITY, DIFFICULTY, CORRECT_ANSWERS, FALSE_ANSWERS, OWNER_ID, ID) values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		int questionID = 0;
 		
-		
 		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement statement = customID == -1 ?
+				connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS) :
+				connection.prepareStatement(sqlQuery);
+			
 			statement.setString(1, question.GetQuestion());
 			statement.setString(2, Boolean.toString(!question.GetResource().equals("")));
 			statement.setString(3, question.GetType().name());
@@ -834,17 +814,23 @@ public class DatabaseManager {
 			statement.setString(6, Integer.toString(question.GetCorrectAnswers()));
 			statement.setString(7, Integer.toString(question.GetFalseAnswers()));
 			statement.setString(8, Integer.toString(question.GetOwner().GetID()));
-			statement.execute();
 			
-			ResultSet result = statement.getGeneratedKeys();
-			result.next();
-			questionID = result.getInt("ID");
+			if (customID != -1) {
+				statement.setInt(9, customID);
+				statement.execute();
+				questionID = customID;
+			} else {
+				statement.execute();
+				ResultSet result = statement.getGeneratedKeys();
+				result.next();
+				questionID = result.getInt("ID");
+			}
+			
 			switch (question.GetType()) {
 				case MultipleChoice: SaveMultipleChoiceQuestion(((MultipleChoiceQuestion) question), questionID); break;
 				case Associative: SaveAssociativeQuestion(((AssociativeQuestion) question), questionID); break;
 				case Open: SaveOpenQuestion(((OpenQuestion) question), questionID); break;
 			}
-			
 			SaveTopics(questionID, question.GetTopics());
 			SaveResource(questionID, question.GetResource());
 			Logger.Log("New question inserted successfully with ID: " + questionID, Logger.LogType.INFO);
@@ -934,6 +920,7 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to insert new multiple choice question " + question.GetQuestion() +
 				": " + e.getMessage(), Logger.LogType.ERROR);
+			e.printStackTrace();
 			System.exit(1);
 		}
 	}
@@ -995,7 +982,7 @@ public class DatabaseManager {
 	 * @param questionID    ID of question to associate
 	 * @param quizID        ID of quiz to associate with
 	 */
-	private void AssociateQuizAndQuestion(int questionID, int quizID) {
+	public void AssociateQuizAndQuestion(int questionID, int quizID) {
 		String sqlQuery = "insert into QUIZ_QUESTION_ASSOCIATION(QUIZ_ID, QUESTION_ID) values(?, ?)";
 		
 		

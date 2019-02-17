@@ -17,12 +17,13 @@ public class QuizManager {
 	
 	private User user;
 	private List<Question> tempQuiz;
-	
+	private List<Integer> selectedQuestionsForCreation;
 	
 	/**
 	 * Private constructor to prevent object creations
 	 */
 	private QuizManager() {
+		selectedQuestionsForCreation = new ArrayList<>();
 		tempQuiz = new ArrayList<>();
 		user = null;
 	}
@@ -43,86 +44,6 @@ public class QuizManager {
 	
 	
 	
-	/*
-	public void Run() {
-		String userInput;
-		boolean keepRunning;
-		
-		
-		Logger.Log("Program started", Logger.LogType.INFO);
-		PrintWelcomeMessage();
-		
-		keepRunning = Authenticate();
-		while (keepRunning && !user.LoggedOut()) {
-			do {
-				user.PrintUserMenu();
-				userInput = InputPrompt("Please select menu: ", false);
-			} while (!user.IsRequestValid(userInput));
-			user.ProcessUserRequest(userInput);
-		}
-	}
-	*/
-	
-	/*
-	private boolean Authenticate() {
-		boolean breakLoop = false;
-		boolean result = false;
-		
-		
-		while(!breakLoop) {
-			PrintMainMenu();
-			switch (InputPrompt("Please select menu: ", false)) {
-				case "1":   result = breakLoop = UserLogin(); if (!result) System.out.println("Invalid user credentials"); break;
-				case "2":   UserRegister(); break;
-				case "3":	System.out.println("Guest entry is not available yet"); break;
-				case "4":   breakLoop = true; break;
-				default:    System.out.println("Invalid command. Please try again");
-			}
-		}
-		
-		return result;
-	}
-	*/
-	
-	
-	/**
-	 * Method to save single question to the quiz which is on creation step
-	 * @param question Question to be stored
-	 */
-	public void SaveQuestion(Question question) {
-		tempQuiz.add(question);
-	}
-	
-	
-	
-	/**
-	 * Method to save the questions given as a list to the quiz which is on creation step
-	 * @param questions List of questions to store
-	 */
-	public void SaveQuestion(List<Question> questions) {
-		for (Question question : questions) {
-			tempQuiz.add(question);
-		}
-	}
-	
-	
-	
-	/**
-	 * Getter for all the questions saved to create a quiz
-	 * @return A list which stores given questions
-	 */
-	public List<Question> GetTempQuiz() {
-		return tempQuiz;
-	}
-	
-	
-	
-	/**
-	 *  Method to clear the temporary question list for next quiz creation
-	 */
-	public void ClearTempQuiz() {
-		tempQuiz.clear();
-	}
 	
 	
 	

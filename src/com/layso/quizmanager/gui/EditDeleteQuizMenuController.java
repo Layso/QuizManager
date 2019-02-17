@@ -76,31 +76,19 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		if (CreateQuizMenuController.IsQuestionValid(GetQuestionTypeByTab(), questionText, mcqAllChoices, associativeLeft, associativeRight)) {
 			Question newQuestion = CreateQuestion(event);
 			DatabaseManager.getInstance().ChangeQuestion(((Question) questionTable.getSelectionModel().getSelectedItem()), newQuestion);
-			SelectQuizButton(event);
+			QuestionSearchButton(event);
+			QuizSearchButton(event);
+			ChangeNavigation(event);
 		}
-		
-		// TODO: UPDATE QUIZ DIFFICULTY AMK
-	}
-	
-	public void SaveOnQuizButton(ActionEvent event) {
-		if (CreateQuizMenuController.IsQuestionValid(GetQuestionTypeByTab(), questionText, mcqAllChoices, associativeLeft, associativeRight)) {
-			Question newQuestion = CreateQuestion(event);
-			int newID = DatabaseManager.getInstance().SaveQuestion(newQuestion);
-			DatabaseManager.getInstance().ChangeQuizQuestion(selectedQuestionID, newID, selectedQuizID);
-			SelectQuizButton(event);
-		}
-		
-		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	public void RemoveButton(ActionEvent event) {
 		if (questionTable.getSelectionModel().getSelectedItem() != null) {
 			selectedQuestionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetID();
-			DatabaseManager.getInstance().DeleteQuestionByID(selectedQuestionID);
+			DatabaseManager.getInstance().DeleteQuestionByID(selectedQuestionID, true);
 			QuestionSearchButton(event);
+			QuizSearchButton(event);
 		}
-		
-		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	
@@ -108,10 +96,10 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		if (questionTable.getSelectionModel().getSelectedItem() != null) {
 			selectedQuestionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetID();
 			DatabaseManager.getInstance().DeleteQuestionFromQuiz(selectedQuizID, selectedQuestionID);
+			DatabaseManager.getInstance().UpdateAllQuizzes();
 			QuestionSearchButton(event);
+			QuizSearchButton(event);
 		}
-		
-		// TODO: UPDATE QUIZ DIFFICULTY AMK
 	}
 	
 	
@@ -186,8 +174,8 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	public void SelectQuizButton(ActionEvent event) {
 		if (quizTable.getSelectionModel().getSelectedItem() != null) {
 			ChangeNavigation(event);
-			QuestionSearchButton(event);
 			selectedQuizID = ((Quiz) quizTable.getSelectionModel().getSelectedItem()).GetID();
+			QuestionSearchButton(event);
 		}
 	}
 	

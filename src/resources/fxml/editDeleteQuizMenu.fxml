@@ -352,14 +352,9 @@
                               </Tab>
                            </tabs>
                         </TabPane>
-                        <VBox fx:id="menuButtons" layoutX="864.0" layoutY="620.0" prefHeight="124.0" prefWidth="150.0" spacing="5.0">
+                        <VBox fx:id="menuButtons" layoutX="864.0" layoutY="663.0" prefHeight="81.0" prefWidth="150.0" spacing="5.0">
                            <children>
                               <Button fx:id="pickQuestion" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#SaveButton" prefWidth="150.0" stylesheets="@../css/button.css" text="Save">
-                                 <font>
-                                    <Font size="17.0" />
-                                 </font>
-                              </Button>
-                              <Button fx:id="pickQuestion" layoutX="10.0" layoutY="35.0" mnemonicParsing="false" onAction="#SaveOnQuizButton" prefWidth="150.0" stylesheets="@../css/button.css" text="Save on Quiz">
                                  <font>
                                     <Font size="17.0" />
                                  </font>

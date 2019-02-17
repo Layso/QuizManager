@@ -42,16 +42,39 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	private Slider difficultySlider, customDifficultySlider;
 	
 	@FXML
+	private ChoiceBox searchCriteriaChoice;
+	
+	@FXML
+	private TextField searchCriteriaText;
+	
+	@FXML
+	private TableView table;
+	
+	@FXML
+	private TableColumn questionColumn, topicsColumn, typeColumn, difficultyColumn, trueDifficultyColumn, ownerColumn;
+	
+	@FXML
+	private TabPane tabs;
+	
+	@FXML
 	private TextField questionText, topicsText, resourcePath, mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer,
 		mcqCorrectAnswer, associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5,
 		associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText,
 		quizTitle;
 	
 	private List<TextField> mcqAllChoices, associativeLeft, associativeRight;
-	
+	private List<Question> tempQuestions;
+	private List<Integer> selectedQuestions;
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
+		tempQuestions = new ArrayList<>();
+		selectedQuestions = new ArrayList<>();
+		table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		AssociateSearchCriteriaWithTable(searchCriteriaChoice, table);
+		AssociateTableWithClass(Question.GetPropertyValueFactory(), questionColumn, topicsColumn, typeColumn,
+			difficultyColumn, trueDifficultyColumn, ownerColumn);
+		SearchButton(null);
 		customDifficultySlider.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				customDifficulty.fire();
@@ -62,6 +85,21 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		associativeLeft = CreateTextFieldArray(associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5);
 		associativeRight = CreateTextFieldArray(associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5);
 		Logger.Log("Quiz Creation Menu initialized", Logger.LogType.INFO);
+	}
+	
+	
+	public void ChangeQuestionNavigation(ActionEvent event) {
+		if (event == null)
+			System.out.println("event null");
+		
+		if (tabs == null)
+			System.out.println("tabs null");
+		
+		try {
+			ChangeNavigation(event, tabs);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 	
 	/**
@@ -107,11 +145,9 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void QuitButton(ActionEvent event) {
-		System.out.println(1);
-		QuizManager.getInstance().ClearTempQuiz();
-		System.out.println(2);
+		tempQuestions.clear();
+		selectedQuestions.clear();
 		ChangeScene(event, WindowStage.MainMenu);
-		System.out.println(3);
 	}
 	
 	
@@ -139,26 +175,16 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		}
 		
 		else {
-			int customDifficultyLevel = -1;
-			double avarageDifficultyLevel = 0;
-			List<Question> questions = QuizManager.getInstance().GetTempQuiz();
+			// Create quiz, save to database
+			Quiz quiz = new Quiz(-1, QuizManager.getInstance().GetUser().GetID(), quizTitle.getText(), tempQuestions,
+				customDifficulty.isSelected() ? (int) customDifficultySlider.getValue() : -1, 0, 0,	 publicButton.isSelected());
 			
-			
-			if (customDifficulty.isSelected()) {
-				customDifficultyLevel = ((int) customDifficultySlider.getValue());
+			int quizID = DatabaseManager.getInstance().CreateQuiz(quiz);
+			for (int id : selectedQuestions) {
+				DatabaseManager.getInstance().AssociateQuizAndQuestion(id, quizID);
 			}
 			
-			for (Question q : questions) {
-				avarageDifficultyLevel += q.GetDifficulty();
-			}
-			
-			
-			// Create quiz, save to database, return to main menu
-			Quiz quiz = new Quiz(-1, QuizManager.getInstance().GetUser().GetID(), quizTitle.getText(), questions,
-				customDifficultyLevel, 0, avarageDifficultyLevel/questions.size(),
-				publicButton.isSelected());
-			DatabaseManager.getInstance().CreateQuiz(quiz);
-			QuizManager.getInstance().ClearTempQuiz();
+			DatabaseManager.getInstance().UpdateAllQuizzes();
 			ChangeScene(event, WindowStage.MainMenu);
 		}
 	}
@@ -171,8 +197,11 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * @param event ActionEvent produced by GUI
 	 */
 	public void FinalizeQuiz(ActionEvent event) {
-		List<Question> questions = QuizManager.getInstance().GetTempQuiz();
 		int avg = 0;
+		List<Question> questions = new ArrayList(tempQuestions);
+		for (int questionID : selectedQuestions) {
+			questions.add(DatabaseManager.getInstance().GetQuestionByID(questionID));
+		}
 		
 		
 		SaveQuestion(event);
@@ -223,7 +252,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 			
 			// Save question and clear screen for new one
-			QuizManager.getInstance().SaveQuestion(newQuestion);
+			tempQuestions.add(newQuestion);
 			Clear(event);
 		} else {
 			noQuestionError.setVisible(false);
@@ -290,7 +319,6 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		
 		for (TextField field : allAnswers) {
-			System.out.println(field.getText());
 			if (!field.getText().equals(correctAnswer)) {
 				answers.add(field.getText());
 			}
@@ -386,6 +414,42 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		notValid |= question.getText().equals("");
 		
 		return !notValid;
+	}
+	
+	
+	
+	/**
+	 * Button action method to cancel action and go back to quiz creation menu
+	 * @param event ActionEvent created by UI
+	 */
+	public void BackButton(ActionEvent event) {
+		ChangeNavigation(event, tabs);
+	}
+	
+	
+	
+	/**
+	 * Button action method to get selected questions and save them to use for quiz creation
+	 * @param event ActionEvent created by UI
+	 */
+	public void SelectButton(ActionEvent event) {
+		for (int i = 0; i<table.getSelectionModel().getSelectedItems().size(); ++i) {
+			Question q = ((Question) table.getSelectionModel().getSelectedItems().get(i));
+			selectedQuestions.add(q.GetID());
+		}
+		
+		BackButton(event);
+	}
+	
+	
+	
+	/**
+	 * Button action method to filter the questions by given criteria. Calls helper methods according to search criteria
+	 * @param event ActionEvent created by UI
+	 */
+	public void SearchButton(ActionEvent event) {
+		List<Question> questions = DatabaseManager.getInstance().GetAllPublicQuestions();
+		table.setItems(SearchHelper(questions, searchCriteriaText.getText(), searchCriteriaChoice.getSelectionModel().getSelectedItem().toString()));
 	}
 	
 	
