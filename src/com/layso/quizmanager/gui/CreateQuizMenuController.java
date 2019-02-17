@@ -131,16 +131,6 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	
 	
 	/**
-	 * Method to open question selection menu to reuse other questions
-	 * @param event ActionEvent produced by GUI
-	 */
-	public void SelectQuestionButton(ActionEvent event) {
-		ChangeScene(event, WindowStage.SelectQuestionMenu);
-	}
-	
-	
-	
-	/**
 	 * Method to return back to main menu
 	 * @param event ActionEvent produced by GUI
 	 */

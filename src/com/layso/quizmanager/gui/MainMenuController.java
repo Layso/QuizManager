@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 
 
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -57,6 +58,9 @@ public class MainMenuController extends Controller implements Initializable {
 		ChangeScene(event, WindowStage.CheckAnswersMenu);
 	}
 	
+	public void UserPromotion(ActionEvent event) {
+		ChangeScene(event, WindowStage.UserPromoteMenu);
+	}
 	
 	public void Test(ActionEvent event) {
 		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceNameByQuestionID(9), 400, 200, true, true);

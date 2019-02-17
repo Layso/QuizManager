@@ -105,4 +105,17 @@ public class Quiz implements Searchable {
 		
 		return result;
 	}
+	
+	public void RecalculateDifficulties() {
+		double newAverageDifficulty = 0;
+		double newTrueDifficulty = 0;
+		
+		for (Question question : questions) {
+			newAverageDifficulty += ((double) question.GetDifficulty());
+			newTrueDifficulty += question.GetTrueDifficulty();
+		}
+		
+		averageDifficulty = newAverageDifficulty / questions.size();
+		trueDifficulty = newTrueDifficulty / questions.size();
+	}
 }

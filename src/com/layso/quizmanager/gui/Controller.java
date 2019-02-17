@@ -27,7 +27,7 @@ public class Controller {
 	/**
 	 * Enum type to define windows
 	 */
-	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, SelectQuestionMenu, EditDeleteQuizMenu, SolveQuizMenu, SeeResultsMenu, CheckAnswersMenu}
+	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, UserPromoteMenu, EditDeleteQuizMenu, SolveQuizMenu, SeeResultsMenu, CheckAnswersMenu}
 	
 	
 	
@@ -49,7 +49,7 @@ public class Controller {
 				case LoginMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.login.fxml"))); break;
 				case MainMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.main.fxml"))); break;
 				case CreateQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.createQuiz.fxml"))); break;
-				case SelectQuestionMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.selectQuestion.fxml"))); break;
+				case UserPromoteMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.userPromotion.fxml"))); break;
 				case EditDeleteQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.editDeleteQuiz.fxml"))); break;
 				case SolveQuizMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.solveQuiz.fxml"))); break;
 				case SeeResultsMenu: parent = FXMLLoader.load(getClass().getResource(CfgManager.getInstance().Get("gui.seeResults.fxml"))); break;
