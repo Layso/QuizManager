@@ -7,7 +7,7 @@ import java.util.List;
 public class MultipleChoiceQuestion extends Question implements AutoCorrectable {
 	private String correctAnswer;
 	private List<String> otherAnswers;
-	
+	public static final int OTHER_ANSWER_COUNT = 3;
 	
 	
 	public MultipleChoiceQuestion(int id, String question, List<String> topics, String resource, QuestionType type,

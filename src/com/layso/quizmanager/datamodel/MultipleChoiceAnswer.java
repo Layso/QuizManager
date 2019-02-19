@@ -5,8 +5,6 @@ public class MultipleChoiceAnswer extends Answer {
 	
 	public MultipleChoiceAnswer(int quizID, int questionID, User answerer, String answer) {
 		super(quizID, questionID, answerer);
-		
-		System.out.println("MCQ Answer: " + answer);
 		this.answer = answer;
 	}
 	

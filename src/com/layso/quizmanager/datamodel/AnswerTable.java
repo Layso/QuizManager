@@ -102,4 +102,23 @@ public class AnswerTable implements Searchable {
 		
 		return list;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(getNameTable());
+		builder.append(" - ");
+		builder.append(getQuestionCountTable());
+		builder.append(" - ");
+		builder.append(getTrueAnswers());
+		builder.append(" - ");
+		builder.append(getFalseAnswers());
+		builder.append(" - ");
+		builder.append(getUncheckedAnswers());
+		builder.append(" - ");
+		builder.append(getPercentage());
+		
+		return builder.toString();
+	}
 }

@@ -13,6 +13,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -37,6 +38,47 @@ public class SeeResultsMenuController extends Controller implements Initializabl
 		SearchButton(null);
 		Logger.Log("See Results Menu initialized", Logger.LogType.INFO);
 	}
+	
+	public static void SeeResultsMenu() {
+		List<AnswerTable> answers = DatabaseManager.getInstance().GetAllAnswersByUserID(QuizManager.getInstance().GetUser().GetID());
+		boolean run = true;
+		boolean correctInput;
+		
+		
+		while (run) {
+			PrintArrayAsTable(answers);
+			System.out.println();
+			PrintMenu("Search Result", "Back");
+			
+			
+			do {
+				switch (GetMenuInput()) {
+					case 1: correctInput = true; answers = Search(); break;
+					case 2: correctInput = true; run = false; break;
+					default: correctInput = false;
+				}
+			} while (!correctInput);
+		}
+	}
+	
+	public static List<AnswerTable> Search() {
+		String searchCriteria = GetInput("Search criteria", true);
+		AnswerTable.AnswerTableSearchTerms termEnum;
+		int searchTerm;
+		
+		do {
+			System.out.println("[1] Quiz Title\n[2] QuestionCount\n[3] Difficulty\n[4] TrueDifficulty");
+			searchTerm = GetMenuInput();
+		} while (searchTerm < 1 || searchTerm > 4);
+		
+		termEnum = searchTerm == 1 ? AnswerTable.AnswerTableSearchTerms.Name :
+			(searchTerm == 2 ? AnswerTable.AnswerTableSearchTerms.QuestionCount :
+				(searchTerm == 3 ? AnswerTable.AnswerTableSearchTerms.UncheckedAnswers :
+					(searchTerm == 4 ? AnswerTable.AnswerTableSearchTerms.TrueAnswers :
+						(searchTerm == 5 ? AnswerTable.AnswerTableSearchTerms.FalseAnswers : AnswerTable.AnswerTableSearchTerms.Percentage))));
+		return new ArrayList(Controller.SearchHelper(DatabaseManager.getInstance().GetAllAnswersByUserID(QuizManager.getInstance().GetUser().GetID()), searchCriteria, termEnum.name()));
+	}
+	
 	
 	public void SearchButton(ActionEvent event) {
 		List<AnswerTable> answers = DatabaseManager.getInstance().GetAllAnswersByUserID(QuizManager.getInstance().GetUser().GetID());

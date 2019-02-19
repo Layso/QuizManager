@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 
 public class Controller {
@@ -140,20 +141,55 @@ public class Controller {
 	 * @param <T>               An object which implements the Searchable interface
 	 * @return                  Observable list of items which provide the criteria
 	 */
-	public <T extends Searchable> ObservableList<T> SearchHelper(List<T> list, String searchCriteria, String searchTerm) {
+	public static <T extends Searchable> ObservableList<T> SearchHelper(List<T> list, String searchCriteria, String searchTerm) {
 		ObservableList<T> data = FXCollections.observableArrayList();
 		
 		
-		try {
-			for (T item : list) {
-				if (searchCriteria.equals("") || item.Search(searchCriteria, searchTerm)) {
-					data.add(item);
-				}
+		for (T item : list) {
+			if (searchCriteria.equals("") || item.Search(searchCriteria, searchTerm)) {
+				data.add(item);
 			}
-		} catch (Exception e) {
-			System.out.println("Search fail: " + e.toString()); // TODO: REMOVE
 		}
 		
 		return data;
+	}
+	
+	public static void PrintMenu(String ... menuItems) {
+		for (int i=0; i< menuItems.length; ++i) {
+			System.out.println("[" + (i+1) + "] " + menuItems[i]);
+		}
+	}
+	
+	public static int GetMenuInput() {
+		int menuInput;
+		
+		
+		do {
+			try {
+				menuInput = Integer.parseInt(GetInput("Select", true));
+			} catch (NumberFormatException e) {
+				menuInput = -1;
+			}
+		} while (menuInput == -1);
+		
+		return menuInput;
+	}
+	
+	public static String GetInput(String prompt, boolean newLine) {
+		String input;
+		
+		
+		System.out.print(prompt + ": ");
+		input = new Scanner(System.in).nextLine();
+		if (newLine)
+			System.out.println();
+		
+		return input;
+	}
+	
+	public static <T> void PrintArrayAsTable (List<T> list) {
+		for (int i=0; i<list.size(); ++i) {
+			System.out.println("[" + (i+1) + "] " + list.get(i).toString());
+		}
 	}
 }

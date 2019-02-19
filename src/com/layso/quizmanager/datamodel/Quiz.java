@@ -118,4 +118,20 @@ public class Quiz implements Searchable {
 		averageDifficulty = newAverageDifficulty / questions.size();
 		trueDifficulty = newTrueDifficulty / questions.size();
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		
+		builder.append(getQuizNameTable());
+		builder.append(" - ");
+		builder.append(getQuestionCountTable());
+		builder.append(" - ");
+		builder.append(getDifficultyTable());
+		builder.append(" - ");
+		builder.append(getTrueDifficultyTable());
+		
+		return builder.toString();
+	}
 }

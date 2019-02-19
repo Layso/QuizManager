@@ -91,4 +91,16 @@ public class User implements Searchable {
 		
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		
+		builder.append(getUsernameTable());
+		builder.append(" - ");
+		builder.append(getAuthorityTable());
+		
+		return builder.toString();
+	}
 }

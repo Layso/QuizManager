@@ -4,6 +4,9 @@ import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.Question;
 import com.layso.quizmanager.datamodel.Quiz;
 import com.layso.quizmanager.datamodel.User;
+import com.layso.quizmanager.gui.Controller;
+import com.layso.quizmanager.gui.LoginMenuController;
+import com.layso.quizmanager.gui.MainMenuController;
 import com.layso.quizmanager.services.DatabaseManager;
 
 import java.util.ArrayList;
@@ -15,17 +18,17 @@ public class QuizManager {
 	// One instance to rule them all, AKA singleton
 	private static QuizManager instance;
 	
+	private boolean keepRunning;
+	private Controller.WindowStage currentStage;
 	private User user;
-	private List<Question> tempQuiz;
-	private List<Integer> selectedQuestionsForCreation;
+	
 	
 	/**
 	 * Private constructor to prevent object creations
 	 */
 	private QuizManager() {
-		selectedQuestionsForCreation = new ArrayList<>();
-		tempQuiz = new ArrayList<>();
 		user = null;
+		keepRunning = true;
 	}
 	
 	
@@ -37,14 +40,76 @@ public class QuizManager {
 	public static QuizManager getInstance() {
 		if (instance == null) {
 			instance = new QuizManager();
+			
 		}
 		
 		return instance;
 	}
 	
 	
+	public void Run() {
+		currentStage = Controller.WindowStage.LoginMenu;
+		
+		while (keepRunning) {
+			switch (currentStage) {
+				case LoginMenu: LoginMenuController.LoginMenu(); break;
+				case MainMenu: MainMenuController.MainMenu(); break;
+			}
+		}
+	}
 	
 	
+	public void SetKeepRunning(boolean status) {
+		keepRunning = status;
+	}
+	
+	public void SetCurrentStage(Controller.WindowStage stage) {
+		currentStage = stage;
+	}
+	
+	
+	
+	
+	public void CreateQuizMenu() {
+		while (true) {
+		
+		}
+	}
+	
+	
+	public void EditDeleteQuizMenu() {
+		while (true) {
+		
+		}
+	}
+	
+	
+	public void SolveQuizMenu() {
+		while (true) {
+		
+		}
+	}
+	
+	
+	public void SeeResultsMenu() {
+		while (true) {
+		
+		}
+	}
+	
+	
+	public void CheckAnswerMenu() {
+		while (true) {
+		
+		}
+	}
+	
+	
+	public void UserPromotionMenu() {
+		while (true) {
+		
+		}
+	}
 	
 	
 	/**
@@ -77,7 +142,10 @@ public class QuizManager {
 		boolean result;
 		
 		
-		if (DatabaseManager.getInstance().UserExists(username)) {
+		if (username.equals("") || password.equals("")) {
+			result = false;
+			Logger.Log("Username or/and password can't be blank", Logger.LogType.WARNING);
+		} else if (DatabaseManager.getInstance().UserExists(username)) {
 			result = false;
 			Logger.Log("Username \"" + username + "\" already exists in database", Logger.LogType.WARNING);
 		} else {

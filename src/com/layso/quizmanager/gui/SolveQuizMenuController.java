@@ -59,13 +59,13 @@ public class SolveQuizMenuController extends Controller implements Initializable
 	private static final int STROKE_WIDTH = 5;
 	private static final String STROKE_COLOR = "white";
 	
-	Quiz quiz;
-	List<Question> questions;
-	int currentQuestion;
+	private static List<Answer> answers;
+	private static Quiz quiz;
+	private static List<Question> questions;
+	private static int currentQuestion;
 	List<Label> mcqChoices;
 	List<Button> leftSelections;
 	List<Button> rightSelections;
-	List<Answer> answers;
 	List<Line> lines;
 	Button lastClickedAssociative;
 	List<Button> unusedLeftSelections;
@@ -96,6 +96,160 @@ public class SolveQuizMenuController extends Controller implements Initializable
 		Logger.Log("Solve Quiz Menu initialized", Logger.LogType.INFO);
 	}
 	
+	
+	public static void SolveQuizMenu() {
+		List<Quiz> quizzes = DatabaseManager.getInstance().GetAllPublicQuizzes();
+		answers = new ArrayList<>();
+		boolean correctInput;
+		boolean run = true;
+		int selection;
+		
+		
+		while (run) {
+			do {
+				System.out.println("Quizzes: Quiz Title - Question Count - Difficulty - True Difficulty");
+				PrintArrayAsTable(quizzes);
+				System.out.println();
+				PrintMenu("Select Quiz", "Search Quiz", "Back");
+				switch (GetMenuInput()) {
+					case 1: correctInput = true;
+						if (quizzes.size() > 0) {
+							do {selection = GetMenuInput();} while(selection < 1 || selection > quizzes.size());
+							quiz = quizzes.get(selection-1);
+							questions = quiz.GetQuestions();
+							currentQuestion = 0;
+							SolveQuiz();
+						}
+						else {
+							System.out.println("No quiz to solve");
+						}
+						break;
+					case 2: correctInput = true; quizzes = Search();
+					case 3: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu); break;
+					default: correctInput = false;
+				}
+			} while (!correctInput);
+		}
+	}
+	
+	public static void SolveQuiz() {
+		for (int i=0; i<questions.size(); ++i) {
+			currentQuestion = i+1;
+			System.out.println();
+			System.out.println(QuestionToString(questions.get(i)));
+			answers.add(GetAnswerForQuestion(questions.get(i)));
+		}
+		
+		System.out.println("Congratulations, you finished the quiz!");
+		if (!DatabaseManager.getInstance().DidUserSolveQuiz(quiz.GetID(), QuizManager.getInstance().GetUser().GetID())) {
+			SaveAllAnswers();
+		}
+	}
+	
+	public static Answer GetAnswerForQuestion(Question question) {
+		Answer answer = null;
+		
+		
+		System.out.println(currentQuestion + ") " + question.GetQuestion());
+		if (question.GetType() == Question.QuestionType.MultipleChoice) {
+			List<String> allAnswers = new ArrayList<>(((MultipleChoiceQuestion) question).GetAnswers());
+			allAnswers.add(((MultipleChoiceQuestion) question).GetCorrectAnswer());
+			
+			Collections.shuffle(allAnswers);
+			System.out.println();
+			for (int i=0; i<allAnswers.size(); ++i) {
+				System.out.println("[" + (i+1) + "] " + allAnswers.get(i));
+			}
+			
+			int selection;
+			do { selection = GetMenuInput(); } while(selection < 1 || selection > allAnswers.size());
+			
+			answer = new MultipleChoiceAnswer(quiz.GetID(), question.GetID(), QuizManager.getInstance().GetUser(), allAnswers.get(selection-1));
+		}
+		
+		else if (question.GetType() == Question.QuestionType.Associative) {
+			List<String> left = new ArrayList<>(((AssociativeQuestion) question).GetLeftColumn());
+			List<String> right = new ArrayList<>(((AssociativeQuestion) question).GetRightColumn());
+			
+			Collections.shuffle(left);
+			Collections.shuffle(right);
+			
+			System.out.println();
+			for (int i=0; i<left.size(); ++i) {
+				System.out.println("[" + (i+1) + "] " + left.get(i) + "\t\t\t[" + (char)('a' + i) + "] " + right.get(i));
+			}
+			
+			String answers;
+			boolean inputCorrect = false;
+			List<String> leftAnswers = new ArrayList<>();
+			List<String> rightAnswers = new ArrayList<>();
+			
+			do {
+				answers = GetInput("Associate", true);
+				String[] rows = answers.split("[ ]");
+				if (rows.length == left.size()) {
+					for (String row : rows) {
+						System.out.println("Row - *" + row + "*");
+						String[] doubles = row.split("[-]");
+						
+						if (doubles.length == 2) {
+							try {
+								
+								leftAnswers.add(left.get(Integer.parseInt(doubles[0]) - 1));
+								rightAnswers.add(right.get(doubles[1].charAt(0) - 'a'));
+								inputCorrect = true;
+							} catch (Exception e) {
+								System.out.println(e);
+								System.out.println("Input format not correct");
+								inputCorrect = false;
+							}
+						}
+					}
+				}
+			} while (!inputCorrect);
+			
+			answer = new AssociativeAnswer(quiz.GetID(), question.GetID(), QuizManager.getInstance().GetUser(), leftAnswers, rightAnswers);
+		}
+		
+		else {
+			System.out.println();
+			System.out.println("(TIP: " + ((OpenQuestion) question).GetTips() + ")");
+			System.out.println();
+			String input;
+			do {input = GetInput("Answer", true);} while (input.equals(""));
+			
+			answer = new OpenAnswer(quiz.GetID(), question.GetID(), QuizManager.getInstance().GetUser(), input);
+		}
+		
+		return answer;
+	}
+	
+	public static String QuestionToString(Question questionToConvert) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder.append(questionToConvert.getQuestionTextTable());
+		switch (questionToConvert.GetType()) {
+			case MultipleChoice:
+		}
+		
+		
+		return builder.toString();
+	}
+	
+	
+	public static List<Quiz> Search() {
+		String searchCriteria = GetInput("Search criteria", true);
+		Quiz.QuizSearchTerms termEnum;
+		int searchTerm;
+		
+		do {
+			System.out.println("[1] Name\n[2] QuestionCount\n[3] Difficulty\n[4] TrueDifficulty");
+			searchTerm = GetMenuInput();
+		} while (searchTerm < 1 || searchTerm > 4);
+		
+		termEnum = searchTerm == 1 ? Quiz.QuizSearchTerms.Name : (searchTerm == 2 ? Quiz.QuizSearchTerms.QuestionCount : (searchTerm == 3 ? Quiz.QuizSearchTerms.Difficulty : Quiz.QuizSearchTerms.TrueDifficulty));
+		return new ArrayList(Controller.SearchHelper(DatabaseManager.getInstance().GetAllUsers(), searchCriteria, termEnum.name()));
+	}
 	
 	public void QuizSearchButton(ActionEvent event) {
 		List<Quiz> quizzes = DatabaseManager.getInstance().GetAllPublicQuizzes();
@@ -137,7 +291,7 @@ public class SolveQuizMenuController extends Controller implements Initializable
 		}
 	}
 	
-	private void SaveAllAnswers() {
+	private static void SaveAllAnswers() {
 		int trueCount = 0;
 		int notCorrectedCount = 0;
 		
@@ -165,6 +319,7 @@ public class SolveQuizMenuController extends Controller implements Initializable
 		
 		DatabaseManager.getInstance().SaveAnswer(quiz.GetID(), QuizManager.getInstance().GetUser().GetID(),
 			notCorrectedCount, trueCount, questions.size() - (trueCount + notCorrectedCount));
+		DatabaseManager.getInstance().UpdateAllQuizzes();
 	}
 	
 	public void QuitQuizButton (ActionEvent event) {

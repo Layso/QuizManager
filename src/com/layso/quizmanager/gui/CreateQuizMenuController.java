@@ -63,8 +63,8 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		quizTitle;
 	
 	private List<TextField> mcqAllChoices, associativeLeft, associativeRight;
-	private List<Question> tempQuestions;
-	private List<Integer> selectedQuestions;
+	private static List<Question> tempQuestions;
+	private static List<Integer> selectedQuestions;
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
@@ -88,18 +88,234 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	}
 	
 	
-	public void ChangeQuestionNavigation(ActionEvent event) {
-		if (event == null)
-			System.out.println("event null");
+	
+	public static void CreateQuizMenu() {
+		boolean run = true;
+		boolean correctInput;
+		tempQuestions = new ArrayList<>();
+		selectedQuestions = new ArrayList<>();
 		
-		if (tabs == null)
-			System.out.println("tabs null");
 		
-		try {
-			ChangeNavigation(event, tabs);
-		} catch (Exception e) {
-			System.out.println(e);
+		while (run) {
+			PrintMenu("Create New Question", "Select Existing Question", "Finalize Quiz", "Back");
+			
+			do {
+				switch (Controller.GetMenuInput()) {
+					case 1: correctInput = true; CreateQuestion(); break;
+					case 2: correctInput = true; SelectQuestion(); break;
+					case 3: correctInput = true; run = !FinalizeQuiz(); break;
+					case 4: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu); break;
+					default: correctInput = false;
+				}
+			} while (!correctInput);
 		}
+	}
+	
+	public static void CreateQuestion() {
+		String question = "";
+		String topics = "";
+		String resource = "";
+		int difficulty;
+		int type;
+		
+		
+		PrintMenu("Multiple Choice Question", "Associative Question", "Open Question");
+		do {type = Controller.GetMenuInput();} while (type < 1 || type > 3);
+		
+		
+		while (question.equals("")) question = GetInput("Question text", false);
+		topics = GetInput("Question topics", false);
+		resource = GetInput("Question resource path", false);
+		do {
+			try {
+				difficulty = Integer.parseInt(GetInput("Question difficulty", false));
+			} catch (NumberFormatException e) {
+				difficulty = -1;
+			}
+		} while (difficulty < 1 || difficulty > 5);
+		
+		switch (type) {
+			case 1: tempQuestions.add(CreateMultipleChoiceQuestion(question, topics, resource, difficulty)); break;
+			case 2: tempQuestions.add(CreateAssociativeQuestion(question, topics, resource, difficulty)); break;
+			case 3: tempQuestions.add(CreateOpenQuestion(question, topics, resource, difficulty)); break;
+		}
+	}
+	
+	public static Question CreateMultipleChoiceQuestion(String question, String topics, String resource, int difficulty) {
+		Question newQuestion;
+		String anyAnswer;
+		String correctAnswer = "";
+		List<String> otherAnswers = new ArrayList<>();
+		
+		
+		while (correctAnswer.equals("")) correctAnswer = GetInput("Correct answer", false);
+		while (otherAnswers.size() != MultipleChoiceQuestion.OTHER_ANSWER_COUNT) {
+			anyAnswer = GetInput("Give another answer", false);
+			if (!anyAnswer.equals("")) {
+				otherAnswers.add(anyAnswer);
+			}
+		}
+		
+		System.out.println();
+		newQuestion = new MultipleChoiceQuestion(-1, question, GetTopics(topics), resource,
+			Question.QuestionType.MultipleChoice, true, difficulty, 0, 0,
+			QuizManager.getInstance().GetUser(), correctAnswer, otherAnswers);
+		return newQuestion;
+	}
+	
+	public static Question CreateAssociativeQuestion(String question, String topics, String resource, int difficulty) {
+		Question newQuestion;
+		String input = "";
+		List<String> left = new ArrayList<>(), right = new ArrayList<>();
+		boolean anotherRow = true;
+		
+		
+		while (left.size() < AssociativeQuestion.MINIMUM_ROW_COUNT) {
+			do {input = GetInput("Left answer", false);} while (input.equals(""));
+			left.add(input);
+			
+			do {input = GetInput("Right answer", false);} while (input.equals(""));
+			right.add(input);
+		}
+		
+		while (anotherRow && left.size() < AssociativeQuestion.MAXIMUM_ROW_COUNT) {
+			PrintMenu("Add new row", "Finalize rows");
+			
+			switch (GetMenuInput()) {
+				case 1:
+					input = "";
+					while (input.equals("")) input = GetInput("Left answer", false);
+					left.add(input);
+					input = "";
+					while (input.equals("")) input = GetInput("Right answer", true);
+					right.add(input);
+					break;
+				case 2:
+					anotherRow = false;
+					break;
+			}
+		}
+		
+		
+		
+		newQuestion = new AssociativeQuestion(-1, question, GetTopics(topics), resource,
+			Question.QuestionType.Associative, true, difficulty, 0, 0,
+			QuizManager.getInstance().GetUser(), left, right);
+		return newQuestion;
+	}
+	
+	public static Question CreateOpenQuestion(String question, String topics, String resource, int difficulty) {
+		Question newQuestion;
+		String tip;
+	
+		tip = GetInput("Question tip", true);
+		newQuestion = new OpenQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Open, true,
+			difficulty, 0, 0, QuizManager.getInstance().GetUser(), tip);
+		return newQuestion;
+	}
+	
+	public static void SelectQuestion() {
+		List<Question> questions = DatabaseManager.getInstance().GetAllPublicQuestions();
+		boolean run = true;
+		boolean correctInput;
+		String searchCriteria;
+		int searchTerm = -1;
+		Question.QuestionSearchTerms termEnum;
+		String selections;
+		
+		
+		while (run) {
+			PrintArrayAsTable(questions);
+			System.out.println();
+			PrintMenu("Search question", "Select questions", "Back");
+			
+			do {
+				switch (Controller.GetMenuInput()) {
+					case 1:
+						correctInput = true;
+						searchCriteria = GetInput("Search criteria", true);
+						do {
+							System.out.println("[1] Question\n[2] Topics\n[3] Difficulty\n[4] TrueDifficulty\n[5] Type\n[6] Owner");
+							searchTerm = GetMenuInput();
+						} while (searchTerm < 1 || searchTerm > 6);
+						
+						termEnum = searchTerm == 1 ? Question.QuestionSearchTerms.Question :
+							(searchTerm == 2 ? Question.QuestionSearchTerms.Topics :
+								(searchTerm == 3 ? Question.QuestionSearchTerms.Difficulty :
+									(searchTerm == 4 ? Question.QuestionSearchTerms.TrueDifficulty :
+										(searchTerm == 5 ? Question.QuestionSearchTerms.Type :
+											Question.QuestionSearchTerms.Owner))));
+						questions = new ArrayList(Controller.SearchHelper(DatabaseManager.getInstance().GetAllPublicQuestions(), searchCriteria, termEnum.name()));
+						break;
+					case 2:
+						correctInput = true;
+						selections = GetInput("Select questions", true);
+						String[] selectionArray = selections.split("[ ]|[;]|[-]|[,]|[.]");
+						for (String selection : selectionArray) {
+							try {
+								int index = Integer.parseInt(selection) -1;
+								if (index > 0 && index < questions.size() && !selectedQuestions.contains(questions.get(index).GetID())) {
+									selectedQuestions.add(questions.get(index).GetID());
+								}
+							} catch (NumberFormatException e) {
+							
+							}
+						}
+						break;
+					case 3: correctInput = true; run = false; break;
+					default: correctInput = false;
+				}
+			} while (!correctInput);
+		}
+	}
+	
+	
+	public static boolean FinalizeQuiz() {
+		String input;
+		String title = "";
+		boolean publicity = false;
+		int customDifficulty;
+		boolean result = false;
+		
+		
+		if (tempQuestions.size() > 0 || selectedQuestions.size() > 0) {
+			while (title.equals("")) title = GetInput("Quiz title", false);
+			try {
+				customDifficulty = Integer.parseInt(GetInput("Custom difficulty", false));
+				if (customDifficulty < 1 || customDifficulty > 5) {
+					customDifficulty = -1;
+				}
+			} catch (NumberFormatException e) {
+				customDifficulty = -1;
+			}
+			
+			do {
+				try {
+					input = GetInput("Publicity", true);
+					publicity = Boolean.parseBoolean(input);
+				} catch (Exception e) {
+					input = "";
+				}
+			}
+			while (input.equals(""));
+			
+			Quiz newQuiz = new Quiz(-1, QuizManager.getInstance().GetUser().GetID(), title, tempQuestions,
+				customDifficulty, 0, 0, publicity);
+			int quizID = DatabaseManager.getInstance().CreateQuiz(newQuiz);
+			for (int questionID : selectedQuestions) {
+				DatabaseManager.getInstance().AssociateQuizAndQuestion(questionID, quizID);
+			}
+			
+			DatabaseManager.getInstance().UpdateAllQuizzes();
+			QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu);
+			result = true;
+		}
+		
+		return result;
+	}
+	
+	public void ChangeQuestionNavigation(ActionEvent event) {
+		ChangeNavigation(event, tabs);
 	}
 	
 	/**
@@ -285,7 +501,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 		}
 		
-		return new AssociativeQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Associative,
+		return new AssociativeQuestion(-1, question, GetTopics(topics.getText()), resource, Question.QuestionType.Associative,
 			isPublic, difficulty,0, 0, QuizManager.getInstance().GetUser(), leftChoices, rightChoices);
 	}
 	
@@ -315,7 +531,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		}
 		
 		
-		return new MultipleChoiceQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.MultipleChoice,
+		return new MultipleChoiceQuestion(-1, question, GetTopics(topics.getText()), resource, Question.QuestionType.MultipleChoice,
 			isPublic, difficulty,0, 0, QuizManager.getInstance().GetUser(), correctAnswer, answers);
 	}
 	
@@ -333,7 +549,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 */
 	public static OpenQuestion CreateOpenQuestion(String question, TextField topics, String resource, boolean isPublic,
 	                                       int difficulty, String tips) {
-		return new OpenQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Open, isPublic,
+		return new OpenQuestion(-1, question, GetTopics(topics.getText()), resource, Question.QuestionType.Open, isPublic,
 			difficulty, 0, 0, QuizManager.getInstance().GetUser(), tips);
 	}
 	
@@ -343,12 +559,12 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	 * the found topics
 	 * @return  A list including all topics
 	 */
-	public static List<String> GetTopics(TextField topicField) {
+	public static List<String> GetTopics(String topicField) {
 		List<String> topics = new ArrayList<>();
 		
 		
 		// If there is anything filled, split it with predefined delimiters and add each topic to list
-		for (String topic : topicField.getText().split("[ ]|[;]|[-]|[,]|[.]")) {
+		for (String topic : topicField.split("[ ]|[;]|[-]|[,]|[.]")) {
 			if (!topic.equals(""))
 				topics.add(topic);
 		}

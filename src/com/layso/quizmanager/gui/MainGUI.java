@@ -1,6 +1,7 @@
 package com.layso.quizmanager.gui;
 
 import com.layso.logger.datamodel.Logger;
+import com.layso.quizmanager.launcher.Main;
 import com.layso.quizmanager.services.DatabaseManager;
 import com.layso.quizmanager.services.CfgManager;
 
@@ -16,17 +17,9 @@ import java.io.IOException;
 
 public class MainGUI extends Application {
 	public static void main(String[] args) {
-		// Check arguments, print usage if wrong
-		if (args.length != 1) {
-			System.out.println("Usage: ./progName [configFile]");
-			System.out.println("[configFile] -> File that contains required data to run program");
-			System.exit(-1);
-		}
-		
-		// Get configuration settings, setup logger and database manager. Order is important
-		CfgManager.Setup(args[0]);
-		Logger.Setup(CfgManager.getInstance().Get("log.filename"), true, true);
-		DatabaseManager.Setup(CfgManager.getInstance().Get("db.url"), CfgManager.getInstance().Get("db.user"), CfgManager.getInstance().Get("db.pass"));
+		// Check arguments and setup
+		Main.CheckArguments(args.length);
+		Main.SetupProgram(args, true, true);
 		
 		// Launch the gui
 		Logger.Log("Program has successfully started", Logger.LogType.INFO);

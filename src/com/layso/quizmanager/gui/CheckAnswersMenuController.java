@@ -3,12 +3,14 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.NotCorrectedOpenQuestion;
 import com.layso.quizmanager.services.DatabaseManager;
+import com.layso.quizmanager.services.QuizManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -34,8 +36,8 @@ public class CheckAnswersMenuController extends Controller implements Initializa
 	@FXML
 	TextArea openUserInput;
 	
-	NotCorrectedOpenQuestion currentQuestion;
-	List<NotCorrectedOpenQuestion> questions;
+	private static NotCorrectedOpenQuestion currentQuestion;
+	private static List<NotCorrectedOpenQuestion> questions;
 	
 	
 	
@@ -45,6 +47,50 @@ public class CheckAnswersMenuController extends Controller implements Initializa
 		AssociateTableWithClass(NotCorrectedOpenQuestion.GetPropertyValueFactory(), questionColumn, answerColumn, answererColumn);
 		QuestionSearchButton(null);
 		Logger.Log("Check Answers Menu initialized", Logger.LogType.INFO);
+	}
+	
+	
+	public static void CheckAnswersMenu() {
+		boolean correctInput;
+		boolean run = true;
+		int selection;
+		questions =  DatabaseManager.getInstance().GetAllUncorrectedQuestions();
+		
+		
+		while (run) {
+			do {
+				PrintArrayAsTable(questions);
+				PrintMenu("Select Answer", "Back");
+				switch (GetMenuInput()) {
+					case 1: correctInput = true;
+						if (questions.size() > 0) {
+							do {selection = GetMenuInput();} while(selection < 1 || selection > questions.size());
+							currentQuestion = questions.get(selection-1);
+							CorrectAnswer();
+						}
+						else {
+							System.out.println("No answer to correct");
+						}
+						break;
+					case 2: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu); break;
+					default: correctInput = false;
+				}
+			} while (!correctInput);
+		}
+	}
+	
+	
+	public static void CorrectAnswer() {
+		boolean result;
+		int selection;
+		
+		
+		PrintMenu("Correct", "False");
+		do {selection = GetMenuInput();} while(selection < 1 || selection > 2);
+		result = selection == 1;
+		DatabaseManager.getInstance().UpdateNotCorrected(currentQuestion, result);
+		questions.remove(currentQuestion);
+		DatabaseManager.getInstance().UpdateAllQuizzes();
 	}
 	
 	public void SelectQuestionButton(ActionEvent event) {

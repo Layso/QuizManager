@@ -61,6 +61,12 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	public boolean DidUserSolveQuiz(int quizID, int userID) {
+		// TODO
+		return false;
+	}
+	
 	public  void UpdateUserAuthority(int userID, boolean authorititive) {
 		String sqlQuery = "update USER set AUTHORITY = ? where ID = ?";
 		
@@ -99,22 +105,44 @@ public class DatabaseManager {
 	}
 	
 	public List<AnswerTable> GetAllAnswersByUserID (int userID) {
-		String sqlQuery = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE";
+		String sqlQueryAuthoratitive = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE where QUIZ_ID = ?";
+		String sqlQueryNonAuthoratitive = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE where USER_ID = ?";
 		List<AnswerTable> list = new ArrayList<>();
 		
 		
 		try {
-			PreparedStatement statement = connection.prepareStatement(sqlQuery);
-			ResultSet results = statement.executeQuery();
-			
-			while (results.next()) {
-				AnswerTable answerTable = new AnswerTable(GetQuizByID(results.getInt("QUIZ_ID")),
-					GetUserByID(results.getInt("USER_ID")), results.getInt("NOT_CORRECTED_ANSWERS"),
-					results.getInt("FALSE_ANSWERS"), results.getInt("TRUE_ANSWERS"));
-				
-				list.add(answerTable);
+			PreparedStatement statement;
+			if (GetUserByID(userID).isAuthoritative()) {
+				List<Quiz> quizzes = GetOwningQuizzes();
+				for (Quiz quiz : quizzes) {
+					statement = connection.prepareStatement(sqlQueryAuthoratitive);
+					statement.setInt(1, quiz.GetID());
+					ResultSet results = statement.executeQuery();
+					
+					while (results.next()) {
+						AnswerTable answerTable = new AnswerTable(GetQuizByID(results.getInt("QUIZ_ID")),
+							GetUserByID(results.getInt("USER_ID")), results.getInt("NOT_CORRECTED_ANSWERS"),
+							results.getInt("FALSE_ANSWERS"), results.getInt("TRUE_ANSWERS"));
+						
+						list.add(answerTable);
+					}
+				}
 			}
 			
+			else {
+				statement = connection.prepareStatement(sqlQueryNonAuthoratitive);
+				statement.setInt(1, userID);
+				ResultSet results = statement.executeQuery();
+				
+				
+				while (results.next()) {
+					AnswerTable answerTable = new AnswerTable(GetQuizByID(results.getInt("QUIZ_ID")),
+						GetUserByID(results.getInt("USER_ID")), results.getInt("NOT_CORRECTED_ANSWERS"),
+						results.getInt("FALSE_ANSWERS"), results.getInt("TRUE_ANSWERS"));
+					
+					list.add(answerTable);
+				}
+			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to get answer table list: " + e.getMessage(), Logger.LogType.ERROR);
 			System.exit(1);
@@ -769,7 +797,7 @@ public class DatabaseManager {
 			is.close();
 			os.close();
 		} catch (SQLException e) {
-			Logger.Log("Fatal Error: SQL exception caught while trying to get resource for question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: SQL exception caught while trying to get resource for question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.WARNING);
 			System.exit(1);
 		} catch (IOException e) {
 			Logger.Log("Fatal Error: IO exception caught while trying to get resource for question ID: " + questionID + ": " + e.getMessage(), Logger.LogType.ERROR);

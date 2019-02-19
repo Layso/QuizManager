@@ -4,6 +4,7 @@ import java.util.List;
 
 public class AssociativeQuestion extends Question implements AutoCorrectable{
 	public static final int MINIMUM_ROW_COUNT = 2;
+	public static final int MAXIMUM_ROW_COUNT = 5;
 	private List<String> leftColumn;
 	private List<String> rightColumn;
 	

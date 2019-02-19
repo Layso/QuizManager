@@ -3,6 +3,7 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.services.CfgManager;
 import com.layso.quizmanager.services.DatabaseManager;
+import com.layso.quizmanager.services.QuizManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -65,5 +66,53 @@ public class MainMenuController extends Controller implements Initializable {
 	public void Test(ActionEvent event) {
 		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceNameByQuestionID(9), 400, 200, true, true);
 		img.setImage(image);
+	}
+	
+	
+	public static void MainMenu() {
+		boolean run = true;
+		boolean correctInput;
+		
+		
+		while (run) {
+			PrintMainMenu();
+			
+			if (QuizManager.getInstance().GetUser().isAuthoritative()) {
+				do {
+					switch (Controller.GetMenuInput()) {
+						case 1: correctInput = true; CreateQuizMenuController.CreateQuizMenu(); break;
+						case 2: correctInput = true; EditDeleteQuizMenuController.EditDeleteQuizMenu(); break;
+						case 3: correctInput = true; CheckAnswersMenuController.CheckAnswersMenu(); break;
+						case 4: correctInput = true; SeeResultsMenuController.SeeResultsMenu(); break;
+						case 5: correctInput = true; UserPromotionMenuController.UserPromotionMenu(); break;
+						case 6: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.LoginMenu); break;
+						default: correctInput = false;
+					}
+				} while (!correctInput);
+			}
+			
+			else {
+				do {
+					switch (Controller.GetMenuInput()) {
+						case 1: correctInput = true; SolveQuizMenuController.SolveQuizMenu(); break;
+						case 2: correctInput = true; SeeResultsMenuController.SeeResultsMenu(); break;
+						case 3: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.LoginMenu); break;
+						default: correctInput = false;
+					}
+				} while (!correctInput);
+			}
+			
+			
+		}
+	}
+	
+	
+	
+	
+	public static void PrintMainMenu() {
+		String[] nonAuthorativeMenu = {"Solve Quiz", "See Results", "Quit"};
+		String[] authorativeMenu = {"Create Quiz", "Edit Quiz", "Correct Answers", "See Results", "Promote Users", "Quit"};
+		
+		PrintMenu(QuizManager.getInstance().GetUser().isAuthoritative() ? authorativeMenu : nonAuthorativeMenu);
 	}
 }

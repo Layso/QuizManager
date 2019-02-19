@@ -87,4 +87,18 @@ public class NotCorrectedOpenQuestion implements Searchable {
 		
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		
+		builder.append(getQuestion());
+		builder.append(" - ");
+		builder.append(getAnswer());
+		builder.append(" - ");
+		builder.append(getAnswerer());
+		
+		return builder.toString();
+	}
 }

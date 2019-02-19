@@ -31,8 +31,8 @@ public class Logger {
 	 */
 	public static void Setup(String fileName, boolean terminal, boolean file) {
 		logFileName = fileName;
-		logToFile = terminal;
-		logToTerminal = file;
+		logToFile = file;
+		logToTerminal = terminal;
 		
 		if (!setupComplete) {
 			setupComplete = true;

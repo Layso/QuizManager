@@ -3,6 +3,7 @@ package com.layso.quizmanager.datamodel;
 import com.layso.quizmanager.services.DatabaseManager;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public abstract class Question implements Searchable{
 		this.id = id;
 		this.question = question;
 		this.topics = topics;
-		this.resource = resource;
+		this.resource = new File(resource).exists() ? resource : "";
 		this.type = type;
 		this.publicity = publicity;
 		this.difficulty = difficulty;
@@ -79,6 +80,11 @@ public abstract class Question implements Searchable{
 	public double GetTrueDifficulty() {
 		double totalAnswers = correctAnswers + falseAnswers;
 		Double trueDifficulty = (totalAnswers == 0) ? 0.0 : (falseAnswers / totalAnswers) * 5;
+		
+		if (falseAnswers == 0 && totalAnswers > 0) trueDifficulty = 1.0;
+		else if (trueDifficulty < 1) trueDifficulty = 1.0;
+		
+		
 		
 		return trueDifficulty;
 	}
@@ -174,5 +180,26 @@ public abstract class Question implements Searchable{
 		}
 		
 		return result;
+	}
+	
+	
+	@Override
+	public String toString() {
+		StringBuilder build = new StringBuilder();
+		
+		build.append(getQuestionTextTable());
+		build.append(" - ");
+		build.append(getTypeTable());
+		build.append(" - ");
+		build.append(getTopicsTable());
+		build.append(" - ");
+		build.append(getOwnerTable());
+		build.append(" - ");
+		build.append(getDifficultyTable());
+		build.append(" - ");
+		build.append(getTrueDifficultyTable());
+		
+		
+		return build.toString();
 	}
 }

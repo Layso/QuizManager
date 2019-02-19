@@ -3,6 +3,7 @@ package com.layso.quizmanager.gui;
 import com.layso.logger.datamodel.Logger;
 import com.layso.quizmanager.datamodel.*;
 import com.layso.quizmanager.services.DatabaseManager;
+import com.layso.quizmanager.services.QuizManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -72,10 +73,175 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	
 	
 	
+	public static void EditDeleteQuizMenu() {
+		boolean run = true;
+		boolean correctInput;
+		
+		
+		while (run) {
+			do {
+				PrintMenu("Select Quiz", "Back");
+				switch (GetMenuInput()) {
+					case 1: correctInput = true; SelectQuizQuestion(); break;
+					case 2: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu); break;
+					default: correctInput = false;
+				}
+			} while (!correctInput);
+		}
+	}
+	
+	
+	public static void SelectQuizQuestion() {
+		List<Quiz> quizzes = DatabaseManager.getInstance().GetOwningQuizzes();
+		List<Question> questions;
+		Quiz quiz;
+		Question question;
+		int selection;
+		boolean run = true;
+		
+		
+		PrintArrayAsTable(quizzes);
+		do { selection = GetMenuInput(); } while (selection < 1 || selection > quizzes.size());
+		quiz = quizzes.get(selection-1);
+		questions = quiz.GetQuestions();
+		
+		PrintArrayAsTable(questions);
+		do { selection = GetMenuInput(); } while (selection < 1 || selection > questions.size());
+		question = questions.get(selection-1);
+		
+		PrintMenu("Edit Question", "Remove Question", "Remove Question From Quiz");
+		do { selection = GetMenuInput(); } while (selection < 1 || selection > 3);
+		switch (selection) {
+			case 1: EditQuestion(question); DatabaseManager.getInstance().UpdateAllQuizzes(); break;
+			case 2: DatabaseManager.getInstance().DeleteQuestionByID(question.GetID(), true); DatabaseManager.getInstance().UpdateAllQuizzes(); break;
+			case 3: DatabaseManager.getInstance().DeleteQuestionFromQuiz(quiz.GetID(), question.GetID()); DatabaseManager.getInstance().UpdateAllQuizzes(); break;
+		}
+	}
+	
+	public static void EditQuestion (Question question) {
+		Question newQuestion;
+		int selection;
+		
+		
+		System.out.println("[1] Question:   " + question.GetQuestion());
+		System.out.println("    Type:       " + question.GetType());
+		System.out.println("[2] Topics:     " + question.getTopicsTable());
+		System.out.println("[3] Resource:   " + question.GetResource());
+		System.out.println("[4] Publicity:  " + question.GetPublicity());
+		System.out.println("[5] Difficulty: " + question.GetDifficulty());
+		
+		
+		if (question.GetType() == Question.QuestionType.MultipleChoice) {
+			MultipleChoiceQuestion multipleChoice = ((MultipleChoiceQuestion) question);
+			
+			System.out.println("[6] Answers:   ");
+			System.out.println("    Correct:   " + multipleChoice.GetCorrectAnswer());
+			System.out.println("    Others:    " + multipleChoice.GetAnswers());
+		}
+		
+		else if (question.GetType() == Question.QuestionType.Associative) {
+			AssociativeQuestion associative = ((AssociativeQuestion) question);
+			List<String> left = associative.GetLeftColumn();
+			List<String> right = associative.GetRightColumn();
+			
+			System.out.println("[6] Rows:   ");
+			for (int i=0; i<left.size(); ++i)
+				System.out.println("    Row :   " + left.get(i) + " - " + right.get(i));
+		}
+		
+		else {
+			OpenQuestion open = ((OpenQuestion) question);
+			System.out.println("[6] Tip:       " + open.GetTips());
+		}
+		
+		do {selection = GetMenuInput();} while (selection < 1 || selection > 6 );
+		newQuestion = CreateEditedQuestion(question, selection);
+		DatabaseManager.getInstance().ChangeQuestion(question, newQuestion);
+	}
+	
+	public static Question CreateEditedQuestion(Question oldQuestion, int change) {
+		Question newQuestion = null;
+		Object changedValue = null;
+		
+		
+		switch (change) {
+			case 1: changedValue = GetInput("New question", false); break;
+			case 2: changedValue = GetInput("New topics", false); break;
+			case 3: changedValue = GetInput("New resource", false); break;
+			case 4: changedValue = Boolean.toString(true).toLowerCase().contains(GetInput("New publicity", false).toLowerCase()); break;
+			case 5: try {changedValue = Integer.parseInt(GetInput("New difficulty", false));} catch (Exception e) {System.out.println("Bad input"); changedValue = oldQuestion.GetDifficulty();} break;
+			case 6:
+				switch (oldQuestion.GetType()) {
+					case MultipleChoice: newQuestion = CreateQuizMenuController.CreateMultipleChoiceQuestion(oldQuestion.GetQuestion(), oldQuestion.getTopicsTable(), oldQuestion.GetResource(), oldQuestion.GetDifficulty()); break;
+					case Associative: newQuestion = CreateQuizMenuController.CreateAssociativeQuestion(oldQuestion.GetQuestion(), oldQuestion.getTopicsTable(), oldQuestion.GetResource(), oldQuestion.GetDifficulty()); break;
+					case Open: newQuestion = CreateQuizMenuController.CreateOpenQuestion(oldQuestion.GetQuestion(), oldQuestion.getTopicsTable(), oldQuestion.GetResource(), oldQuestion.GetDifficulty()); break;
+				}
+		}
+		
+		if (newQuestion == null) {
+			newQuestion = CreateNewQuestion(oldQuestion, change, changedValue);
+		}
+		
+		
+		return newQuestion;
+	}
+	
+	
+	public static Question CreateNewQuestion(Question oldQuestion, int change, Object changedValue) {
+		Question newQuestion = null;
+		
+		
+		switch (oldQuestion.GetType()) {
+			case MultipleChoice: newQuestion = new MultipleChoiceQuestion(
+				oldQuestion.GetID(),
+				change == 1 ? ((String) changedValue) : oldQuestion.GetQuestion(),
+				change == 2 ? CreateQuizMenuController.GetTopics((String) changedValue) : oldQuestion.GetTopics(),
+				change == 3 ? ((String) changedValue) : oldQuestion.GetResource(), oldQuestion.GetType(),
+				change == 4 ? ((boolean) changedValue) : oldQuestion.GetPublicity(),
+				change == 5 ? ((int) changedValue) : oldQuestion.GetDifficulty(),
+				oldQuestion.GetCorrectAnswers(),
+				oldQuestion.GetFalseAnswers(),
+				oldQuestion.GetOwner(),
+				((MultipleChoiceQuestion) oldQuestion).GetCorrectAnswer(),
+				((MultipleChoiceQuestion) oldQuestion).GetAnswers());
+				break;
+				
+			case Associative: newQuestion = new AssociativeQuestion(
+				oldQuestion.GetID(),
+				change == 1 ? ((String) changedValue) : oldQuestion.GetQuestion(),
+				change == 2 ? CreateQuizMenuController.GetTopics((String) changedValue) : oldQuestion.GetTopics(),
+				change == 3 ? ((String) changedValue) : oldQuestion.GetResource(), oldQuestion.GetType(),
+				change == 4 ? ((boolean) changedValue) : oldQuestion.GetPublicity(),
+				change == 5 ? ((int) changedValue) : oldQuestion.GetDifficulty(),
+				oldQuestion.GetCorrectAnswers(),
+				oldQuestion.GetFalseAnswers(),
+				oldQuestion.GetOwner(),
+				((AssociativeQuestion) oldQuestion).GetLeftColumn(),
+				((AssociativeQuestion) oldQuestion).GetRightColumn());
+				break;
+				
+			case Open: newQuestion = new OpenQuestion(
+				oldQuestion.GetID(),
+				change == 1 ? ((String) changedValue) : oldQuestion.GetQuestion(),
+				change == 2 ? CreateQuizMenuController.GetTopics((String) changedValue) : oldQuestion.GetTopics(),
+				change == 3 ? ((String) changedValue) : oldQuestion.GetResource(), oldQuestion.GetType(),
+				change == 4 ? ((boolean) changedValue) : oldQuestion.GetPublicity(),
+				change == 5 ? ((int) changedValue) : oldQuestion.GetDifficulty(),
+				oldQuestion.GetCorrectAnswers(),
+				oldQuestion.GetFalseAnswers(),
+				oldQuestion.GetOwner(),
+				((OpenQuestion) oldQuestion).GetTips());
+				break;
+		}
+		
+		return newQuestion;
+	}
+	
 	public void SaveButton(ActionEvent event) {
 		if (CreateQuizMenuController.IsQuestionValid(GetQuestionTypeByTab(), questionText, mcqAllChoices, associativeLeft, associativeRight)) {
 			Question newQuestion = CreateQuestion(event);
 			DatabaseManager.getInstance().ChangeQuestion(((Question) questionTable.getSelectionModel().getSelectedItem()), newQuestion);
+			DatabaseManager.getInstance().UpdateAllQuizzes();
 			QuestionSearchButton(event);
 			QuizSearchButton(event);
 			ChangeNavigation(event);
@@ -86,6 +252,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		if (questionTable.getSelectionModel().getSelectedItem() != null) {
 			selectedQuestionID = ((Question) questionTable.getSelectionModel().getSelectedItem()).GetID();
 			DatabaseManager.getInstance().DeleteQuestionByID(selectedQuestionID, true);
+			DatabaseManager.getInstance().UpdateAllQuizzes();
 			QuestionSearchButton(event);
 			QuizSearchButton(event);
 		}
