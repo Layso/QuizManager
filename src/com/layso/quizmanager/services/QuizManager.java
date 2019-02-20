@@ -83,7 +83,7 @@ public class QuizManager {
 	 * Gets input from user to login. Uses database manager to check if credentials are correct
 	 * @param username  Username to test login
 	 * @param password  Password associated to username
-	 * @returnReturns true if login successful, else returns false
+	 * @return          Returns true if login successful, else returns false
 	 */
 	public boolean UserLogin(String username, String password) {
 		Logger.Log("User login attempt for username: " + username, Logger.LogType.INFO);
