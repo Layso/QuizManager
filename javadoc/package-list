@@ -1,0 +1,5 @@
+com.layso.logger.datamodel
+com.layso.quizmanager.datamodel
+com.layso.quizmanager.gui
+com.layso.quizmanager.launcher
+com.layso.quizmanager.services
