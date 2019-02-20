@@ -63,8 +63,23 @@ public class DatabaseManager {
 	
 	
 	public boolean DidUserSolveQuiz(int quizID, int userID) {
-		// TODO
-		return false;
+		String sqlQuery = "select *  from ANSWER_TABLE where QUIZ_ID = ? and USER_ID = ?";
+		boolean result;
+		
+		try {
+			PreparedStatement statement = connection.prepareStatement(sqlQuery);
+			statement.setInt(1, quizID);
+			statement.setInt(2, userID);
+			ResultSet results =  statement.executeQuery();
+			
+			result = results.next();
+		} catch (SQLException e) {
+			result = false;
+			Logger.Log("Fatal Error: Failed to update userID: " + userID + ": " + e.getMessage(), Logger.LogType.ERROR);
+			System.exit(1);
+		}
+		
+		return result;
 	}
 	
 	public  void UpdateUserAuthority(int userID, boolean authorititive) {
@@ -1173,7 +1188,7 @@ public class DatabaseManager {
 	
 	
 	
-	public boolean SchemaCheck() {
+	public void SchemaCheck() {
 		String userTable = "CREATE TABLE USER(ID INT PRIMARY KEY auto_increment, USERNAMAE VARCHAR(255), PASSWORD VARCHAR(255), AUTHORITY BOOLEAN)";
 		String questionTable = "CREATE TABLE QUESTION(ID INT PRIMARY KEY auto_increment, QUESTION VARCHAR(255), RESOURCE BOOLEAN, TYPE VARCHAR(255), PUBLICITY BOOLEAN, DIFFICULTY INT, CORRECT_ANSWERS INT, FALSE_ANSWERS INT, OWNER_ID INT, foreign key (OWNER_ID) references USER(ID))";
 		String resourceTable = "CREATE TABLE RESOURCE(ID INT PRIMARY KEY auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), RESOURCE BLOB, SIZE INT)";
@@ -1186,6 +1201,5 @@ public class DatabaseManager {
 		String answerTableTable = "CREATE TABLE ANSWER_TABLE(ID INT PRIMARY KEY auto_increment, QUIZ_ID INT, foreign key (QUIZ_ID) references QUIZ(ID), USER_ID INT, foreign key (USER_ID) references USER(ID), NOT_CORRECTED_ANSWERS INT, TRUE_ANSWERS INT, FALSE_ANSWERS INT)";
 		String notCorrectedOpenTable = "CREATE TABLE NOT_CORRECTED_OPEN(ID INT primary key auto_increment, QUESTION_ID INT, foreign key (QUESTION_ID) references QUESTION(ID), QUIZ_ID INT, foreign key (QUIZ_ID) references QUIZ(ID), USER_ID INT, foreign key (USER_ID) references USER(ID), ANSWER VARCHAR(255))";
 		
-		return false;
 	}
 }

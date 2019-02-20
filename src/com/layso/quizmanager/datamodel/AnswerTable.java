@@ -90,6 +90,10 @@ public class AnswerTable implements Searchable {
 		return  "%" + ((int) (((double) trueAnswers) / (falseAnswers + trueAnswers) * 100));
 	}
 	
+	public String getQuizSolver() {
+		return answerer.getUsername();
+	}
+	
 	public static List<PropertyValueFactory> GetPropertyValueFactory() {
 		List<PropertyValueFactory> list = new ArrayList<>();
 		
@@ -99,7 +103,7 @@ public class AnswerTable implements Searchable {
 		list.add(new PropertyValueFactory<Quiz,String>("falseAnswers"));
 		list.add(new PropertyValueFactory<Quiz,String>("uncheckedAnswers"));
 		list.add(new PropertyValueFactory<Quiz,String>("percentage"));
-		
+		list.add(new PropertyValueFactory<Quiz,String>("quizSolver"));
 		return list;
 	}
 	

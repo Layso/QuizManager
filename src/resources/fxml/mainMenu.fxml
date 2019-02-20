@@ -2,24 +2,82 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.MainMenuController">
+<AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #282828;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.MainMenuController">
    <children>
-      <Label layoutX="347.0" layoutY="192.0" text="Main Menu">
+      <Label layoutX="373.0" layoutY="37.0" text="Main Menu" textFill="WHITE">
          <font>
             <Font size="55.0" />
          </font>
       </Label>
-      <Button fx:id="skipButton" layoutX="431.0" layoutY="302.0" mnemonicParsing="false" onAction="#Skip" prefHeight="63.0" prefWidth="110.0" text="Create Quiz" />
-      <ImageView fx:id="img" fitHeight="200.0" fitWidth="400.0" layoutX="339.0" layoutY="440.0" pickOnBounds="true" preserveRatio="true" />
-      <Button layoutX="676.0" layoutY="675.0" mnemonicParsing="false" onAction="#Test" text="Button" />
-      <Button layoutX="431.0" layoutY="377.0" mnemonicParsing="false" onAction="#EditDeleteButton" prefHeight="63.0" prefWidth="110.0" text="Edit/Delete Quiz" />
-      <Button layoutX="431.0" layoutY="453.0" mnemonicParsing="false" onAction="#SolveQuizButton" prefHeight="63.0" prefWidth="110.0" text="Solve Quiz" />
-      <Button layoutX="431.0" layoutY="530.0" mnemonicParsing="false" onAction="#SeeResultsButton" prefHeight="63.0" prefWidth="110.0" text="See Results" />
-      <Button layoutX="431.0" layoutY="609.0" mnemonicParsing="false" onAction="#CorrectAnswer" prefHeight="63.0" prefWidth="110.0" text="Correct Answers" />
-      <Button layoutX="431.0" layoutY="688.0" mnemonicParsing="false" onAction="#UserPromotion" prefHeight="63.0" prefWidth="110.0" text="User Promotion" />
+      <TabPane fx:id="tabs" prefHeight="768.0" prefWidth="1024.0" stylesheets="@../css/hideTabHeader.css" tabClosingPolicy="UNAVAILABLE">
+         <tabs>
+            <Tab fx:id="authoratitiveTab" text="Authoratitive">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button layoutX="387.0" layoutY="150.0" mnemonicParsing="false" onAction="#CreateQuizButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="Create Quiz">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="250.0" mnemonicParsing="false" onAction="#EditDeleteButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="Edit/Delete Quiz">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="350.0" mnemonicParsing="false" onAction="#CorrectAnswer" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="Correct Answers">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="450.0" mnemonicParsing="false" onAction="#SeeResultsButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="See Results">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="550.0" mnemonicParsing="false" onAction="#UserPromotion" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="User Promotion">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="650.0" mnemonicParsing="false" onAction="#QuitButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="Quit">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab fx:id="normalTab" text="Normal">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Button layoutX="387.0" layoutY="250.0" mnemonicParsing="false" onAction="#SolveQuizButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="Solve Quiz">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="350.0" mnemonicParsing="false" onAction="#SeeResultsButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="See Results">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                        <Button layoutX="387.0" layoutY="450.0" mnemonicParsing="false" onAction="#QuitButton" prefHeight="65.0" prefWidth="250.0" stylesheets="@../css/button.css" text="Quit">
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </Button>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+         </tabs>
+      </TabPane>
    </children>
 </AnchorPane>

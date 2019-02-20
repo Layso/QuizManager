@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
 
 public class SeeResultsMenuController extends Controller implements Initializable {
 	@FXML
-	TableColumn nameColumn, questionCountColumn, trueAnswersColumn, falseAnswersColumn, uncheckedAnswersColumn, percentageColumn;
+	TableColumn nameColumn, questionCountColumn, trueAnswersColumn, falseAnswersColumn, uncheckedAnswersColumn, percentageColumn, quizSolverColumn;
 	
 	@FXML
 	TableView resultsTable;
@@ -34,7 +34,7 @@ public class SeeResultsMenuController extends Controller implements Initializabl
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		AssociateSearchCriteriaWithTable(searchCriteriaChoice, resultsTable);
-		AssociateTableWithClass(AnswerTable.GetPropertyValueFactory(), nameColumn, questionCountColumn, trueAnswersColumn, falseAnswersColumn, uncheckedAnswersColumn, percentageColumn);
+		AssociateTableWithClass(AnswerTable.GetPropertyValueFactory(), nameColumn, questionCountColumn, trueAnswersColumn, falseAnswersColumn, uncheckedAnswersColumn, percentageColumn, quizSolverColumn);
 		SearchButton(null);
 		Logger.Log("See Results Menu initialized", Logger.LogType.INFO);
 	}
@@ -46,6 +46,7 @@ public class SeeResultsMenuController extends Controller implements Initializabl
 		
 		
 		while (run) {
+			System.out.println("Quiz Name - Question Count - True Answers - False Answers - Unchecked Answers - Percentage");
 			PrintArrayAsTable(answers);
 			System.out.println();
 			PrintMenu("Search Result", "Back");

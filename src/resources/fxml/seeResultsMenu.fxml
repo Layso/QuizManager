@@ -10,7 +10,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-
 <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #282828;" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.layso.quizmanager.gui.SeeResultsMenuController">
    <children>
       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0">
@@ -24,12 +23,13 @@
             </HBox>
             <TableView fx:id="resultsTable" layoutX="62.0" layoutY="180.0" prefHeight="500.0" prefWidth="900.0">
                <columns>
-                  <TableColumn fx:id="nameColumn" prefWidth="314.0" text="Name" />
-                  <TableColumn fx:id="questionCountColumn" prefWidth="101.0" text="Question Count" />
-                  <TableColumn fx:id="trueAnswersColumn" minWidth="0.0" prefWidth="117.0" text="True Answers" />
-                  <TableColumn fx:id="falseAnswersColumn" minWidth="0.0" prefWidth="116.0" text="False Answers" />
-                  <TableColumn fx:id="uncheckedAnswersColumn" maxWidth="189.0" minWidth="0.0" prefWidth="129.0" text="Unchecked Answers" />
-                  <TableColumn fx:id="percentageColumn" maxWidth="230.0" minWidth="0.0" prefWidth="122.0" text="Percentage" />
+                  <TableColumn fx:id="nameColumn" prefWidth="273.0" text="Name" />
+                  <TableColumn fx:id="questionCountColumn" prefWidth="94.0" text="Question Count" />
+                  <TableColumn fx:id="trueAnswersColumn" minWidth="0.0" prefWidth="95.0" text="True Answers" />
+                  <TableColumn fx:id="falseAnswersColumn" minWidth="0.0" prefWidth="98.0" text="False Answers" />
+                  <TableColumn fx:id="uncheckedAnswersColumn" maxWidth="217.0" minWidth="0.0" prefWidth="126.0" text="Unchecked Answers" />
+                  <TableColumn fx:id="percentageColumn" maxWidth="230.0" minWidth="0.0" prefWidth="105.0" text="Percentage" />
+                  <TableColumn fx:id="quizSolverColumn" maxWidth="230.0" minWidth="0.0" prefWidth="105.0" text="Solver" />
                </columns>
             </TableView>
             <HBox layoutX="812.0" layoutY="702.0" prefHeight="38.0" prefWidth="150.0" spacing="10.0">

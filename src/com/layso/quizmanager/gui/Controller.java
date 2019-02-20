@@ -65,7 +65,7 @@ public class Controller {
 			Logger.Log("Fatal Error: FXML filename fetch for failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
 			System.exit(-1);
 		} catch (IOException e) {
-			Logger.Log("Fatal Error: GUI replacement failed: " + e.toString() + ": Terminating program", Logger.LogType.ERROR);
+			Logger.Log("Fatal Error: GUI replacement failed: " + e.getMessage() + ": Terminating program", Logger.LogType.ERROR);
 			System.exit(-1);
 		}
 	}

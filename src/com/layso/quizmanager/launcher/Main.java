@@ -10,7 +10,7 @@ public class Main {
 	public static void main(String[] args) {
 		// Check arguments and setup
 		CheckArguments(args.length);
-		SetupProgram(args, true, true);
+		SetupProgram(args, false, true);
 		
 		
 		QuizManager.getInstance().Run();

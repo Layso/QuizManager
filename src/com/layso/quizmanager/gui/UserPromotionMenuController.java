@@ -51,6 +51,7 @@ public class UserPromotionMenuController extends Controller implements Initializ
 		
 		while (run) {
 			do {
+				System.out.println("");
 				PrintArrayAsTable(users);
 				System.out.println();
 				PrintMenu("Select User", "Search", "Back");

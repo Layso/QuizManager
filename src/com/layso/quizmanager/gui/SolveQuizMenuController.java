@@ -124,7 +124,7 @@ public class SolveQuizMenuController extends Controller implements Initializable
 							System.out.println("No quiz to solve");
 						}
 						break;
-					case 2: correctInput = true; quizzes = Search();
+					case 2: correctInput = true; quizzes = Search(); break;
 					case 3: correctInput = true; run = false; QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu); break;
 					default: correctInput = false;
 				}

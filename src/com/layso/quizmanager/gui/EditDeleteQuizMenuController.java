@@ -80,6 +80,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		
 		while (run) {
 			do {
+				System.out.println();
 				PrintMenu("Select Quiz", "Back");
 				switch (GetMenuInput()) {
 					case 1: correctInput = true; SelectQuizQuestion(); break;
@@ -100,11 +101,13 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 		boolean run = true;
 		
 		
+		System.out.println("Quiz Title - Question Count - Difficulty - True Difficulty");
 		PrintArrayAsTable(quizzes);
 		do { selection = GetMenuInput(); } while (selection < 1 || selection > quizzes.size());
 		quiz = quizzes.get(selection-1);
 		questions = quiz.GetQuestions();
 		
+		System.out.println("Question - Question Type - Topics - Owner - Difficulty - True Difficulty");
 		PrintArrayAsTable(questions);
 		do { selection = GetMenuInput(); } while (selection < 1 || selection > questions.size());
 		question = questions.get(selection-1);

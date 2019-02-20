@@ -97,6 +97,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		
 		while (run) {
+			System.out.println();
 			PrintMenu("Create New Question", "Select Existing Question", "Finalize Quiz", "Back");
 			
 			do {
@@ -225,6 +226,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		
 		while (run) {
+			System.out.println("Question - Question Type - Topics - Owner - Difficulty - True Difficulty");
 			PrintArrayAsTable(questions);
 			System.out.println();
 			PrintMenu("Search question", "Select questions", "Back");

@@ -12,6 +12,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -26,22 +28,26 @@ import java.util.ResourceBundle;
 
 public class MainMenuController extends Controller implements Initializable {
 	@FXML
-	Button skipButton;
+	Tab authoratitiveTab, normalTab;
 	
 	@FXML
-	ImageView img;
+	TabPane tabs;
+	
+	
 	
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
-		skipButton.setDefaultButton(true);
+		if (QuizManager.getInstance().GetUser().isAuthoritative())
+			tabs.getSelectionModel().select(authoratitiveTab);
+		else
+			tabs.getSelectionModel().select(normalTab);
+		
 		Logger.Log("Main Menu initialized", Logger.LogType.INFO);
 	}
 	
-	public void Skip(ActionEvent event) {
+	public void CreateQuizButton(ActionEvent event) {
 		ChangeScene(event, WindowStage.CreateQuizMenu);
 	}
-	
-	
 	
 	public void EditDeleteButton(ActionEvent event) {
 		ChangeScene(event, WindowStage.EditDeleteQuizMenu);
@@ -63,9 +69,8 @@ public class MainMenuController extends Controller implements Initializable {
 		ChangeScene(event, WindowStage.UserPromoteMenu);
 	}
 	
-	public void Test(ActionEvent event) {
-		Image image = new Image("file:" + DatabaseManager.getInstance().GetResourceNameByQuestionID(9), 400, 200, true, true);
-		img.setImage(image);
+	public void QuitButton(ActionEvent event) {
+		((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
 	}
 	
 	
@@ -101,12 +106,8 @@ public class MainMenuController extends Controller implements Initializable {
 					}
 				} while (!correctInput);
 			}
-			
-			
 		}
 	}
-	
-	
 	
 	
 	public static void PrintMainMenu() {
