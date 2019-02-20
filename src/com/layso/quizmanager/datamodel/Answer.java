@@ -12,8 +12,8 @@ public abstract class Answer {
 	/**
 	 * Constructor to set common variables. Declared as protected to let derived classes use the constructor
 	 * @param quizID        ID of the question which this answer belongs to
-	 * @param questionID
-	 * @param answerer
+	 * @param questionID    ID of the question
+	 * @param answerer      User who answered
 	 */
 	protected Answer(int quizID, int questionID, User answerer) {
 		this.quizID = quizID;

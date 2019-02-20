@@ -999,7 +999,9 @@ public class DatabaseManager {
 	/**
 	 * Saves given question to database. First inserts the common Question attributes. Then calls question type specific
 	 * methods to insert remaining parts to the database
+	 * @param customID  ID to specify if this is a new insertion or an update
 	 * @param question  Question to insert
+	 * @return          ID of question inserted to database
 	 */
 	public int SaveQuestion(int customID, Question question) {
 		String sqlQuery = customID == -1 ?

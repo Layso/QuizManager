@@ -344,7 +344,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	
 	/**
 	 * Console menu helper to finalize quiz
-	 * @return
+	 * @return  Status of quiz finalization
 	 */
 	public static boolean FinalizeQuiz() {
 		String input;
@@ -645,7 +645,8 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	/**
 	 * Gets the plain text from topic text field and then splits according to the delimiters. Creates a List out of
 	 * the found topics
-	 * @return  A list including all topics
+	 * @param topicField    Topics given by user
+	 * @return              A list including all topics
 	 */
 	public static List<String> GetTopics(String topicField) {
 		List<String> topics = new ArrayList<>();

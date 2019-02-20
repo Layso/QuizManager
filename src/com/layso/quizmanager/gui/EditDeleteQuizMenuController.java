@@ -197,9 +197,9 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	
 	/**
 	 * Console helper method to edit selected question
-	 * @param oldQuestion
-	 * @param change
-	 * @return
+	 * @param oldQuestion   Old question
+	 * @param change        Index of changed attribute
+	 * @return              New question
 	 */
 	public static Question CreateEditedQuestion(Question oldQuestion, int change) {
 		Question newQuestion = null;
@@ -370,7 +370,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	
 	/**
 	 * Method to get resource path from file selector
-	 * @param event
+	 * @param event ActionEvent created by GUI
 	 */
 	public void SelectResourcePath(ActionEvent event) {
 		resourcePath.setText(FileSelector());
@@ -380,7 +380,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	
 	/**
 	 * Method to build the scene with a question object
-	 * @param event
+	 * @param event ActionEvent created by GUI
 	 */
 	private void BuildQuestionEditScreen(ActionEvent event) {
 		Question question = DatabaseManager.getInstance().GetQuestionByID(selectedQuestionID);
@@ -447,7 +447,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	
 	/**
 	 * If there is a selected question, changes scene to question edit menu
-	 * @param event
+	 * @param event ActionEvent created by GUI
 	 */
 	public void SelectQuestionButton(ActionEvent event) {
 		if (questionTable.getSelectionModel().getSelectedItem() != null) {
@@ -542,6 +542,7 @@ public class EditDeleteQuizMenuController extends Controller implements Initiali
 	 * Then calls appropriate helper method to create the Question object. Saves new object to questions array, clears
 	 * the screen for new question. If it is not valid then shows an error message
 	 * @param event ActionEvent produced by GUI
+	 * @return      Created question
 	 */
 	public Question CreateQuestion(ActionEvent event) {
 		Question newQuestion = null;

@@ -94,7 +94,7 @@ public class LoginMenuController extends Controller implements Initializable {
 	
 	/**
 	 * Helper menu to login
-	 * @return
+	 * @return  Returns the success status of login
 	 */
 	public static boolean Login() {
 		boolean success;

@@ -81,8 +81,9 @@ public class QuizManager {
 	
 	/**
 	 * Gets input from user to login. Uses database manager to check if credentials are correct
-	 *
-	 * @return Returns true if login successful, else returns false
+	 * @param username  Username to test login
+	 * @param password  Password associated to username
+	 * @returnReturns true if login successful, else returns false
 	 */
 	public boolean UserLogin(String username, String password) {
 		Logger.Log("User login attempt for username: " + username, Logger.LogType.INFO);
@@ -101,8 +102,9 @@ public class QuizManager {
 	/**
 	 * Gets input of user to create a new user. Transfers data to database manager to try saving to database
 	 *
-	 * @param username Username for new user
-	 * @param password Password for new user
+	 * @param username  Username for new user
+	 * @param password  Password for new user
+	 * @return          Status of register
 	 */
 	public boolean UserRegister(String username, String password) {
 		Logger.Log("User register attempt for username: " + username, Logger.LogType.INFO);
