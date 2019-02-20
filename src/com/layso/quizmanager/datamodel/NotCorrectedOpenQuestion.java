@@ -1,22 +1,31 @@
 package com.layso.quizmanager.datamodel;
 
-import com.layso.quizmanager.services.DatabaseManager;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class NotCorrectedOpenQuestion implements Searchable {
 	public enum NotCorrectedQuestionSearchTerms {Question, Answer, Answerer}
 	
-	int id;
-	Quiz quiz;
-	OpenQuestion question;
-	String answer;
-	User answerer;
+	private int id;
+	private Quiz quiz;
+	private OpenQuestion question;
+	private String answer;
+	private User answerer;
 	
 	
 	
+	/**
+	 * Constructor to set variables on initialization
+	 * @param id        ID of evaluation
+	 * @param quiz      ID of quiz that includes the question
+	 * @param question  ID of open question
+	 * @param answer    Answer given by User
+	 * @param answerer  User that give the answer
+	 */
 	public NotCorrectedOpenQuestion(int id, Quiz quiz, OpenQuestion question, String answer, User answerer) {
 		this.id = id;
 		this.quiz = quiz;
@@ -25,39 +34,12 @@ public class NotCorrectedOpenQuestion implements Searchable {
 		this.answerer = answerer;
 	}
 	
-	public int GetID() {
-		return id;
-	}
-	
-	public Quiz GetQuiz() {
-		return quiz;
-	}
-	
-	public OpenQuestion GetQuestion() {
-		return question;
-	}
-	
-	public String GetAnswer() {
-		return answer;
-	}
-	
-	public User GetAnswerer() {
-		return answerer;
-	}
 	
 	
-	public String getQuestion() {
-		return question.GetQuestion();
-	}
-	
-	public String getAnswer() {
-		return answer;
-	}
-	
-	public String getAnswerer() {
-		return answerer.getUsername();
-	}
-	
+	/**
+	 * A getter for property list to associate NotCorrectedOpenQuestion on a TableView
+	 * @return  List of PropertyValueFactory for member fields to show on table
+	 */
 	public static List<PropertyValueFactory> GetPropertyValueFactory() {
 		List<PropertyValueFactory> list = new ArrayList<>();
 		
@@ -68,6 +50,14 @@ public class NotCorrectedOpenQuestion implements Searchable {
 		return list;
 	}
 	
+	
+	
+	/**
+	 * Search method implementation for Searchable interface to be able to compare with given criteria of given term
+	 * @param criteria  Criteria to look if this not corrected answer provides
+	 * @param term      Term to search the given criteria
+	 * @return          Boolean result, true if the criteria is provided, else false
+	 */
 	@Override
 	public boolean Search(String criteria, String term) {
 		NotCorrectedQuestionSearchTerms termEnum = NotCorrectedQuestionSearchTerms.valueOf(term.replace(" ",""));
@@ -79,7 +69,7 @@ public class NotCorrectedOpenQuestion implements Searchable {
 			switch (termEnum) {
 				case Question: result = getQuestion().toLowerCase().contains(criteria); break;
 				case Answer: result = answer.toLowerCase().contains(criteria); break;
-				case Answerer: result = answerer.getUsername().toLowerCase().contains(criteria); break;
+				case Answerer: result = answerer.GetUsername().toLowerCase().contains(criteria); break;
 			}
 		} catch (NumberFormatException e) {
 			result = false;
@@ -88,6 +78,12 @@ public class NotCorrectedOpenQuestion implements Searchable {
 		return result;
 	}
 	
+	
+	
+	/**
+	 * Overriding toString method to let NotCorrectedOpenQuestion be able to printed to screen more understandable for console application
+	 * @return Table view of NotCorrectedOpenQuestion as String
+	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -100,5 +96,83 @@ public class NotCorrectedOpenQuestion implements Searchable {
 		builder.append(getAnswerer());
 		
 		return builder.toString();
+	}
+	
+	
+	
+	/**
+	 * Getter for table titles for console
+	 * @return  Titles of columns for console table
+	 */
+	public static String ConsoleTableTitle() {
+		return "Question - Answer - Answerer";
+	}
+	
+	
+	
+	/**
+	 * Getter for ID
+	 * @return ID of not corrected answer
+	 */
+	public int GetID() {
+		return id;
+	}
+	
+	/**
+	 * Getter for Quiz
+	 * @return Quiz associated with not corrected answer
+	 */
+	public Quiz GetQuiz() {
+		return quiz;
+	}
+	
+	/**
+	 * Getter for Question
+	 * @return Question associated with not corrected answer
+	 */
+	public OpenQuestion GetQuestion() {
+		return question;
+	}
+	
+	/**
+	 * Getter for answer
+	 * @return Answer given by the user
+	 */
+	public String GetAnswer() {
+		return answer;
+	}
+	
+	/**
+	 * Getter for answerer
+	 * @return User that give the answer
+	 */
+	public User GetAnswerer() {
+		return answerer;
+	}
+	
+	
+	
+	/**
+	 * PropertyValueFactory getter for question
+	 * @return  Question body as string
+	 */
+	public String getQuestion() {
+		return question.GetQuestion();
+	}
+	
+	/**
+	 * PropertyValueFactory getter for answer
+	 * @return  Given answer as string
+	 */
+	public String getAnswer() {
+		return answer;
+	}
+	
+	/**
+	 * PropertyValueFactory getter for answerer
+	 * @return  Username of User as string
+	 */
+	public String getAnswerer() {
+		return answerer.GetUsername();
 	}
 }

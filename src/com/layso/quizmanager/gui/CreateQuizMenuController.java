@@ -10,7 +10,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -23,41 +22,42 @@ import java.util.ResourceBundle;
 
 
 public class CreateQuizMenuController extends Controller implements Initializable {
+	// GUI elements
 	@FXML
-	private TabPane quizTypeTabs;
+	TabPane quizTypeTabs;
 	
 	@FXML
-	private Label questionInvalidError, quizTitleError, questionCountText, averageDifficultyText, noQuestionError;
+	Label questionInvalidError, quizTitleError, questionCountText, averageDifficultyText, noQuestionError;
 	
 	@FXML
-	private RadioButton customDifficulty, publicButton;
+	RadioButton customDifficulty, publicButton;
 	
 	@FXML
-	private VBox menuButtons;
+	VBox menuButtons;
 	
 	@FXML
-	private Pane finalDialog;
+	Pane finalDialog;
 	
 	@FXML
-	private Slider difficultySlider, customDifficultySlider;
+	Slider difficultySlider, customDifficultySlider;
 	
 	@FXML
-	private ChoiceBox searchCriteriaChoice;
+	ChoiceBox searchCriteriaChoice;
 	
 	@FXML
-	private TextField searchCriteriaText;
+	TextField searchCriteriaText;
 	
 	@FXML
-	private TableView table;
+	TableView table;
 	
 	@FXML
-	private TableColumn questionColumn, topicsColumn, typeColumn, difficultyColumn, trueDifficultyColumn, ownerColumn;
+	TableColumn questionColumn, topicsColumn, typeColumn, difficultyColumn, trueDifficultyColumn, ownerColumn;
 	
 	@FXML
-	private TabPane tabs;
+	TabPane tabs;
 	
 	@FXML
-	private TextField questionText, topicsText, resourcePath, mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer,
+	TextField questionText, topicsText, resourcePath, mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer,
 		mcqCorrectAnswer, associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5,
 		associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5, openTipsText,
 		quizTitle;
@@ -66,29 +66,46 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	private static List<Question> tempQuestions;
 	private static List<Integer> selectedQuestions;
 	
+	
+	
+	/**
+	 * Overriding initialize method to setup stage
+	 * @param url
+	 * @param rb
+	 */
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
+		// Initialize variables for later usage
 		tempQuestions = new ArrayList<>();
 		selectedQuestions = new ArrayList<>();
+		
+		// Associate search term with table and table with class
 		table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		AssociateSearchCriteriaWithTable(searchCriteriaChoice, table);
 		AssociateTableWithClass(Question.GetPropertyValueFactory(), questionColumn, topicsColumn, typeColumn,
 			difficultyColumn, trueDifficultyColumn, ownerColumn);
 		SearchButton(null);
+		
+		// On value change action for slider
 		customDifficultySlider.valueProperty().addListener(new ChangeListener<Number>() {
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				customDifficulty.fire();
 			}
 		});
 		
+		// Creating arrays out of GUI elements for ease of usage
 		mcqAllChoices = CreateTextFieldArray(mcqFirstAnswer, mcqSecondAnswer, mcqThirdAnswer, mcqCorrectAnswer);
 		associativeLeft = CreateTextFieldArray(associativeLeft1, associativeLeft2, associativeLeft3, associativeLeft4, associativeLeft5);
 		associativeRight = CreateTextFieldArray(associativeRight1, associativeRight2, associativeRight3, associativeRight4, associativeRight5);
+		
 		Logger.Log("Quiz Creation Menu initialized", Logger.LogType.INFO);
 	}
 	
 	
 	
+	/***
+	 * Method to start CreateQuizMenu on console
+	 */
 	public static void CreateQuizMenu() {
 		boolean run = true;
 		boolean correctInput;
@@ -96,10 +113,13 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		selectedQuestions = new ArrayList<>();
 		
 		
+		// Run until user wants to go back to main menu
 		while (run) {
+			// Print menu
 			System.out.println();
 			PrintMenu("Create New Question", "Select Existing Question", "Finalize Quiz", "Back");
 			
+			// Get input and process it
 			do {
 				switch (Controller.GetMenuInput()) {
 					case 1: correctInput = true; CreateQuestion(); break;
@@ -112,6 +132,11 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		}
 	}
 	
+	
+	
+	/**
+	 * Helper console menu to create new question
+	 */
 	public static void CreateQuestion() {
 		String question = "";
 		String topics = "";
@@ -120,10 +145,11 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		int type;
 		
 		
+		// Print and get question type
 		PrintMenu("Multiple Choice Question", "Associative Question", "Open Question");
 		do {type = Controller.GetMenuInput();} while (type < 1 || type > 3);
 		
-		
+		// Get common question attributes
 		while (question.equals("")) question = GetInput("Question text", false);
 		topics = GetInput("Question topics", false);
 		resource = GetInput("Question resource path", false);
@@ -135,6 +161,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 		} while (difficulty < 1 || difficulty > 5);
 		
+		// Call helper functions to completed question creation according to question type
 		switch (type) {
 			case 1: tempQuestions.add(CreateMultipleChoiceQuestion(question, topics, resource, difficulty)); break;
 			case 2: tempQuestions.add(CreateAssociativeQuestion(question, topics, resource, difficulty)); break;
@@ -142,6 +169,16 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		}
 	}
 	
+	
+	
+	/**
+	 * Question creation helper for multiple choice question
+	 * @param question      Question text (body)
+	 * @param topics        Topics of the question
+	 * @param resource      Resource for question
+	 * @param difficulty    Difficulty of question
+	 * @return              New MultipleChoiceQuestion
+	 */
 	public static Question CreateMultipleChoiceQuestion(String question, String topics, String resource, int difficulty) {
 		Question newQuestion;
 		String anyAnswer;
@@ -149,6 +186,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		List<String> otherAnswers = new ArrayList<>();
 		
 		
+		// Get answers for MCQ
 		while (correctAnswer.equals("")) correctAnswer = GetInput("Correct answer", false);
 		while (otherAnswers.size() != MultipleChoiceQuestion.OTHER_ANSWER_COUNT) {
 			anyAnswer = GetInput("Give another answer", false);
@@ -157,6 +195,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 		}
 		
+		// Create question and return
 		System.out.println();
 		newQuestion = new MultipleChoiceQuestion(-1, question, GetTopics(topics), resource,
 			Question.QuestionType.MultipleChoice, true, difficulty, 0, 0,
@@ -164,6 +203,16 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		return newQuestion;
 	}
 	
+	
+	
+	/**
+	 * Question creation helper for associative question
+	 * @param question      Question text (body)
+	 * @param topics        Topics of the question
+	 * @param resource      Resource for question
+	 * @param difficulty    Difficulty of question
+	 * @return              New AssociativeQuestion
+	 */
 	public static Question CreateAssociativeQuestion(String question, String topics, String resource, int difficulty) {
 		Question newQuestion;
 		String input = "";
@@ -171,6 +220,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		boolean anotherRow = true;
 		
 		
+		// Get minimum number of rows
 		while (left.size() < AssociativeQuestion.MINIMUM_ROW_COUNT) {
 			do {input = GetInput("Left answer", false);} while (input.equals(""));
 			left.add(input);
@@ -179,6 +229,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			right.add(input);
 		}
 		
+		// Get desired number of rows up to maximum number of rows
 		while (anotherRow && left.size() < AssociativeQuestion.MAXIMUM_ROW_COUNT) {
 			PrintMenu("Add new row", "Finalize rows");
 			
@@ -197,24 +248,41 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 		}
 		
-		
-		
+		// Create question and return
 		newQuestion = new AssociativeQuestion(-1, question, GetTopics(topics), resource,
 			Question.QuestionType.Associative, true, difficulty, 0, 0,
 			QuizManager.getInstance().GetUser(), left, right);
 		return newQuestion;
 	}
 	
+	
+	
+	/**
+	 * Question creation helper for open question
+	 * @param question      Question text (body)
+	 * @param topics        Topics of the question
+	 * @param resource      Resource for question
+	 * @param difficulty    Difficulty of question
+	 * @return              New OpenQuestion
+	 */
 	public static Question CreateOpenQuestion(String question, String topics, String resource, int difficulty) {
 		Question newQuestion;
 		String tip;
-	
+		
+		// Get tips
 		tip = GetInput("Question tip", true);
+		
+		// Create new question and return
 		newQuestion = new OpenQuestion(-1, question, GetTopics(topics), resource, Question.QuestionType.Open, true,
 			difficulty, 0, 0, QuizManager.getInstance().GetUser(), tip);
 		return newQuestion;
 	}
 	
+	
+	
+	/**
+	 * Console menu helper for selecting a question
+	 */
 	public static void SelectQuestion() {
 		List<Question> questions = DatabaseManager.getInstance().GetAllPublicQuestions();
 		boolean run = true;
@@ -225,15 +293,19 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		String selections;
 		
 		
+		// Run until user finishes question selection
 		while (run) {
-			System.out.println("Question - Question Type - Topics - Owner - Difficulty - True Difficulty");
+			// Print all questions
+			System.out.println(Question.ConsoleTableTitle());
 			PrintArrayAsTable(questions);
 			System.out.println();
-			PrintMenu("Search question", "Select questions", "Back");
 			
+			// Print menu, get input and process input
+			PrintMenu("Search question", "Select questions", "Back");
 			do {
 				switch (Controller.GetMenuInput()) {
 					case 1:
+						// Get search criteria and search term to search questions
 						correctInput = true;
 						searchCriteria = GetInput("Search criteria", true);
 						do {
@@ -250,17 +322,14 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 						questions = new ArrayList(Controller.SearchHelper(DatabaseManager.getInstance().GetAllPublicQuestions(), searchCriteria, termEnum.name()));
 						break;
 					case 2:
+						// Get question index to select them, allows multiple selections
 						correctInput = true;
 						selections = GetInput("Select questions", true);
 						String[] selectionArray = selections.split("[ ]|[;]|[-]|[,]|[.]");
 						for (String selection : selectionArray) {
-							try {
-								int index = Integer.parseInt(selection) -1;
-								if (index > 0 && index < questions.size() && !selectedQuestions.contains(questions.get(index).GetID())) {
-									selectedQuestions.add(questions.get(index).GetID());
-								}
-							} catch (NumberFormatException e) {
-							
+							int index = Integer.parseInt(selection) -1;
+							if (index > 0 && index < questions.size() && !selectedQuestions.contains(questions.get(index).GetID())) {
+								selectedQuestions.add(questions.get(index).GetID());
 							}
 						}
 						break;
@@ -272,6 +341,11 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 	}
 	
 	
+	
+	/**
+	 * Console menu helper to finalize quiz
+	 * @return
+	 */
 	public static boolean FinalizeQuiz() {
 		String input;
 		String title = "";
@@ -280,6 +354,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		boolean result = false;
 		
 		
+		// Ask for Quiz attributes
 		if (tempQuestions.size() > 0 || selectedQuestions.size() > 0) {
 			while (title.equals("")) title = GetInput("Quiz title", false);
 			try {
@@ -301,13 +376,14 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 			}
 			while (input.equals(""));
 			
+			
+			// Create quiz and insert to database
 			Quiz newQuiz = new Quiz(-1, QuizManager.getInstance().GetUser().GetID(), title, tempQuestions,
 				customDifficulty, 0, 0, publicity);
 			int quizID = DatabaseManager.getInstance().CreateQuiz(newQuiz);
 			for (int questionID : selectedQuestions) {
 				DatabaseManager.getInstance().AssociateQuizAndQuestion(questionID, quizID);
 			}
-			
 			DatabaseManager.getInstance().UpdateAllQuizzes();
 			QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu);
 			result = true;
@@ -316,9 +392,17 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		return result;
 	}
 	
+	
+	
+	/**
+	 * GUI question navigation change action
+	 * @param event ActionEvent created by GUI
+	 */
 	public void ChangeQuestionNavigation(ActionEvent event) {
 		ChangeNavigation(event, tabs);
 	}
+	
+	
 	
 	/**
 	 * Helper method to create list from TextFields
@@ -335,6 +419,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		
 		return list;
 	}
+	
 	
 	
 	/**
@@ -554,6 +639,7 @@ public class CreateQuizMenuController extends Controller implements Initializabl
 		return new OpenQuestion(-1, question, GetTopics(topics.getText()), resource, Question.QuestionType.Open, isPublic,
 			difficulty, 0, 0, QuizManager.getInstance().GetUser(), tips);
 	}
+	
 	
 	
 	/**

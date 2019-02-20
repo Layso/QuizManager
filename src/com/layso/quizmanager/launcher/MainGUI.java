@@ -1,8 +1,6 @@
-package com.layso.quizmanager.gui;
+package com.layso.quizmanager.launcher;
 
 import com.layso.logger.datamodel.Logger;
-import com.layso.quizmanager.launcher.Main;
-import com.layso.quizmanager.services.DatabaseManager;
 import com.layso.quizmanager.services.CfgManager;
 
 import javafx.application.Application;

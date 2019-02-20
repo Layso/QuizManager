@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 public class DatabaseManager {
 	// One instance to rule them all, AKA singleton
 	private static DatabaseManager instance;
@@ -62,6 +63,12 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to see if user has solved the quiz before or not
+	 * @param quizID    ID of quiz to check
+	 * @param userID    ID of user to check
+	 * @return          True if there is a result entry for user and quiz, else false
+	 */
 	public boolean DidUserSolveQuiz(int quizID, int userID) {
 		String sqlQuery = "select *  from ANSWER_TABLE where QUIZ_ID = ? and USER_ID = ?";
 		boolean result;
@@ -82,6 +89,13 @@ public class DatabaseManager {
 		return result;
 	}
 	
+	
+	
+	/**
+	 * Method to user's authority status
+	 * @param userID        ID of user to update
+	 * @param authorititive New authority status for user
+	 */
 	public  void UpdateUserAuthority(int userID, boolean authorititive) {
 		String sqlQuery = "update USER set AUTHORITY = ? where ID = ?";
 		
@@ -97,6 +111,12 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Method to get all users
+	 * @return List of users
+	 */
 	public List<User> GetAllUsers() {
 		String sqlQuery = "select ID, USERNAME, AUTHORITY from USER";
 		List<User> list = new ArrayList<>();
@@ -119,6 +139,13 @@ public class DatabaseManager {
 		return list;
 	}
 	
+	
+	
+	/**
+	 * Method to get results for given user ID. Results for users with and without authority are different
+	 * @param userID    ID of user to get associated results
+	 * @return          If user has authority returns results of quizzes created by user, else returns results of quizzes solved by user
+	 */
 	public List<AnswerTable> GetAllAnswersByUserID (int userID) {
 		String sqlQueryAuthoratitive = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE where QUIZ_ID = ?";
 		String sqlQueryNonAuthoratitive = "select QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE where USER_ID = ?";
@@ -167,6 +194,11 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * Method to get ready to evaluate answers for quizzes created by current user
+	 * @return  List of Uncorrected Questions
+	 */
 	public List<NotCorrectedOpenQuestion> GetAllUncorrectedQuestions() {
 		String sqlQuery = "select ID, QUESTION_ID, QUIZ_ID, USER_ID, ANSWER from NOT_CORRECTED_OPEN";
 		List<NotCorrectedOpenQuestion> list = new ArrayList<>();
@@ -177,11 +209,14 @@ public class DatabaseManager {
 			ResultSet results = statement.executeQuery();
 			
 			while (results.next()) {
-				NotCorrectedOpenQuestion ncoq = new NotCorrectedOpenQuestion(results.getInt("ID"),
-					GetQuizByID(results.getInt("QUIZ_ID")), ((OpenQuestion) GetQuestionByID(results.getInt("QUESTION_ID"))),
-					results.getString("ANSWER"), GetUserByID(results.getInt("USER_ID")));
-				
-				list.add(ncoq);
+				Quiz quiz = GetQuizByID(results.getInt("QUIZ_ID"));
+				if (quiz.GetOwnerID() == QuizManager.getInstance().GetUser().GetID()) {
+					NotCorrectedOpenQuestion ncoq = new NotCorrectedOpenQuestion(results.getInt("ID"), quiz,
+						((OpenQuestion) GetQuestionByID(results.getInt("QUESTION_ID"))),
+						results.getString("ANSWER"), GetUserByID(results.getInt("USER_ID")));
+					
+					list.add(ncoq);
+				}
 			}
 		} catch (SQLException e) {
 			Logger.Log("Fatal Error: Failed to get not corrected answers list: " + e.getMessage(), Logger.LogType.ERROR);
@@ -192,6 +227,15 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * Method to save answer to database
+	 * @param quizID            ID of solved quiz
+	 * @param userID            ID of user who solved the quiz
+	 * @param correctedCount    Number of not correcteds
+	 * @param trueCount         Number of trues
+	 * @param falseCount        Number of falses
+	 */
 	public void SaveAnswer(int quizID, int userID, int correctedCount, int trueCount, int falseCount) {
 		String sqlQuery = "insert into ANSWER_TABLE(QUIZ_ID, USER_ID, NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS) values(?, ?, ?, ?, ?)";
 		
@@ -210,6 +254,14 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Helper to get answer tables according to quiz and user ID
+	 * @param quizID    ID of solved quiz
+	 * @param userID    ID of solver
+	 * @return          Results of the quiz
+	 */
 	private AnswerTable GetAnswerTableByQuizAndUser(int quizID, int userID) {
 		String sqlQuery = "select NOT_CORRECTED_ANSWERS, TRUE_ANSWERS, FALSE_ANSWERS from ANSWER_TABLE where QUIZ_ID = ? and USER_ID = ?";
 		AnswerTable table = null;
@@ -235,6 +287,13 @@ public class DatabaseManager {
 		return table;
 	}
 	
+	
+	
+	/**
+	 * Method to update not corrected open answer
+	 * @param notCorrected  Answer that wasn't corrected
+	 * @param result        Result of answer
+	 */
 	public void UpdateNotCorrected(NotCorrectedOpenQuestion notCorrected, boolean result) {
 		String sqlDeleteQuery = "delete from NOT_CORRECTED_OPEN where ID = ?";
 		String sqlUpdateQuery = "update ANSWER_TABLE set NOT_CORRECTED_ANSWERS = ?, TRUE_ANSWERS = ?, FALSE_ANSWERS = ? where QUIZ_ID = ? and USER_ID = ?";
@@ -260,6 +319,13 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Method to save not corrected open question
+	 * @param question  Question that is answered
+	 * @param answer    Answer of the question that is not corrected
+	 */
 	public void SaveNotCorrected(OpenQuestion question, OpenAnswer answer) {
 		String sqlQuery = "insert into NOT_CORRECTED_OPEN(QUESTION_ID, QUIZ_ID, USER_ID, ANSWER) values(?, ?, ?, ?)";
 		
@@ -279,6 +345,11 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * Method to get all public quizzes which can be solved
+	 * @return  List of public quizzes
+	 */
 	public List<Quiz> GetAllPublicQuizzes() {
 		String sqlQuery = "select ID from QUIZ where PUBLICITY = TRUE";
 		List<Quiz> quizzes = new ArrayList<>();
@@ -301,6 +372,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to update question
+	 * @param oldQuestion   Old question to update
+	 * @param newQuestion   New question to update with
+	 */
 	public void ChangeQuestion(Question oldQuestion, Question newQuestion) {
 		DeleteQuestionByID(oldQuestion.GetID(), false);
 		SaveQuestion(oldQuestion.GetID(), newQuestion);
@@ -308,6 +384,12 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * Method to delete question by ID
+	 * @param questionID    ID of question to delete
+	 * @param safeDelete    Flag to safe delete or normal delete the question
+	 */
 	public void DeleteQuestionByID(int questionID, boolean safeDelete) {
 		String[] queries = {"delete from RESOURCE where QUESTION_ID = ?",
 							"delete from TOPIC where QUESTION_ID = ?",
@@ -335,6 +417,11 @@ public class DatabaseManager {
 	}
 	
 	
+	
+	/**
+	 * Helper method for quiz deletion to update quiz table aswell
+	 * @param questionID    ID of question to delete
+	 */
 	private void SafeQuestionDeletion(int questionID) {
 		String sqlQuery = "select QUIZ_ID from QUIZ_QUESTION_ASSOCIATION where QUESTION_ID = ?";
 		
@@ -358,6 +445,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to delete question from given quiz
+	 * @param quizID        ID of quiz to delete from
+	 * @param questionID    ID of question to delete
+	 */
 	public void DeleteQuestionFromQuiz(int quizID, int questionID) {
 		String sqlDeleteQuery = "delete from QUIZ_QUESTION_ASSOCIATION where QUIZ_ID = ? and QUESTION_ID = ?";
 		
@@ -379,6 +471,11 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Method to recalculate question statistics of quizzes
+	 */
 	public void UpdateAllQuizzes() {
 		String sqlQuery = "select ID from QUIZ";
 		
@@ -398,6 +495,13 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Method to update quiz
+	 * @param quizID    ID of quiz to update
+	 * @param newData   Object with new quiz attributes to update with
+	 */
 	public void UpdateQuizByID(int quizID, Quiz newData) {
 		String sqlQuery = "update QUIZ set TITLE = ?, QUESTION_COUNT = ?, CUSTOM_DIFFICULTY = ?, AVERAGE_DIFFICULTY = ?, TRUE_DIFFICULTY = ?, PUBLICITY = ? where ID = ?";
 		
@@ -418,6 +522,12 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Method to delete given quiz ID
+	 * @param quizID    ID of quiz to delete
+	 */
 	public void DeleteQuizByID(int quizID) {
 		String[] queries = {"delete from ANSWER_TABLE where QUIZ_ID = ?",
 							"delete from NOT_CORRECTED_OPEN where QUIZ_ID = ?",
@@ -435,6 +545,12 @@ public class DatabaseManager {
 		}
 	}
 	
+	
+	
+	/**
+	 * Method to get all quizzes owned by currently logged in user
+	 * @return  List of quiz created by currently logged in user
+	 */
 	public List<Quiz> GetOwningQuizzes() {
 		String sqlQuery = "select ID from QUIZ where OWNER_ID = ?";
 		List<Quiz> quizzes = new ArrayList<>();
@@ -458,6 +574,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to get given quiz from database
+	 * @param quizID    ID of quiz to fetch
+	 * @return          Quiz with given ID
+	 */
 	public Quiz GetQuizByID(int quizID) {
 		String sqlQuery = "select TITLE, QUESTION_COUNT, CUSTOM_DIFFICULTY, AVERAGE_DIFFICULTY, TRUE_DIFFICULTY, OWNER_ID, PUBLICITY from QUIZ where ID = ?";
 		Quiz quiz = null;
@@ -484,6 +605,11 @@ public class DatabaseManager {
 	
 	
 	
+	/**
+	 * Method to get questions associated to quiz
+	 * @param quizID    ID of quiz to get questions of
+	 * @return          List of questions
+	 */
 	public List<Question> GetQuestionsByQuizID(int quizID) {
 		String sqlQuery = "select QUESTION_ID from QUIZ_QUESTION_ASSOCIATION where QUIZ_ID = ?";
 		List<Question> questions = new ArrayList<>();

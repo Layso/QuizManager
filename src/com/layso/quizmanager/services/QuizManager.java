@@ -1,17 +1,11 @@
 package com.layso.quizmanager.services;
 
 import com.layso.logger.datamodel.Logger;
-import com.layso.quizmanager.datamodel.Question;
-import com.layso.quizmanager.datamodel.Quiz;
 import com.layso.quizmanager.datamodel.User;
 import com.layso.quizmanager.gui.Controller;
 import com.layso.quizmanager.gui.LoginMenuController;
 import com.layso.quizmanager.gui.MainMenuController;
-import com.layso.quizmanager.services.DatabaseManager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 
 public class QuizManager {
@@ -23,6 +17,7 @@ public class QuizManager {
 	private User user;
 	
 	
+	
 	/**
 	 * Private constructor to prevent object creations
 	 */
@@ -30,6 +25,7 @@ public class QuizManager {
 		user = null;
 		keepRunning = true;
 	}
+	
 	
 	
 	/**
@@ -40,13 +36,16 @@ public class QuizManager {
 	public static QuizManager getInstance() {
 		if (instance == null) {
 			instance = new QuizManager();
-			
 		}
 		
 		return instance;
 	}
 	
 	
+	
+	/**
+	 * Console application start method
+	 */
 	public void Run() {
 		currentStage = Controller.WindowStage.LoginMenu;
 		
@@ -59,57 +58,25 @@ public class QuizManager {
 	}
 	
 	
+	
+	/**
+	 * Method to set running status of program
+	 * @param status    Running status
+	 */
 	public void SetKeepRunning(boolean status) {
 		keepRunning = status;
 	}
 	
+	
+	
+	/**
+	 * Method to set current stage of program
+	 * @param stage Current stage
+	 */
 	public void SetCurrentStage(Controller.WindowStage stage) {
 		currentStage = stage;
 	}
 	
-	
-	
-	
-	public void CreateQuizMenu() {
-		while (true) {
-		
-		}
-	}
-	
-	
-	public void EditDeleteQuizMenu() {
-		while (true) {
-		
-		}
-	}
-	
-	
-	public void SolveQuizMenu() {
-		while (true) {
-		
-		}
-	}
-	
-	
-	public void SeeResultsMenu() {
-		while (true) {
-		
-		}
-	}
-	
-	
-	public void CheckAnswerMenu() {
-		while (true) {
-		
-		}
-	}
-	
-	
-	public void UserPromotionMenu() {
-		while (true) {
-		
-		}
-	}
 	
 	
 	/**

@@ -1,10 +1,9 @@
 package com.layso.quizmanager.gui;
 
 import com.layso.logger.datamodel.Logger;
-import com.layso.quizmanager.datamodel.Question;
-import com.layso.quizmanager.datamodel.Quiz;
 import com.layso.quizmanager.datamodel.Searchable;
 import com.layso.quizmanager.services.CfgManager;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -19,15 +18,12 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 
+
 public class Controller {
-	/**
-	 * Enum type to define windows
-	 */
 	public enum WindowStage {LoginMenu, MainMenu, CreateQuizMenu, UserPromoteMenu, EditDeleteQuizMenu, SolveQuizMenu, SeeResultsMenu, CheckAnswersMenu}
 	
 	
@@ -72,6 +68,11 @@ public class Controller {
 	
 	
 	
+	/**
+	 * Helper method for scene controllers to associate table columns with class variables
+	 * @param factoryList   List of PropertyValueFactory taken by class to associate
+	 * @param columns       List of columns to associate each property value factory with
+	 */
 	public void AssociateTableWithClass(List<PropertyValueFactory> factoryList, TableColumn ... columns) {
 		for (int i=0; i<columns.length; ++i) {
 			columns[i].setCellValueFactory(factoryList.get(i));
@@ -79,6 +80,12 @@ public class Controller {
 	}
 	
 	
+	
+	/**
+	 * Helper method to associate search term choice box with table columns
+	 * @param choiceBoxes   SearchTerm choice box
+	 * @param table         Table of contents
+	 */
 	public void AssociateSearchCriteriaWithTable(ChoiceBox choiceBoxes, TableView table) {
 		ObservableList<String> availableChoices = FXCollections.observableArrayList();
 		for (int i=0; i<table.getColumns().size(); ++i) {
@@ -89,6 +96,12 @@ public class Controller {
 		choiceBoxes.getSelectionModel().selectFirst();
 	}
 	
+	
+	
+	/**
+	 * Helper function to clear user inputs
+	 * @param fields    Array of any field that can hold user input
+	 */
 	public void ClearTextFields(TextField ... fields) {
 		for (TextField field : fields) {
 			field.setText("");
@@ -133,6 +146,8 @@ public class Controller {
 		}
 	}
 	
+	
+	
 	/**
 	 * Generic search method to prevent duplications on list searches
 	 * @param list              List of objects to be check if they provide the criteria
@@ -154,16 +169,28 @@ public class Controller {
 		return data;
 	}
 	
+	
+	/**
+	 * Console application helper method to print given menu items
+	 * @param menuItems List of string that holds menu options
+	 */
 	public static void PrintMenu(String ... menuItems) {
 		for (int i=0; i< menuItems.length; ++i) {
 			System.out.println("[" + (i+1) + "] " + menuItems[i]);
 		}
 	}
 	
+	
+	
+	/**
+	 * Console application helper to get an integer value from user
+	 * @return  Integer value given by user
+	 */
 	public static int GetMenuInput() {
 		int menuInput;
 		
 		
+		// Ask for input until a valid int has given
 		do {
 			try {
 				menuInput = Integer.parseInt(GetInput("Select", true));
@@ -172,9 +199,18 @@ public class Controller {
 			}
 		} while (menuInput == -1);
 		
+		
 		return menuInput;
 	}
 	
+	
+	
+	/**
+	 * Console application helper method to get an input with a prompted message
+	 * @param prompt    Message to prompt
+	 * @param newLine   Option to print new line or not
+	 * @return          Input of user
+	 */
 	public static String GetInput(String prompt, boolean newLine) {
 		String input;
 		
@@ -187,6 +223,13 @@ public class Controller {
 		return input;
 	}
 	
+	
+	
+	/**
+	 * Console helper method to print any list as table using their toString method
+	 * @param list  List of elements
+	 * @param <T>   Type of elements
+	 */
 	public static <T> void PrintArrayAsTable (List<T> list) {
 		for (int i=0; i<list.size(); ++i) {
 			System.out.println("[" + (i+1) + "] " + list.get(i).toString());

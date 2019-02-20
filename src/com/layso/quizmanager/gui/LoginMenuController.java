@@ -1,7 +1,6 @@
 package com.layso.quizmanager.gui;
 
 import com.layso.logger.datamodel.Logger;
-import com.layso.quizmanager.services.DatabaseManager;
 import com.layso.quizmanager.services.QuizManager;
 
 import javafx.event.ActionEvent;
@@ -9,7 +8,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -18,8 +16,9 @@ import java.util.ResourceBundle;
 
 
 public class LoginMenuController extends Controller implements Initializable {
+	// GUI elements
 	@FXML
-	Label loginErrorMessage, registerErrorMessage, loginSuccesfullMessage, registerSuccesfullMessage, loginInfo, registerInfo;
+	Label loginErrorMessage, registerErrorMessage, loginSuccesfullMessage, registerSuccesfullMessage;
 	
 	@FXML
 	PasswordField loginPassword, registerPassword;
@@ -35,6 +34,11 @@ public class LoginMenuController extends Controller implements Initializable {
 	
 	
 	
+	/**
+	 * Overriding initialize method to setup stage
+	 * @param url
+	 * @param rb
+	 */
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		Logger.Log("Login Menu initialized", Logger.LogType.INFO);
@@ -43,13 +47,16 @@ public class LoginMenuController extends Controller implements Initializable {
 	
 	
 	
+	/**
+	 * Method to start LoginMenu on console
+	 */
 	public static void LoginMenu() {
 		boolean run = true;
 		boolean correctInput;
 		
 		
 		while (run) {
-			LoginMenuController.PrintLoginMenu();
+			PrintMenu("Login", "Register", "Guest Login", "Quit");
 			
 			do {
 				switch (Controller.GetMenuInput()) {
@@ -63,10 +70,17 @@ public class LoginMenuController extends Controller implements Initializable {
 		}
 	}
 	
+	
+	
+	/**
+	 * Helper menu to create new user
+	 */
 	public static void Register() {
+		// Get inputs
 		String username = GetInput("Username for register", false);
 		String password = GetInput("Password for register", true);
 		
+		// Try to save to database
 		if (QuizManager.getInstance().UserRegister(username, password)) {
 			System.out.println("New user " + username + " has successfully registered");
 		}
@@ -77,14 +91,21 @@ public class LoginMenuController extends Controller implements Initializable {
 	}
 	
 	
+	
+	/**
+	 * Helper menu to login
+	 * @return
+	 */
 	public static boolean Login() {
 		boolean success;
 		
 		
+		// Get input
 		String username = GetInput("Username for login", false);
 		String password = GetInput("Password for login", false);
 		success = QuizManager.getInstance().UserLogin(username, password);
 		
+		// Try to log in
 		if (success) {
 			System.out.println(username + " has successfully logged in");
 			QuizManager.getInstance().SetCurrentStage(WindowStage.MainMenu);
@@ -97,10 +118,6 @@ public class LoginMenuController extends Controller implements Initializable {
 		return !success;
 	}
 	
-	
-	public static void PrintLoginMenu() {
-		PrintMenu("Login", "Register", "Guest Login", "Quit");
-	}
 	
 	
 	/**
@@ -148,6 +165,7 @@ public class LoginMenuController extends Controller implements Initializable {
 	}
 	
 	
+	
 	/**
 	 * Clears all text fields and sets display property of error messages to false
 	 * @param event ActionEvent produced by GUI
@@ -163,6 +181,10 @@ public class LoginMenuController extends Controller implements Initializable {
 	
 	
 	
+	/**
+	 * Quit button action to close the application
+	 * @param event ActionEvent created by GUI
+	 */
 	public void QuitButton(ActionEvent event) {
 		((Stage) ((Node) event.getSource()).getScene().getWindow()).close();
 	}

@@ -11,8 +11,6 @@ public class Main {
 		// Check arguments and setup
 		CheckArguments(args.length);
 		SetupProgram(args, false, true);
-		
-		
 		QuizManager.getInstance().Run();
 	}
 	
@@ -25,6 +23,8 @@ public class Main {
 			System.exit(-1);
 		}
 	}
+	
+	
 	
 	public static void SetupProgram(String[] args, boolean loggerTerminal, boolean loggerFile) {
 		CfgManager.Setup(args[0]);

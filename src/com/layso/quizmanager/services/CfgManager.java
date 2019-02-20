@@ -11,7 +11,9 @@ import java.util.Properties;
 public class CfgManager {
 	// One instance to rule them all, aka singleton
 	private static CfgManager instance;
+	
 	private Properties properties;
+	
 	
 	
 	/**
